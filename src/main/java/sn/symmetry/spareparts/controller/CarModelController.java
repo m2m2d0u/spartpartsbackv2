@@ -22,6 +22,7 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.CarModelService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,6 +37,12 @@ public class CarModelController {
             @RequestParam(required = false) UUID brandId,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(carModelService.getAllCarModels(brandId, pageable)));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<CarModelResponse>>> getAllCarModelsList(
+            @RequestParam(required = false) UUID brandId) {
+        return ResponseEntity.ok(ApiResponse.success(carModelService.getAllCarModelsList(brandId)));
     }
 
     @GetMapping("/{id}")

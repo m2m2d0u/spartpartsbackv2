@@ -21,6 +21,7 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.CarBrandService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +35,11 @@ public class CarBrandController {
     public ResponseEntity<ApiResponse<PagedResponse<CarBrandResponse>>> getAllCarBrands(
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(carBrandService.getAllCarBrands(pageable)));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<CarBrandResponse>>> getAllCarBrandsList() {
+        return ResponseEntity.ok(ApiResponse.success(carBrandService.getAllCarBrandsList()));
     }
 
     @GetMapping("/{id}")

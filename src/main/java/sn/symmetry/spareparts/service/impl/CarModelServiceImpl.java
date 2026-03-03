@@ -1,6 +1,8 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import sn.symmetry.spareparts.repository.CarBrandRepository;
 import sn.symmetry.spareparts.repository.CarModelRepository;
 import sn.symmetry.spareparts.service.CarModelService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -41,6 +44,20 @@ public class CarModelServiceImpl implements CarModelService {
     }
 
     @Override
+    @Cacheable(value = "carModels", key = "#brandId != null ? #brandId : 'all'")
+    public List<CarModelResponse> getAllCarModelsList(UUID brandId) {
+        List<CarModel> models;
+        if (brandId != null) {
+            models = carModelRepository.findByBrandId(brandId);
+        } else {
+            models = carModelRepository.findAll();
+        }
+        return models.stream()
+                .map(carModelMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public CarModelResponse getCarModelById(UUID id) {
         CarModel carModel = carModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarModel", "id", id));
@@ -49,6 +66,7 @@ public class CarModelServiceImpl implements CarModelService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "carModels", allEntries = true)
     public CarModelResponse createCarModel(CreateCarModelRequest request) {
         CarBrand brand = carBrandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new ResourceNotFoundException("CarBrand", "id", request.getBrandId()));
@@ -65,6 +83,7 @@ public class CarModelServiceImpl implements CarModelService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "carModels", allEntries = true)
     public CarModelResponse updateCarModel(UUID id, UpdateCarModelRequest request) {
         CarModel carModel = carModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarModel", "id", id));
@@ -84,6 +103,7 @@ public class CarModelServiceImpl implements CarModelService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "carModels", allEntries = true)
     public void deleteCarModel(UUID id) {
         CarModel carModel = carModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarModel", "id", id));

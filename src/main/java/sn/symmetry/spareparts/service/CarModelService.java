@@ -6,11 +6,14 @@ import sn.symmetry.spareparts.dto.request.UpdateCarModelRequest;
 import sn.symmetry.spareparts.dto.response.CarModelResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface CarModelService {
 
     PagedResponse<CarModelResponse> getAllCarModels(UUID brandId, Pageable pageable);
+
+    List<CarModelResponse> getAllCarModelsList(UUID brandId);
 
     CarModelResponse getCarModelById(UUID id);
 

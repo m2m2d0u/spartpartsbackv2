@@ -6,12 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.CarModel;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface CarModelRepository extends JpaRepository<CarModel, UUID> {
 
     Page<CarModel> findByBrandId(UUID brandId, Pageable pageable);
+
+    List<CarModel> findByBrandId(UUID brandId);
 
     boolean existsByNameAndBrandId(String name, UUID brandId);
 

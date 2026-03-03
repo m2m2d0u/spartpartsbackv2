@@ -1,6 +1,8 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import sn.symmetry.spareparts.mapper.CarBrandMapper;
 import sn.symmetry.spareparts.repository.CarBrandRepository;
 import sn.symmetry.spareparts.service.CarBrandService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,6 +36,14 @@ public class CarBrandServiceImpl implements CarBrandService {
     }
 
     @Override
+    @Cacheable(value = "carBrands", key = "'all'")
+    public List<CarBrandResponse> getAllCarBrandsList() {
+        return carBrandRepository.findAll().stream()
+                .map(carBrandMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public CarBrandResponse getCarBrandById(UUID id) {
         CarBrand carBrand = carBrandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarBrand", "id", id));
@@ -41,6 +52,7 @@ public class CarBrandServiceImpl implements CarBrandService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "carBrands", key = "'all'")
     public CarBrandResponse createCarBrand(CreateCarBrandRequest request) {
         if (carBrandRepository.existsByName(request.getName())) {
             throw new DuplicateResourceException("CarBrand", "name", request.getName());
@@ -53,6 +65,7 @@ public class CarBrandServiceImpl implements CarBrandService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "carBrands", key = "'all'")
     public CarBrandResponse updateCarBrand(UUID id, UpdateCarBrandRequest request) {
         CarBrand carBrand = carBrandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarBrand", "id", id));
@@ -68,6 +81,7 @@ public class CarBrandServiceImpl implements CarBrandService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "carBrands", key = "'all'")
     public void deleteCarBrand(UUID id) {
         CarBrand carBrand = carBrandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarBrand", "id", id));
