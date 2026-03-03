@@ -5,6 +5,7 @@ import sn.symmetry.spareparts.dto.request.CreateUserRequest;
 import sn.symmetry.spareparts.dto.request.UpdateUserRequest;
 import sn.symmetry.spareparts.dto.request.UserWarehouseAssignmentRequest;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
+import sn.symmetry.spareparts.dto.response.MeResponse;
 import sn.symmetry.spareparts.dto.response.UserResponse;
 import sn.symmetry.spareparts.enums.UserRole;
 
@@ -24,4 +25,8 @@ public interface UserService {
     void deleteUser(UUID id);
 
     UserResponse updateUserWarehouses(UUID id, List<UserWarehouseAssignmentRequest> assignments);
+
+    UserResponse updateUserStores(UUID id, List<UUID> storeIds);
+
+    MeResponse getCurrentUserInfo();
 }

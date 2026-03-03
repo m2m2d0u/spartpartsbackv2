@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sn.symmetry.spareparts.dto.request.CreateStoreRequest;
 import sn.symmetry.spareparts.dto.request.UpdateStoreRequest;
@@ -24,6 +25,7 @@ public class StoreController {
     private final StoreService storeService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PagedResponse<StoreResponse>>> getAllStores(
             @RequestParam(required = false) Boolean isActive,
             @PageableDefault(size = 20) Pageable pageable) {
@@ -32,12 +34,14 @@ public class StoreController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<StoreResponse>> getStoreById(@PathVariable UUID id) {
         StoreResponse response = storeService.getStoreById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<StoreResponse>> createStore(
             @Valid @RequestBody CreateStoreRequest request) {
         StoreResponse response = storeService.createStore(request);
@@ -46,6 +50,7 @@ public class StoreController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<StoreResponse>> updateStore(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateStoreRequest request) {
@@ -54,6 +59,7 @@ public class StoreController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteStore(@PathVariable UUID id) {
         storeService.deleteStore(id);
         return ResponseEntity.ok(ApiResponse.success("Store deactivated successfully", null));

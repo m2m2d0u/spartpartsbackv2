@@ -3,6 +3,7 @@ package sn.symmetry.spareparts.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import sn.symmetry.spareparts.config.JwtProperties;
 import sn.symmetry.spareparts.dto.request.LoginRequest;
 import sn.symmetry.spareparts.dto.response.AuthResponse;
+import sn.symmetry.spareparts.dto.response.MeResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.security.JwtService;
+import sn.symmetry.spareparts.service.UserService;
 
 import java.util.Map;
 
@@ -26,6 +29,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final JwtProperties jwtProperties;
     private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
@@ -74,5 +78,12 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", authResponse));
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<MeResponse>> getCurrentUser() {
+        MeResponse response = userService.getCurrentUserInfo();
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

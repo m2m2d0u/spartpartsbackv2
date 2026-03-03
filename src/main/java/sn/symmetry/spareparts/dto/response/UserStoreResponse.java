@@ -5,26 +5,24 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sn.symmetry.spareparts.enums.UserRole;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * Response DTO for user-store assignments.
+ * Represents a store that a STORE_MANAGER user can manage.
+ */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+public class UserStoreResponse {
 
     private UUID id;
-    private String name;
-    private String email;
-    private UserRole role;
-    private Boolean isActive;
+    private UUID storeId;
+    private String storeName;
+    private String storeCode;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private List<UserStoreResponse> stores;
-    private List<UserWarehouseAssignmentResponse> warehouseAssignments;
 }

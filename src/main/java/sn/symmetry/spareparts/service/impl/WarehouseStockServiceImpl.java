@@ -14,8 +14,10 @@ import sn.symmetry.spareparts.entity.StockMovement;
 import sn.symmetry.spareparts.entity.Warehouse;
 import sn.symmetry.spareparts.entity.WarehouseStock;
 import sn.symmetry.spareparts.enums.StockMovementType;
+import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.WarehouseStockMapper;
+import sn.symmetry.spareparts.service.AuthorizationService;
 import sn.symmetry.spareparts.repository.PartRepository;
 import sn.symmetry.spareparts.repository.StockMovementRepository;
 import sn.symmetry.spareparts.repository.WarehouseRepository;
@@ -35,9 +37,12 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     private final PartRepository partRepository;
     private final StockMovementRepository stockMovementRepository;
     private final WarehouseStockMapper warehouseStockMapper;
+    private final AuthorizationService authorizationService;
 
     @Override
     public PagedResponse<WarehouseStockResponse> getAllWarehouseStock(UUID warehouseId, UUID partId, Pageable pageable) {
+        authorizationService.requireWarehouseAccess(warehouseId);
+
         Page<WarehouseStock> page;
         if (partId != null) {
             page = warehouseStockRepository.findByWarehouseIdAndPartId(warehouseId, partId, pageable);
@@ -51,6 +56,9 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     public WarehouseStockResponse getWarehouseStockById(UUID id) {
         WarehouseStock warehouseStock = warehouseStockRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("WarehouseStock", "id", id));
+
+        authorizationService.requireWarehouseAccess(warehouseStock.getWarehouse().getId());
+
         return warehouseStockMapper.toResponse(warehouseStock);
     }
 
@@ -59,6 +67,11 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     public WarehouseStockResponse updateWarehouseStock(UUID id, UpdateWarehouseStockRequest request) {
         WarehouseStock warehouseStock = warehouseStockRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("WarehouseStock", "id", id));
+
+        authorizationService.requireWarehousePermission(
+                warehouseStock.getWarehouse().getId(),
+                WarehousePermission.STOCK_MANAGE
+        );
 
         warehouseStock.setMinStockLevel(request.getMinStockLevel());
 
@@ -69,6 +82,11 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     @Override
     @Transactional
     public WarehouseStockResponse adjustStock(AdjustWarehouseStockRequest request) {
+        authorizationService.requireWarehousePermission(
+                request.getWarehouseId(),
+                WarehousePermission.STOCK_MANAGE
+        );
+
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", request.getWarehouseId()));
 

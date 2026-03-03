@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ public class WarehouseController {
     private final WarehouseService warehouseService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PagedResponse<WarehouseResponse>>> getAllWarehouses(
             @RequestParam(required = false) Boolean isActive,
             @PageableDefault(size = 20) Pageable pageable) {
@@ -39,11 +41,13 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<WarehouseResponse>> getWarehouseById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(warehouseService.getWarehouseById(id)));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<WarehouseResponse>> createWarehouse(
             @Valid @RequestBody CreateWarehouseRequest request) {
         WarehouseResponse response = warehouseService.createWarehouse(request);
@@ -52,6 +56,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<WarehouseResponse>> updateWarehouse(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateWarehouseRequest request) {
@@ -60,6 +65,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable UUID id) {
         warehouseService.deleteWarehouse(id);
         return ResponseEntity.ok(ApiResponse.success("Warehouse deactivated successfully", null));

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import sn.symmetry.spareparts.dto.request.CreateUserRequest;
 import sn.symmetry.spareparts.dto.request.UpdateUserRequest;
+import sn.symmetry.spareparts.dto.request.UpdateUserStoresRequest;
 import sn.symmetry.spareparts.dto.request.UserWarehouseAssignmentRequest;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
@@ -35,6 +37,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
             @RequestParam(required = false) UserRole role,
             @RequestParam(required = false) Boolean isActive,
@@ -43,11 +46,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(userService.getUserById(id)));
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -55,6 +60,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request) {
@@ -62,16 +68,27 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success("User deactivated successfully", null));
     }
 
     @PutMapping("/{id}/warehouses")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUserWarehouses(
             @PathVariable UUID id,
             @Valid @RequestBody List<UserWarehouseAssignmentRequest> assignments) {
         return ResponseEntity.ok(ApiResponse.success("Warehouse assignments updated successfully",
                 userService.updateUserWarehouses(id, assignments)));
+    }
+
+    @PutMapping("/{id}/stores")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUserStores(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserStoresRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("User stores updated successfully",
+                userService.updateUserStores(id, request.getStoreIds())));
     }
 }

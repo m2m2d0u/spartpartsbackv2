@@ -11,13 +11,16 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.WarehouseResponse;
 import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.entity.Warehouse;
+import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.WarehouseMapper;
 import sn.symmetry.spareparts.repository.StoreRepository;
 import sn.symmetry.spareparts.repository.WarehouseRepository;
+import sn.symmetry.spareparts.service.AuthorizationService;
 import sn.symmetry.spareparts.service.WarehouseService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,20 +31,33 @@ public class WarehouseServiceImpl implements WarehouseService {
     private final WarehouseRepository warehouseRepository;
     private final WarehouseMapper warehouseMapper;
     private final StoreRepository storeRepository;
+    private final AuthorizationService authorizationService;
 
     @Override
     public PagedResponse<WarehouseResponse> getAllWarehouses(Boolean isActive, Pageable pageable) {
+        List<UUID> accessibleWarehouseIds = authorizationService.getAccessibleWarehouseIds();
+
         Page<Warehouse> page;
-        if (isActive != null) {
-            page = warehouseRepository.findByIsActive(isActive, pageable);
+        if (accessibleWarehouseIds == null) {
+            // ADMIN - see all warehouses
+            page = isActive != null
+                    ? warehouseRepository.findByIsActive(isActive, pageable)
+                    : warehouseRepository.findAll(pageable);
+        } else if (accessibleWarehouseIds.isEmpty()) {
+            // No access - return empty
+            page = Page.empty(pageable);
         } else {
-            page = warehouseRepository.findAll(pageable);
+            // Filter by accessible warehouses
+            page = warehouseRepository.findByIdIn(accessibleWarehouseIds, pageable);
         }
+
         return PagedResponse.of(page.map(warehouseMapper::toResponse));
     }
 
     @Override
     public WarehouseResponse getWarehouseById(UUID id) {
+        authorizationService.requireWarehouseAccess(id);
+
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", id));
         return warehouseMapper.toResponse(warehouse);
@@ -50,6 +66,11 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     @Transactional
     public WarehouseResponse createWarehouse(CreateWarehouseRequest request) {
+        // For STORE_MANAGER, check they can access the store
+        if (authorizationService.getCurrentUserRole() == UserRole.STORE_MANAGER) {
+            authorizationService.requireStoreAccess(request.getStoreId());
+        }
+
         if (warehouseRepository.existsByCode(request.getCode())) {
             throw new DuplicateResourceException("Warehouse", "code", request.getCode());
         }
@@ -65,11 +86,18 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     @Transactional
     public WarehouseResponse updateWarehouse(UUID id, UpdateWarehouseRequest request) {
+        authorizationService.requireWarehouseAccess(id);
+
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", id));
 
         if (warehouseRepository.existsByCodeAndIdNot(request.getCode(), id)) {
             throw new DuplicateResourceException("Warehouse", "code", request.getCode());
+        }
+
+        // Check access to the new store if it's being changed
+        if (authorizationService.getCurrentUserRole() == UserRole.STORE_MANAGER) {
+            authorizationService.requireStoreAccess(request.getStoreId());
         }
 
         Store store = storeRepository.findById(request.getStoreId())
@@ -83,6 +111,9 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     @Transactional
     public void deleteWarehouse(UUID id) {
+        // Only ADMIN can delete warehouses
+        authorizationService.requireAdmin();
+
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", id));
         warehouse.setIsActive(false);

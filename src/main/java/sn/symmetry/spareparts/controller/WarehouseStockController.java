@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,7 @@ public class WarehouseStockController {
     private final WarehouseStockService warehouseStockService;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PagedResponse<WarehouseStockResponse>>> getAllWarehouseStock(
             @RequestParam UUID warehouseId,
             @RequestParam(required = false) UUID partId,
@@ -39,11 +41,13 @@ public class WarehouseStockController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<WarehouseStockResponse>> getWarehouseStockById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(warehouseStockService.getWarehouseStockById(id)));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<WarehouseStockResponse>> updateWarehouseStock(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateWarehouseStockRequest request) {
@@ -52,6 +56,7 @@ public class WarehouseStockController {
     }
 
     @PostMapping("/adjust")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<WarehouseStockResponse>> adjustStock(
             @Valid @RequestBody AdjustWarehouseStockRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Stock adjusted successfully",

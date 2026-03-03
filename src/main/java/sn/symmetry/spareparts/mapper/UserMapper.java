@@ -25,6 +25,7 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     void updateEntity(UpdateUserRequest request, @MappingTarget User user);
 
+    @Mapping(target = "stores", ignore = true)
     @Mapping(target = "warehouseAssignments", ignore = true)
     UserResponse toResponse(User user);
 }

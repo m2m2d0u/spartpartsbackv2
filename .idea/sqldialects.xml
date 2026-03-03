@@ -9,5 +9,6 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V6__rehash_seed_passwords.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V7__add_tags_brands_models.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V8__seed_car_brands_models.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V9__add_user_store.sql" dialect="PostgreSQL" />
   </component>
 </project>
