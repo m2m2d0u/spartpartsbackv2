@@ -2,9 +2,12 @@ package sn.symmetry.spareparts.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +37,10 @@ public class Warehouse {
     @Column(nullable = false, unique = true, length = 20)
     private String code;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
+
     @Column(length = 200)
     private String location;
 
@@ -57,15 +64,6 @@ public class Warehouse {
 
     @Column(length = 50)
     private String phone;
-
-    @Column(length = 50)
-    private String ninea;
-
-    @Column(length = 50)
-    private String rccm;
-
-    @Column(name = "tax_id", length = 50)
-    private String taxId;
 
     @Column(columnDefinition = "TEXT")
     private String notes;

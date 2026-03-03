@@ -3,6 +3,7 @@ package sn.symmetry.spareparts.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.symmetry.spareparts.dto.request.CreateUserRequest;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserWarehouseRepository userWarehouseRepository;
     private final WarehouseRepository warehouseRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public PagedResponse<UserResponse> getAllUsers(UserRole role, Boolean isActive, Pageable pageable) {
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(request);
-        user.setPasswordHash(request.getPassword());
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         User saved = userRepository.save(user);
         return userMapper.toResponse(saved);
     }

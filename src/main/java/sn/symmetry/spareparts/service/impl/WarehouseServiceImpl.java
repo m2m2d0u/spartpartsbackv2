@@ -9,10 +9,12 @@ import sn.symmetry.spareparts.dto.request.CreateWarehouseRequest;
 import sn.symmetry.spareparts.dto.request.UpdateWarehouseRequest;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.WarehouseResponse;
+import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.entity.Warehouse;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.WarehouseMapper;
+import sn.symmetry.spareparts.repository.StoreRepository;
 import sn.symmetry.spareparts.repository.WarehouseRepository;
 import sn.symmetry.spareparts.service.WarehouseService;
 
@@ -25,6 +27,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
     private final WarehouseMapper warehouseMapper;
+    private final StoreRepository storeRepository;
 
     @Override
     public PagedResponse<WarehouseResponse> getAllWarehouses(Boolean isActive, Pageable pageable) {
@@ -51,7 +54,10 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new DuplicateResourceException("Warehouse", "code", request.getCode());
         }
 
+        Store store = storeRepository.findById(request.getStoreId())
+                .orElseThrow(() -> new ResourceNotFoundException("Store", "id", request.getStoreId()));
         Warehouse warehouse = warehouseMapper.toEntity(request);
+        warehouse.setStore(store);
         Warehouse saved = warehouseRepository.save(warehouse);
         return warehouseMapper.toResponse(saved);
     }
@@ -66,7 +72,10 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new DuplicateResourceException("Warehouse", "code", request.getCode());
         }
 
+        Store store = storeRepository.findById(request.getStoreId())
+                .orElseThrow(() -> new ResourceNotFoundException("Store", "id", request.getStoreId()));
         warehouseMapper.updateEntity(request, warehouse);
+        warehouse.setStore(store);
         Warehouse saved = warehouseRepository.save(warehouse);
         return warehouseMapper.toResponse(saved);
     }

@@ -1,11 +1,14 @@
 package sn.symmetry.spareparts.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,6 +23,9 @@ public class CreateWarehouseRequest {
     @NotBlank(message = "Code is required")
     @Size(max = 20, message = "Code must not exceed 20 characters")
     private String code;
+
+    @NotNull
+    private UUID storeId;
 
     @Size(max = 200, message = "Location must not exceed 200 characters")
     private String location;
@@ -44,15 +50,6 @@ public class CreateWarehouseRequest {
 
     @Size(max = 50, message = "Phone must not exceed 50 characters")
     private String phone;
-
-    @Size(max = 50, message = "NINEA must not exceed 50 characters")
-    private String ninea;
-
-    @Size(max = 50, message = "RCCM must not exceed 50 characters")
-    private String rccm;
-
-    @Size(max = 50, message = "Tax ID must not exceed 50 characters")
-    private String taxId;
 
     private String notes;
 }

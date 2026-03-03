@@ -19,6 +19,8 @@ public class WarehouseResponse {
     private UUID id;
     private String name;
     private String code;
+    private UUID storeId;
+    private String storeName;
     private String location;
     private String street;
     private String city;
@@ -27,9 +29,6 @@ public class WarehouseResponse {
     private String country;
     private String contactPerson;
     private String phone;
-    private String ninea;
-    private String rccm;
-    private String taxId;
     private String notes;
     private Boolean isActive;
     private LocalDateTime createdAt;

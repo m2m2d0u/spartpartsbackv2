@@ -16,13 +16,17 @@ public interface WarehouseMapper {
     @Mapping(target = "isActive", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "store", ignore = true)
     Warehouse toEntity(CreateWarehouseRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isActive", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "store", ignore = true)
     void updateEntity(UpdateWarehouseRequest request, @MappingTarget Warehouse warehouse);
 
+    @Mapping(source = "store.id", target = "storeId")
+    @Mapping(source = "store.name", target = "storeName")
     WarehouseResponse toResponse(Warehouse warehouse);
 }
