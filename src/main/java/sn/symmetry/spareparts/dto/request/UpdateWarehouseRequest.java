@@ -52,4 +52,6 @@ public class UpdateWarehouseRequest {
     private String phone;
 
     private String notes;
+
+    private Boolean isActive;
 }

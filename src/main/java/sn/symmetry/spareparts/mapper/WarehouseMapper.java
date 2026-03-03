@@ -20,7 +20,6 @@ public interface WarehouseMapper {
     Warehouse toEntity(CreateWarehouseRequest request);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "isActive", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "store", ignore = true)
