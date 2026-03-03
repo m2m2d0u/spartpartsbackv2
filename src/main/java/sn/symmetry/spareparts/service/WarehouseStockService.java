@@ -1,6 +1,7 @@
 package sn.symmetry.spareparts.service;
 
 import org.springframework.data.domain.Pageable;
+import sn.symmetry.spareparts.dto.request.AdjustWarehouseStockRequest;
 import sn.symmetry.spareparts.dto.request.UpdateWarehouseStockRequest;
 import sn.symmetry.spareparts.dto.response.WarehouseStockResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
@@ -14,4 +15,6 @@ public interface WarehouseStockService {
     WarehouseStockResponse getWarehouseStockById(UUID id);
 
     WarehouseStockResponse updateWarehouseStock(UUID id, UpdateWarehouseStockRequest request);
+
+    WarehouseStockResponse adjustStock(AdjustWarehouseStockRequest request);
 }
