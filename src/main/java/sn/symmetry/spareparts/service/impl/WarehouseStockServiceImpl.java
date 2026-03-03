@@ -70,7 +70,7 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 
         authorizationService.requireWarehousePermission(
                 warehouseStock.getWarehouse().getId(),
-                WarehousePermission.STOCK_UPDATE
+                "STOCK_UPDATE"
         );
 
         warehouseStock.setMinStockLevel(request.getMinStockLevel());
@@ -84,7 +84,7 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     public WarehouseStockResponse adjustStock(AdjustWarehouseStockRequest request) {
         authorizationService.requireWarehousePermission(
                 request.getWarehouseId(),
-                WarehousePermission.STOCK_ADJUST
+                "STOCK_ADJUST"
         );
 
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())

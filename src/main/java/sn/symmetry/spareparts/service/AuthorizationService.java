@@ -217,23 +217,6 @@ public class AuthorizationService {
     }
 
     /**
-     * Check if the current user has a specific permission for a warehouse (enum version).
-     * This method delegates to the String-based version for backward compatibility.
-     *
-     * @param warehouseId the warehouse ID
-     * @param permission  the permission to check
-     * @return true if user has the permission, false otherwise
-     * @deprecated Use {@link #hasWarehousePermission(UUID, String)} instead
-     */
-    @Deprecated
-    public boolean hasWarehousePermission(UUID warehouseId, WarehousePermission permission) {
-        if (permission == null) {
-            return false;
-        }
-        return hasWarehousePermission(warehouseId, permission.name());
-    }
-
-    /**
      * Require that the current user can access the specified warehouse.
      * Throws AccessDeniedException if access is denied.
      *
@@ -260,22 +243,6 @@ public class AuthorizationService {
                     "Missing permission " + permissionCode + " for warehouse: " + warehouseId
             );
         }
-    }
-
-    /**
-     * Require that the current user has a specific permission for a warehouse (enum version).
-     *
-     * @param warehouseId the warehouse ID
-     * @param permission  the required permission
-     * @throws AccessDeniedException if user lacks the permission
-     * @deprecated Use {@link #requireWarehousePermission(UUID, String)} instead
-     */
-    @Deprecated
-    public void requireWarehousePermission(UUID warehouseId, WarehousePermission permission) {
-        if (permission == null) {
-            throw new AccessDeniedException("Permission cannot be null");
-        }
-        requireWarehousePermission(warehouseId, permission.name());
     }
 
     /**

@@ -7,15 +7,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Response DTO for user-warehouse assignments.
+ * Implements Serializable for Redis caching.
+ */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserWarehouseAssignmentResponse {
+public class UserWarehouseAssignmentResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private UUID warehouseId;
     private String warehouseName;
