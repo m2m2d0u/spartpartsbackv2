@@ -6,4 +6,8 @@ import sn.symmetry.spareparts.entity.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
+
+    boolean existsByEmail(String email);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
 }

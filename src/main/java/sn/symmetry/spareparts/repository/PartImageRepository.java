@@ -4,6 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.PartImage;
 
+import java.util.List;
+
 @Repository
 public interface PartImageRepository extends JpaRepository<PartImage, Long> {
+
+    List<PartImage> findByPartIdOrderBySortOrder(Long partId);
 }

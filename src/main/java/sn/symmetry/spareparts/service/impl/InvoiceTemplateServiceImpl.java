@@ -1,0 +1,65 @@
+package sn.symmetry.spareparts.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sn.symmetry.spareparts.dto.request.CreateInvoiceTemplateRequest;
+import sn.symmetry.spareparts.dto.request.UpdateInvoiceTemplateRequest;
+import sn.symmetry.spareparts.dto.response.InvoiceTemplateResponse;
+import sn.symmetry.spareparts.dto.response.common.PagedResponse;
+import sn.symmetry.spareparts.entity.InvoiceTemplate;
+import sn.symmetry.spareparts.exception.ResourceNotFoundException;
+import sn.symmetry.spareparts.mapper.InvoiceTemplateMapper;
+import sn.symmetry.spareparts.repository.InvoiceTemplateRepository;
+import sn.symmetry.spareparts.service.InvoiceTemplateService;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
+
+    private final InvoiceTemplateRepository invoiceTemplateRepository;
+    private final InvoiceTemplateMapper invoiceTemplateMapper;
+
+    @Override
+    public PagedResponse<InvoiceTemplateResponse> getAllInvoiceTemplates(Pageable pageable) {
+        Page<InvoiceTemplate> page = invoiceTemplateRepository.findAll(pageable);
+        return PagedResponse.of(page.map(invoiceTemplateMapper::toResponse));
+    }
+
+    @Override
+    public InvoiceTemplateResponse getInvoiceTemplateById(Long id) {
+        InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
+        return invoiceTemplateMapper.toResponse(invoiceTemplate);
+    }
+
+    @Override
+    @Transactional
+    public InvoiceTemplateResponse createInvoiceTemplate(CreateInvoiceTemplateRequest request) {
+        InvoiceTemplate invoiceTemplate = invoiceTemplateMapper.toEntity(request);
+        InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
+        return invoiceTemplateMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public InvoiceTemplateResponse updateInvoiceTemplate(Long id, UpdateInvoiceTemplateRequest request) {
+        InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
+
+        invoiceTemplateMapper.updateEntity(request, invoiceTemplate);
+        InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
+        return invoiceTemplateMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public void deleteInvoiceTemplate(Long id) {
+        InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
+        invoiceTemplateRepository.delete(invoiceTemplate);
+    }
+}
