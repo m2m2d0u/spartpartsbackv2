@@ -6,11 +6,14 @@ import sn.symmetry.spareparts.dto.request.UpdateTagRequest;
 import sn.symmetry.spareparts.dto.response.TagResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface TagService {
 
     PagedResponse<TagResponse> getAllTags(Pageable pageable);
+
+    List<TagResponse> getAllTagsList();
 
     TagResponse getTagById(UUID id);
 

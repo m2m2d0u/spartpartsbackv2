@@ -21,6 +21,7 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.TagService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +35,11 @@ public class TagController {
     public ResponseEntity<ApiResponse<PagedResponse<TagResponse>>> getAllTags(
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(tagService.getAllTags(pageable)));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<TagResponse>>> getAllTagsList() {
+        return ResponseEntity.ok(ApiResponse.success(tagService.getAllTagsList()));
     }
 
     @GetMapping("/{id}")
