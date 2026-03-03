@@ -1,4 +1,4 @@
-package sn.symmetry.spareparts.dto.response;
+package sn.symmetry.spareparts.dto.response.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

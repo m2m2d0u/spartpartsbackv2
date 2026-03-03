@@ -11,7 +11,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import sn.symmetry.spareparts.dto.response.ApiResponse;
+import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 
 import java.util.HashMap;
 import java.util.Map;
