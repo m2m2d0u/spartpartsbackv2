@@ -3,9 +3,9 @@ spring:
     name: spareparts
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:spare_parts}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:spareparts}
+    username: ${DB_USERNAME:spareparts}
+    password: ${DB_PASSWORD:spareparts}
     driver-class-name: org.postgresql.Driver
 
   jpa:
