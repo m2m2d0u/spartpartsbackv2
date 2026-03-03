@@ -3,5 +3,6 @@
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__initial_schema.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__migrate_ids_to_uuid.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__seed_data_fr.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
   </component>
 </project>

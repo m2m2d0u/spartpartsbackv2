@@ -125,8 +125,9 @@ public enum RefundMethod {
 }
 
 public enum UserRole {
-    ADMIN,              // Full access to all warehouses and all features
-    WAREHOUSE_OPERATOR  // Access scoped to assigned warehouses only
+    ADMIN,              // Full access to all stores, all warehouses, all features
+    STORE_MANAGER,      // Access scoped to assigned store(s) and all their warehouses
+    WAREHOUSE_OPERATOR  // Access scoped to assigned warehouse(s) only
 }
 
 public enum WarehousePermission {
@@ -143,7 +144,46 @@ public enum WarehousePermission {
 
 ## Entities
 
-### 1. Category
+### 1. Store
+
+> A store is a branch or business unit. Each store groups warehouses, customers, invoices, and orders. Store-level settings override company defaults.
+
+| Column                   | Type          | Constraints              |
+|--------------------------|---------------|--------------------------|
+| id                       | BIGINT        | PK, auto-generated       |
+| name                     | VARCHAR(200)  | NOT NULL                 |
+| code                     | VARCHAR(20)   | NOT NULL, UNIQUE         |
+| street                   | VARCHAR(300)  | nullable                 |
+| city                     | VARCHAR(100)  | nullable                 |
+| state                    | VARCHAR(100)  | nullable                 |
+| postal_code              | VARCHAR(20)   | nullable                 |
+| country                  | VARCHAR(100)  | nullable                 |
+| phone                    | VARCHAR(50)   | nullable                 |
+| email                    | VARCHAR(200)  | nullable                 |
+| logo_url                 | VARCHAR(500)  | nullable (overrides company logo) |
+| ninea                    | VARCHAR(50)   | nullable (overrides company NINEA) |
+| rccm                     | VARCHAR(50)   | nullable (overrides company RCCM) |
+| tax_id                   | VARCHAR(50)   | nullable (overrides company Tax ID) |
+| proforma_prefix          | VARCHAR(10)   | nullable (overrides company default) |
+| invoice_prefix           | VARCHAR(10)   | nullable (overrides company default) |
+| deposit_prefix           | VARCHAR(10)   | nullable (overrides company default) |
+| credit_note_prefix       | VARCHAR(10)   | nullable (overrides company default) |
+| order_prefix             | VARCHAR(10)   | nullable (overrides company default) |
+| default_payment_terms    | INTEGER       | nullable (overrides company default) |
+| default_proforma_validity| INTEGER       | nullable (overrides company default) |
+| default_template_id      | BIGINT        | FK → InvoiceTemplate, nullable |
+| default_invoice_notes    | TEXT          | nullable (overrides company default) |
+| default_warehouse_id     | BIGINT        | FK → Warehouse, nullable |
+| portal_warehouse_id      | BIGINT        | FK → Warehouse, nullable |
+| is_active                | BOOLEAN       | NOT NULL, default true   |
+| created_at               | TIMESTAMP     | NOT NULL, default now    |
+| updated_at               | TIMESTAMP     | NOT NULL, auto-updated   |
+
+> **Inheritance rule**: all nullable "override" fields fall back to CompanySettings when null.
+
+---
+
+### 2. Category
 
 | Column      | Type         | Constraints                  |
 |-------------|--------------|------------------------------|
@@ -156,7 +196,7 @@ public enum WarehousePermission {
 
 ---
 
-### 2. Part
+### 3. Part
 
 | Column             | Type           | Constraints                     |
 |--------------------|----------------|---------------------------------|
@@ -178,7 +218,7 @@ public enum WarehousePermission {
 
 ---
 
-### 3. PartImage
+### 4. PartImage
 
 | Column      | Type         | Constraints                  |
 |-------------|--------------|------------------------------|
@@ -192,7 +232,7 @@ public enum WarehousePermission {
 
 ---
 
-### 4. Supplier
+### 5. Supplier
 
 | Column          | Type         | Constraints              |
 |-----------------|--------------|--------------------------|
@@ -212,12 +252,13 @@ public enum WarehousePermission {
 
 ---
 
-### 5. PurchaseOrder
+### 6. PurchaseOrder
 
 | Column                   | Type           | Constraints                          |
 |--------------------------|----------------|--------------------------------------|
 | id                       | BIGINT         | PK, auto-generated                   |
 | po_number                | VARCHAR(30)    | NOT NULL, UNIQUE                     |
+| store_id                 | BIGINT         | FK → Store, NOT NULL                 |
 | supplier_id              | BIGINT         | FK → Supplier, NOT NULL              |
 | status                   | VARCHAR(30)    | NOT NULL (enum PurchaseOrderStatus)  |
 | total_amount             | DECIMAL(12,2)  | NOT NULL, default 0                  |
@@ -232,7 +273,7 @@ public enum WarehousePermission {
 
 ---
 
-### 6. PurchaseOrderItem
+### 7. PurchaseOrderItem
 
 | Column            | Type          | Constraints                    |
 |-------------------|---------------|--------------------------------|
@@ -246,11 +287,12 @@ public enum WarehousePermission {
 
 ---
 
-### 7. Customer
+### 8. Customer
 
 | Column         | Type         | Constraints                   |
 |----------------|--------------|-------------------------------|
 | id             | BIGINT       | PK, auto-generated            |
+| store_id       | BIGINT       | FK → Store, NOT NULL          |
 | name           | VARCHAR(200) | NOT NULL                      |
 | company        | VARCHAR(200) | nullable                      |
 | email          | VARCHAR(200) | UNIQUE, nullable              |
@@ -267,17 +309,18 @@ public enum WarehousePermission {
 | created_at     | TIMESTAMP    | NOT NULL, default now         |
 | updated_at     | TIMESTAMP    | NOT NULL, auto-updated        |
 
-**Indexes**: `idx_customer_email` on (email), `idx_customer_portal` on (portal_access)
+**Indexes**: `idx_customer_store` on (store_id), `idx_customer_email` on (email), `idx_customer_portal` on (portal_access)
 
 ---
 
-### 8. Invoice
+### 9. Invoice
 
 | Column              | Type          | Constraints                       |
 |---------------------|---------------|-----------------------------------|
 | id                  | BIGINT        | PK, auto-generated                |
 | invoice_number      | VARCHAR(30)   | NOT NULL, UNIQUE                  |
 | invoice_type        | VARCHAR(20)   | NOT NULL (enum InvoiceType)       |
+| store_id            | BIGINT        | FK → Store, NOT NULL              |
 | customer_id         | BIGINT        | FK → Customer, NOT NULL           |
 | order_id            | BIGINT        | FK → ClientOrder, nullable        |
 | proforma_id         | BIGINT        | FK → Invoice (self), nullable     |
@@ -308,13 +351,13 @@ public enum WarehousePermission {
 - `proforma_id`: if this standard invoice was converted from a proforma, points to the source proforma
 - `deposit_id`: if a deposit was applied, points to the deposit invoice
 
-**Issuer snapshot fields**: when an invoice is finalized (Sent), the issuing entity's name, NINEA, RCCM, Tax ID, and address are copied from the company settings or selected warehouse. This ensures the invoice PDF remains accurate even if company/warehouse info is later updated.
+**Issuer snapshot fields**: when an invoice is finalized (Sent), the issuing entity's name, NINEA, RCCM, Tax ID, and address are copied from the store (with CompanySettings fallback). This ensures the invoice PDF remains accurate even if store/company info is later updated.
 
-**Indexes**: `idx_invoice_customer` on (customer_id), `idx_invoice_type` on (invoice_type), `idx_invoice_status` on (status), `idx_invoice_due_date` on (due_date), `idx_invoice_order` on (order_id), `idx_invoice_proforma` on (proforma_id), `idx_invoice_template` on (template_id)
+**Indexes**: `idx_invoice_store` on (store_id), `idx_invoice_customer` on (customer_id), `idx_invoice_type` on (invoice_type), `idx_invoice_status` on (status), `idx_invoice_due_date` on (due_date), `idx_invoice_order` on (order_id), `idx_invoice_proforma` on (proforma_id), `idx_invoice_template` on (template_id)
 
 ---
 
-### 9. InvoiceItem
+### 10. InvoiceItem
 
 | Column           | Type          | Constraints                  |
 |------------------|---------------|------------------------------|
@@ -330,7 +373,7 @@ public enum WarehousePermission {
 
 ---
 
-### 10. InvoiceTemplate
+### 11. InvoiceTemplate
 
 > Configurable PDF templates that control the visual design of generated invoices.
 
@@ -365,7 +408,7 @@ public enum WarehousePermission {
 
 ---
 
-### 11. Payment
+### 12. Payment
 
 | Column         | Type          | Constraints                      |
 |----------------|---------------|----------------------------------|
@@ -382,7 +425,7 @@ public enum WarehousePermission {
 
 ---
 
-### 12. Return
+### 13. Return
 
 | Column        | Type          | Constraints                      |
 |---------------|---------------|----------------------------------|
@@ -401,7 +444,7 @@ public enum WarehousePermission {
 
 ---
 
-### 13. ReturnItem
+### 14. ReturnItem
 
 | Column         | Type          | Constraints                      |
 |----------------|---------------|----------------------------------|
@@ -416,7 +459,7 @@ public enum WarehousePermission {
 
 ---
 
-### 14. CreditNote
+### 15. CreditNote
 
 | Column             | Type          | Constraints                  |
 |--------------------|---------------|------------------------------|
@@ -429,7 +472,7 @@ public enum WarehousePermission {
 
 ---
 
-### 15. Refund
+### 16. Refund
 
 | Column        | Type          | Constraints                      |
 |---------------|---------------|----------------------------------|
@@ -445,11 +488,12 @@ public enum WarehousePermission {
 
 ---
 
-### 16. Warehouse
+### 17. Warehouse
 
 | Column         | Type         | Constraints              |
 |----------------|--------------|--------------------------|
 | id             | BIGINT       | PK, auto-generated       |
+| store_id       | BIGINT       | FK → Store, NOT NULL     |
 | name           | VARCHAR(200) | NOT NULL                 |
 | code           | VARCHAR(20)  | NOT NULL, UNIQUE         |
 | location       | VARCHAR(200) | nullable                 |
@@ -460,19 +504,18 @@ public enum WarehousePermission {
 | country        | VARCHAR(100) | nullable                 |
 | contact_person | VARCHAR(200) | nullable                 |
 | phone          | VARCHAR(50)  | nullable                 |
-| ninea          | VARCHAR(50)  | nullable (warehouse-level NINEA, overrides company) |
-| rccm           | VARCHAR(50)  | nullable (warehouse-level RCCM, overrides company)  |
-| tax_id         | VARCHAR(50)  | nullable (warehouse-level Tax ID, overrides company) |
 | notes          | TEXT         | nullable                 |
 | is_active      | BOOLEAN      | NOT NULL, default true   |
 | created_at     | TIMESTAMP    | NOT NULL, default now    |
 | updated_at     | TIMESTAMP    | NOT NULL, auto-updated   |
 
-> When a warehouse is selected as the issuing entity on an invoice, its NINEA/RCCM/Tax ID are used. If a field is null, the company-level value from CompanySettings is used as fallback.
+**Indexes**: `idx_warehouse_store` on (store_id)
+
+> A warehouse always belongs to one store. Warehouse NINEA/RCCM/Tax ID fields have been removed — these identifiers now live on the Store entity. The inheritance chain is: Store > CompanySettings.
 
 ---
 
-### 17. WarehouseStock
+### 18. WarehouseStock
 
 | Column        | Type    | Constraints                          |
 |---------------|---------|--------------------------------------|
@@ -487,7 +530,7 @@ public enum WarehousePermission {
 
 ---
 
-### 18. StockTransfer
+### 19. StockTransfer
 
 | Column                   | Type         | Constraints                            |
 |--------------------------|--------------|----------------------------------------|
@@ -505,7 +548,7 @@ public enum WarehousePermission {
 
 ---
 
-### 19. StockTransferItem
+### 20. StockTransferItem
 
 | Column            | Type    | Constraints                       |
 |-------------------|---------|-----------------------------------|
@@ -517,7 +560,7 @@ public enum WarehousePermission {
 
 ---
 
-### 20. StockMovement
+### 21. StockMovement
 
 | Column          | Type          | Constraints                          |
 |-----------------|---------------|--------------------------------------|
@@ -538,7 +581,7 @@ public enum WarehousePermission {
 
 ---
 
-### 21. Cart (Client Portal)
+### 22. Cart (Client Portal)
 
 | Column      | Type      | Constraints                        |
 |-------------|-----------|------------------------------------|
@@ -549,7 +592,7 @@ public enum WarehousePermission {
 
 ---
 
-### 22. CartItem
+### 23. CartItem
 
 | Column     | Type      | Constraints                  |
 |------------|-----------|------------------------------|
@@ -564,7 +607,7 @@ public enum WarehousePermission {
 
 ---
 
-### 23. ClientOrder
+### 24. ClientOrder
 
 > Named `ClientOrder` (mapped to table `client_order`) to avoid SQL reserved keyword `ORDER`.
 
@@ -595,7 +638,7 @@ public enum WarehousePermission {
 
 ---
 
-### 24. OrderItem
+### 25. OrderItem
 
 | Column      | Type          | Constraints                      |
 |-------------|---------------|----------------------------------|
@@ -609,7 +652,7 @@ public enum WarehousePermission {
 
 ---
 
-### 25. User (Back-Office)
+### 26. User (Back-Office)
 
 | Column        | Type         | Constraints                    |
 |---------------|--------------|--------------------------------|
@@ -628,7 +671,7 @@ public enum WarehousePermission {
 
 ---
 
-### 26. UserWarehouse (Junction — User ↔ Warehouse)
+### 27. UserWarehouse (Junction — User ↔ Warehouse)
 
 > Assigns a user to one or more warehouses with specific permissions.
 > Only used for users with role `WAREHOUSE_OPERATOR`. ADMINs have implicit access to everything.
@@ -645,7 +688,7 @@ public enum WarehousePermission {
 
 ---
 
-### 27. UserWarehousePermission
+### 28. UserWarehousePermission
 
 > Granular permissions for a user within a specific warehouse.
 
@@ -673,7 +716,7 @@ if user.role == WAREHOUSE_OPERATOR:
 
 ---
 
-### 28. CompanySettings
+### 29. CompanySettings
 
 > Single-row table holding all application settings. Always has exactly one row (ID = 1).
 
@@ -720,7 +763,7 @@ if user.role == WAREHOUSE_OPERATOR:
 
 ---
 
-### 29. TaxRate
+### 30. TaxRate
 
 | Column      | Type         | Constraints              |
 |-------------|--------------|--------------------------|
@@ -733,7 +776,7 @@ if user.role == WAREHOUSE_OPERATOR:
 
 ---
 
-### 30. AuditLog
+### 31. AuditLog
 
 | Column      | Type         | Constraints              |
 |-------------|--------------|--------------------------|
@@ -753,7 +796,7 @@ if user.role == WAREHOUSE_OPERATOR:
 
 ---
 
-### 31. SequenceCounter
+### 32. SequenceCounter
 
 > Tracks sequential numbers for auto-generated document numbers (invoices, POs, orders, etc.).
 
