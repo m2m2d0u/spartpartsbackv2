@@ -3,6 +3,8 @@ package sn.symmetry.spareparts.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.Part;
 
@@ -24,4 +26,11 @@ public interface PartRepository extends JpaRepository<Part, UUID> {
     Page<Part> findByCarBrandId(UUID carBrandId, Pageable pageable);
 
     Page<Part> findByCarModelId(UUID carModelId, Pageable pageable);
+
+    @Query("SELECT p FROM Part p WHERE p.id NOT IN " +
+           "(SELECT ws.part.id FROM WarehouseStock ws WHERE ws.warehouse.id = :warehouseId) " +
+           "AND (COALESCE(:name, '') = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))")
+    Page<Part> findPartsNotInWarehouse(@Param("warehouseId") UUID warehouseId,
+                                       @Param("name") String name,
+                                       Pageable pageable);
 }

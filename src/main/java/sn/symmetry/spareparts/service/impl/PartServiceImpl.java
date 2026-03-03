@@ -65,6 +65,12 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
+    public PagedResponse<PartResponse> getPartsNotInWarehouse(UUID warehouseId, String name, Pageable pageable) {
+        Page<Part> page = partRepository.findPartsNotInWarehouse(warehouseId, name, pageable);
+        return PagedResponse.of(page.map(partMapper::toListResponse));
+    }
+
+    @Override
     public PartResponse getPartById(UUID id) {
         Part part = partRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", id));

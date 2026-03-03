@@ -14,6 +14,8 @@ public interface PartService {
 
     PagedResponse<PartResponse> getAllParts(UUID categoryId, Boolean published, UUID carBrandId, UUID carModelId, Pageable pageable);
 
+    PagedResponse<PartResponse> getPartsNotInWarehouse(UUID warehouseId, String name, Pageable pageable);
+
     PartResponse getPartById(UUID id);
 
     PartResponse createPart(CreatePartRequest request);

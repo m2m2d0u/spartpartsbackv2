@@ -43,6 +43,14 @@ public class PartController {
         return ResponseEntity.ok(ApiResponse.success(partService.getAllParts(categoryId, published, carBrandId, carModelId, pageable)));
     }
 
+    @GetMapping("/not-in-warehouse")
+    public ResponseEntity<ApiResponse<PagedResponse<PartResponse>>> getPartsNotInWarehouse(
+            @RequestParam UUID warehouseId,
+            @RequestParam(required = false) String name,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(partService.getPartsNotInWarehouse(warehouseId, name, pageable)));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PartResponse>> getPartById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(partService.getPartById(id)));
