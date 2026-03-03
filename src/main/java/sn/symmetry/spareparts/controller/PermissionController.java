@@ -1,30 +1,32 @@
 package sn.symmetry.spareparts.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sn.symmetry.spareparts.dto.response.PermissionInfo;
 import sn.symmetry.spareparts.dto.response.PermissionsResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
-import sn.symmetry.spareparts.enums.WarehousePermission;
+import sn.symmetry.spareparts.dto.response.common.PagedResponse;
+import sn.symmetry.spareparts.service.PermissionService;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
  * Controller for warehouse permission metadata.
  * Provides endpoints for frontend to discover available permissions and their details.
+ * Now reads from database instead of enum.
  */
 @RestController
 @RequestMapping("/api/permissions")
 @RequiredArgsConstructor
 public class PermissionController {
+
+    private final PermissionService permissionService;
 
     /**
      * Get all warehouse permissions grouped by category.
@@ -33,45 +35,26 @@ public class PermissionController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<PermissionsResponse>> getAllPermissions() {
+        return ResponseEntity.ok(ApiResponse.success(permissionService.getAllPermissions()));
+    }
 
-        List<WarehousePermission> permissions = WarehousePermission.getActivePermissions();
+    /**
+     * Get all permissions with pagination.
+     */
+    @GetMapping("/paged")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    public ResponseEntity<ApiResponse<PagedResponse<PermissionInfo>>> getAllPermissionsPaged(
+            @PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(permissionService.getAllPermissions(pageable)));
+    }
 
-        // Group permissions by category
-        List<PermissionsResponse.PermissionCategoryGroup> categories = Arrays.stream(WarehousePermission.PermissionCategory.values())
-                .map(category -> {
-                    List<PermissionInfo> categoryPermissions = WarehousePermission.getByCategory(category).stream()
-                            .map(PermissionInfo::fromEnum)
-                            .sorted(Comparator.comparing(PermissionInfo::getDisplayName))
-                            .collect(Collectors.toList());
-
-                    return PermissionsResponse.PermissionCategoryGroup.builder()
-                            .code(category.name())
-                            .displayName(category.getDisplayName())
-                            .description(category.getDescription())
-                            .permissions(categoryPermissions)
-                            .count(categoryPermissions.size())
-                            .build();
-                })
-                .filter(group -> group.getCount() > 0)
-                .collect(Collectors.toList());
-
-        // Convert all permissions to DTOs
-        List<PermissionInfo> allPermissions = permissions.stream()
-                .map(PermissionInfo::fromEnum)
-                .sorted(Comparator.comparing(PermissionInfo::getDisplayName))
-                .collect(Collectors.toList());
-
-        int totalPermissions = WarehousePermission.values().length;
-
-        PermissionsResponse response = PermissionsResponse.builder()
-                .categories(categories)
-                .allPermissions(allPermissions)
-                .totalPermissions(totalPermissions)
-                .activePermissions(totalPermissions)
-                .legacyPermissions(0)
-                .build();
-
-        return ResponseEntity.ok(ApiResponse.success(response));
+    /**
+     * Get permission by ID.
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    public ResponseEntity<ApiResponse<PermissionInfo>> getPermissionById(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(permissionService.getPermissionById(id)));
     }
 
     /**
@@ -81,21 +64,19 @@ public class PermissionController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getPermissionsByCategory(
             @RequestParam String category) {
+        List<PermissionInfo> permissions = permissionService.getPermissionsByCategory(category);
+        return ResponseEntity.ok(ApiResponse.success(permissions));
+    }
 
-        try {
-            WarehousePermission.PermissionCategory permCategory =
-                    WarehousePermission.PermissionCategory.valueOf(category.toUpperCase());
-
-            List<PermissionInfo> permissions = WarehousePermission.getByCategory(permCategory).stream()
-                    .map(PermissionInfo::fromEnum)
-                    .sorted(Comparator.comparing(PermissionInfo::getDisplayName))
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(ApiResponse.success(permissions));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Invalid category: " + category));
-        }
+    /**
+     * Get permissions by level.
+     */
+    @GetMapping("/by-level")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    public ResponseEntity<ApiResponse<List<PermissionInfo>>> getPermissionsByLevel(
+            @RequestParam String level) {
+        List<PermissionInfo> permissions = permissionService.getPermissionsByLevel(level);
+        return ResponseEntity.ok(ApiResponse.success(permissions));
     }
 
     /**
@@ -104,59 +85,41 @@ public class PermissionController {
     @GetMapping("/read-only")
     @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getReadOnlyPermissions() {
-        List<PermissionInfo> permissions = WarehousePermission.getReadPermissions().stream()
-                .map(PermissionInfo::fromEnum)
-                .sorted(Comparator.comparing(PermissionInfo::getDisplayName))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(ApiResponse.success(permissions));
+        return ResponseEntity.ok(ApiResponse.success(permissionService.getPermissionsByLevel("READ")));
     }
 
     /**
-     * Get all write permissions.
+     * Get all write permissions (WRITE, DELETE, APPROVE).
      */
     @GetMapping("/write")
     @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getWritePermissions() {
-        List<PermissionInfo> permissions = WarehousePermission.getWritePermissions().stream()
-                .map(PermissionInfo::fromEnum)
-                .sorted(Comparator.comparing(PermissionInfo::getDisplayName))
-                .collect(Collectors.toList());
+        List<PermissionInfo> writePerms = permissionService.getPermissionsByLevel("WRITE");
+        List<PermissionInfo> deletePerms = permissionService.getPermissionsByLevel("DELETE");
+        List<PermissionInfo> approvePerms = permissionService.getPermissionsByLevel("APPROVE");
 
-        return ResponseEntity.ok(ApiResponse.success(permissions));
+        writePerms.addAll(deletePerms);
+        writePerms.addAll(approvePerms);
+
+        return ResponseEntity.ok(ApiResponse.success(writePerms));
     }
 
     /**
-     * Get permission categories with their metadata.
+     * Get all permission categories.
      */
     @GetMapping("/categories")
     @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
-    public ResponseEntity<ApiResponse<List<CategoryInfo>>> getCategories() {
-
-        List<CategoryInfo> categories = Arrays.stream(WarehousePermission.PermissionCategory.values())
-                .map(category -> CategoryInfo.builder()
-                        .code(category.name())
-                        .displayName(category.getDisplayName())
-                        .description(category.getDescription())
-                        .permissionCount(WarehousePermission.getByCategory(category).size())
-                        .build())
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(ApiResponse.success(categories));
+    public ResponseEntity<ApiResponse<List<String>>> getCategories() {
+        return ResponseEntity.ok(ApiResponse.success(permissionService.getAllCategories()));
     }
 
     /**
-     * DTO for category information.
+     * Get all permission levels.
      */
-    @lombok.Getter
-    @lombok.Setter
-    @lombok.Builder
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
-    public static class CategoryInfo {
-        private String code;
-        private String displayName;
-        private String description;
-        private int permissionCount;
+    @GetMapping("/levels")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    public ResponseEntity<ApiResponse<List<String>>> getLevels() {
+        return ResponseEntity.ok(ApiResponse.success(permissionService.getAllLevels()));
     }
 }
+

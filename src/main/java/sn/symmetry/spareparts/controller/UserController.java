@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import sn.symmetry.spareparts.dto.request.AssignRolesToUserWarehouseRequest;
 import sn.symmetry.spareparts.dto.request.CreateUserRequest;
 import sn.symmetry.spareparts.dto.request.UpdateUserRequest;
 import sn.symmetry.spareparts.dto.request.UpdateUserStoresRequest;
@@ -90,5 +91,14 @@ public class UserController {
             @Valid @RequestBody UpdateUserStoresRequest request) {
         return ResponseEntity.ok(ApiResponse.success("User stores updated successfully",
                 userService.updateUserStores(id, request.getStoreIds())));
+    }
+
+    @PutMapping("/{id}/warehouse-roles")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    public ResponseEntity<ApiResponse<UserResponse>> assignRolesToUserWarehouse(
+            @PathVariable UUID id,
+            @Valid @RequestBody AssignRolesToUserWarehouseRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Roles assigned to user for warehouse successfully",
+                userService.assignRolesToUserWarehouse(id, request)));
     }
 }

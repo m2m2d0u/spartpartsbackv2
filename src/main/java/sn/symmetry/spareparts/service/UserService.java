@@ -1,6 +1,7 @@
 package sn.symmetry.spareparts.service;
 
 import org.springframework.data.domain.Pageable;
+import sn.symmetry.spareparts.dto.request.AssignRolesToUserWarehouseRequest;
 import sn.symmetry.spareparts.dto.request.CreateUserRequest;
 import sn.symmetry.spareparts.dto.request.UpdateUserRequest;
 import sn.symmetry.spareparts.dto.request.UserWarehouseAssignmentRequest;
@@ -27,6 +28,8 @@ public interface UserService {
     UserResponse updateUserWarehouses(UUID id, List<UserWarehouseAssignmentRequest> assignments);
 
     UserResponse updateUserStores(UUID id, List<UUID> storeIds);
+
+    UserResponse assignRolesToUserWarehouse(UUID userId, AssignRolesToUserWarehouseRequest request);
 
     MeResponse getCurrentUserInfo();
 }

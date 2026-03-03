@@ -8,12 +8,15 @@ import sn.symmetry.spareparts.entity.UserWarehouse;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface UserWarehouseRepository extends JpaRepository<UserWarehouse, UUID> {
 
     List<UserWarehouse> findByUserId(UUID userId);
+
+    Optional<UserWarehouse> findByUserIdAndWarehouseId(UUID userId, UUID warehouseId);
 
     void deleteByUserId(UUID userId);
 

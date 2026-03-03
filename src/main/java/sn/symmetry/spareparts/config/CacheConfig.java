@@ -12,22 +12,74 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Redis cache configuration with specific TTLs for different cache types.
+ */
 @Configuration
 @EnableCaching
 public class CacheConfig {
+
+    // Cache names
+    public static final String PERMISSIONS_CACHE = "permissions";
+    public static final String PERMISSIONS_ALL_CACHE = "permissions:all";
+    public static final String PERMISSIONS_BY_CATEGORY_CACHE = "permissions:by-category";
+    public static final String PERMISSIONS_BY_LEVEL_CACHE = "permissions:by-level";
+
+    public static final String ROLES_CACHE = "roles";
+    public static final String ROLES_ALL_CACHE = "roles:all";
+    public static final String ROLES_SYSTEM_CACHE = "roles:system";
+    public static final String ROLES_CUSTOM_CACHE = "roles:custom";
+
+    public static final String USER_ME_CACHE = "user:me";
+    public static final String USER_WAREHOUSE_PERMISSIONS_CACHE = "user:warehouse:permissions";
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         JdkSerializationRedisSerializer jdkSerializer = new JdkSerializationRedisSerializer();
 
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+        // Default configuration (1 hour TTL)
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.string()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jdkSerializer));
 
+        // Permissions cache - long TTL (24 hours) as permissions rarely change
+        RedisCacheConfiguration permissionsConfig = defaultConfig.entryTtl(Duration.ofHours(24));
+
+        // Roles cache - long TTL (12 hours) as roles change infrequently
+        RedisCacheConfiguration rolesConfig = defaultConfig.entryTtl(Duration.ofHours(12));
+
+        // User context cache - medium TTL (30 minutes) as user permissions can change
+        RedisCacheConfiguration userMeConfig = defaultConfig.entryTtl(Duration.ofMinutes(30));
+
+        // User warehouse permissions - medium TTL (30 minutes)
+        RedisCacheConfiguration userWarehousePermConfig = defaultConfig.entryTtl(Duration.ofMinutes(30));
+
+        // Configure specific caches with different TTLs
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
+        // Permissions caches
+        cacheConfigurations.put(PERMISSIONS_CACHE, permissionsConfig);
+        cacheConfigurations.put(PERMISSIONS_ALL_CACHE, permissionsConfig);
+        cacheConfigurations.put(PERMISSIONS_BY_CATEGORY_CACHE, permissionsConfig);
+        cacheConfigurations.put(PERMISSIONS_BY_LEVEL_CACHE, permissionsConfig);
+
+        // Roles caches
+        cacheConfigurations.put(ROLES_CACHE, rolesConfig);
+        cacheConfigurations.put(ROLES_ALL_CACHE, rolesConfig);
+        cacheConfigurations.put(ROLES_SYSTEM_CACHE, rolesConfig);
+        cacheConfigurations.put(ROLES_CUSTOM_CACHE, rolesConfig);
+
+        // User caches
+        cacheConfigurations.put(USER_ME_CACHE, userMeConfig);
+        cacheConfigurations.put(USER_WAREHOUSE_PERMISSIONS_CACHE, userWarehousePermConfig);
+
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(config)
+                .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
     }
 }

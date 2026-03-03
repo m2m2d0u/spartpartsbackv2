@@ -1,35 +1,44 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sn.symmetry.spareparts.dto.request.AssignRolesToUserWarehouseRequest;
 import sn.symmetry.spareparts.dto.request.CreateUserRequest;
 import sn.symmetry.spareparts.dto.request.UpdateUserRequest;
 import sn.symmetry.spareparts.dto.request.UserWarehouseAssignmentRequest;
 import org.springframework.security.access.AccessDeniedException;
+import sn.symmetry.spareparts.config.CacheConfig;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.MeResponse;
 import sn.symmetry.spareparts.dto.response.UserResponse;
 import sn.symmetry.spareparts.dto.response.UserStoreResponse;
 import sn.symmetry.spareparts.dto.response.UserWarehouseAssignmentResponse;
+import sn.symmetry.spareparts.entity.Role;
 import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.entity.User;
 import sn.symmetry.spareparts.entity.UserStore;
 import sn.symmetry.spareparts.entity.UserWarehouse;
 import sn.symmetry.spareparts.entity.UserWarehousePermission;
+import sn.symmetry.spareparts.entity.UserWarehouseRole;
 import sn.symmetry.spareparts.entity.Warehouse;
 import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.UserMapper;
+import sn.symmetry.spareparts.repository.RoleRepository;
 import sn.symmetry.spareparts.repository.StoreRepository;
 import sn.symmetry.spareparts.repository.UserRepository;
 import sn.symmetry.spareparts.repository.UserStoreRepository;
 import sn.symmetry.spareparts.repository.UserWarehouseRepository;
+import sn.symmetry.spareparts.repository.UserWarehouseRoleRepository;
 import sn.symmetry.spareparts.repository.WarehouseRepository;
 import sn.symmetry.spareparts.service.AuthorizationService;
 import sn.symmetry.spareparts.service.UserService;
@@ -46,7 +55,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserWarehouseRepository userWarehouseRepository;
+    private final UserWarehouseRoleRepository userWarehouseRoleRepository;
     private final UserStoreRepository userStoreRepository;
+    private final RoleRepository roleRepository;
     private final WarehouseRepository warehouseRepository;
     private final StoreRepository storeRepository;
     private final UserMapper userMapper;
@@ -81,6 +92,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConfig.USER_ME_CACHE, allEntries = true)
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("User", "email", request.getEmail());
@@ -94,6 +106,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConfig.USER_ME_CACHE, key = "#id")
     public UserResponse updateUser(UUID id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -109,6 +122,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConfig.USER_ME_CACHE, key = "#id")
     public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -118,6 +132,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.USER_ME_CACHE, key = "#id"),
+            @CacheEvict(value = CacheConfig.USER_WAREHOUSE_PERMISSIONS_CACHE, allEntries = true)
+    })
     public UserResponse updateUserWarehouses(UUID id, List<UserWarehouseAssignmentRequest> assignments) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
@@ -175,6 +193,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConfig.USER_ME_CACHE, key = "#id")
     public UserResponse updateUserStores(UUID id, List<UUID> storeIds) {
         User currentUser = authorizationService.getCurrentUser();
         User targetUser = userRepository.findById(id)
@@ -224,6 +243,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = CacheConfig.USER_ME_CACHE, key = "#root.target.authorizationService.currentUser.id")
     public MeResponse getCurrentUserInfo() {
         User currentUser = authorizationService.getCurrentUser();
 
@@ -343,5 +363,57 @@ public class UserServiceImpl implements UserService {
                                 .toList())
                         .build())
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.USER_ME_CACHE, key = "#userId"),
+            @CacheEvict(value = CacheConfig.USER_WAREHOUSE_PERMISSIONS_CACHE, allEntries = true)
+    })
+    public UserResponse assignRolesToUserWarehouse(UUID userId, AssignRolesToUserWarehouseRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", request.getWarehouseId()));
+
+        // Verify that the current user has permission to assign roles for this warehouse
+        User currentUser = authorizationService.getCurrentUser();
+        if (currentUser.getRole() == UserRole.STORE_MANAGER) {
+            // STORE_MANAGER can only assign roles for warehouses in their stores
+            if (!authorizationService.canAccessWarehouse(warehouse.getId())) {
+                throw new AccessDeniedException("Cannot assign roles for warehouses outside your stores");
+            }
+        }
+
+        // Find or create the user_warehouse record
+        UserWarehouse userWarehouse = userWarehouseRepository.findByUserIdAndWarehouseId(user.getId(), warehouse.getId())
+                .orElseGet(() -> {
+                    UserWarehouse uw = new UserWarehouse();
+                    uw.setUser(user);
+                    uw.setWarehouse(warehouse);
+                    return userWarehouseRepository.save(uw);
+                });
+
+        // Delete existing role assignments for this user-warehouse
+        userWarehouseRoleRepository.deleteByUserWarehouseId(userWarehouse.getId());
+
+        // Create new role assignments
+        List<UserWarehouseRole> roleAssignments = request.getRoleIds().stream()
+                .map(roleId -> {
+                    Role role = roleRepository.findById(roleId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Role", "id", roleId));
+
+                    UserWarehouseRole uwr = new UserWarehouseRole();
+                    uwr.setUserWarehouse(userWarehouse);
+                    uwr.setRole(role);
+                    return uwr;
+                })
+                .toList();
+
+        userWarehouseRoleRepository.saveAll(roleAssignments);
+
+        return userMapper.toResponse(user);
     }
 }

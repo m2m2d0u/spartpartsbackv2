@@ -1,10 +1,12 @@
 package sn.symmetry.spareparts.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import sn.symmetry.spareparts.config.CacheConfig;
 import sn.symmetry.spareparts.entity.User;
 import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.enums.WarehousePermission;
@@ -12,6 +14,7 @@ import sn.symmetry.spareparts.exception.UnauthorizedException;
 import sn.symmetry.spareparts.repository.UserRepository;
 import sn.symmetry.spareparts.repository.UserStoreRepository;
 import sn.symmetry.spareparts.repository.UserWarehouseRepository;
+import sn.symmetry.spareparts.repository.UserWarehouseRoleRepository;
 import sn.symmetry.spareparts.repository.WarehouseRepository;
 
 import java.util.List;
@@ -29,6 +32,7 @@ public class AuthorizationService {
     private final UserRepository userRepository;
     private final UserStoreRepository userStoreRepository;
     private final UserWarehouseRepository userWarehouseRepository;
+    private final UserWarehouseRoleRepository userWarehouseRoleRepository;
     private final WarehouseRepository warehouseRepository;
 
     /**
@@ -170,14 +174,17 @@ public class AuthorizationService {
      * Check if the current user has a specific permission for a warehouse.
      * ADMIN has all permissions.
      * STORE_MANAGER has all permissions for warehouses in their stores.
-     * WAREHOUSE_OPERATOR needs explicit permission.
+     * WAREHOUSE_OPERATOR needs explicit permission (via roles or individual assignments).
      *
-     * @param warehouseId the warehouse ID
-     * @param permission  the permission to check
+     * @param warehouseId    the warehouse ID
+     * @param permissionCode the permission code to check
      * @return true if user has the permission, false otherwise
      */
-    public boolean hasWarehousePermission(UUID warehouseId, WarehousePermission permission) {
-        if (warehouseId == null || permission == null) {
+    @Cacheable(value = CacheConfig.USER_WAREHOUSE_PERMISSIONS_CACHE,
+            key = "#root.target.currentUser.id + ':' + #warehouseId + ':' + #permissionCode",
+            unless = "#result == false")
+    public boolean hasWarehousePermission(UUID warehouseId, String permissionCode) {
+        if (warehouseId == null || permissionCode == null) {
             return false;
         }
 
@@ -195,10 +202,35 @@ public class AuthorizationService {
 
         // WAREHOUSE_OPERATOR needs specific permission
         if (user.getRole() == UserRole.WAREHOUSE_OPERATOR) {
-            return userWarehouseRepository.hasPermission(user.getId(), warehouseId, permission);
+            // Check permissions from roles
+            List<String> rolePermissions = userWarehouseRoleRepository.findPermissionCodesByUserAndWarehouse(user.getId(), warehouseId);
+            if (rolePermissions.contains(permissionCode)) {
+                return true;
+            }
+
+            // Check individual permission overrides (existing VARCHAR-based permissions)
+            // This supports backward compatibility with existing user_warehouse_permission records
+            return userWarehouseRepository.hasPermission(user.getId(), warehouseId, WarehousePermission.valueOf(permissionCode));
         }
 
         return false;
+    }
+
+    /**
+     * Check if the current user has a specific permission for a warehouse (enum version).
+     * This method delegates to the String-based version for backward compatibility.
+     *
+     * @param warehouseId the warehouse ID
+     * @param permission  the permission to check
+     * @return true if user has the permission, false otherwise
+     * @deprecated Use {@link #hasWarehousePermission(UUID, String)} instead
+     */
+    @Deprecated
+    public boolean hasWarehousePermission(UUID warehouseId, WarehousePermission permission) {
+        if (permission == null) {
+            return false;
+        }
+        return hasWarehousePermission(warehouseId, permission.name());
     }
 
     /**
@@ -218,16 +250,32 @@ public class AuthorizationService {
      * Require that the current user has a specific permission for a warehouse.
      * Throws AccessDeniedException if permission is not granted.
      *
+     * @param warehouseId    the warehouse ID
+     * @param permissionCode the required permission code
+     * @throws AccessDeniedException if user lacks the permission
+     */
+    public void requireWarehousePermission(UUID warehouseId, String permissionCode) {
+        if (!hasWarehousePermission(warehouseId, permissionCode)) {
+            throw new AccessDeniedException(
+                    "Missing permission " + permissionCode + " for warehouse: " + warehouseId
+            );
+        }
+    }
+
+    /**
+     * Require that the current user has a specific permission for a warehouse (enum version).
+     *
      * @param warehouseId the warehouse ID
      * @param permission  the required permission
      * @throws AccessDeniedException if user lacks the permission
+     * @deprecated Use {@link #requireWarehousePermission(UUID, String)} instead
      */
+    @Deprecated
     public void requireWarehousePermission(UUID warehouseId, WarehousePermission permission) {
-        if (!hasWarehousePermission(warehouseId, permission)) {
-            throw new AccessDeniedException(
-                    "Missing permission " + permission + " for warehouse: " + warehouseId
-            );
+        if (permission == null) {
+            throw new AccessDeniedException("Permission cannot be null");
         }
+        requireWarehousePermission(warehouseId, permission.name());
     }
 
     /**

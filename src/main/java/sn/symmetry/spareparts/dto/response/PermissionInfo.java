@@ -7,17 +7,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 
+import java.io.Serializable;
+import java.util.UUID;
+
 /**
  * DTO containing metadata about a warehouse permission.
  * Used to provide frontend with permission details for display and selection.
+ * Implements Serializable for Redis caching.
  */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PermissionInfo {
+public class PermissionInfo implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+    private UUID id;
     private String code;
     private String displayName;
     private String description;
@@ -25,6 +32,7 @@ public class PermissionInfo {
     private String categoryDisplayName;
     private String level;
     private String levelDisplayName;
+    private Boolean isActive;
     private boolean isLegacy;
     private boolean isReadOnly;
 
