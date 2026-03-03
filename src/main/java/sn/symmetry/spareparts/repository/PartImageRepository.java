@@ -5,9 +5,10 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.PartImage;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface PartImageRepository extends JpaRepository<PartImage, Long> {
+public interface PartImageRepository extends JpaRepository<PartImage, UUID> {
 
-    List<PartImage> findByPartIdOrderBySortOrder(Long partId);
+    List<PartImage> findByPartIdOrderBySortOrder(UUID partId);
 }

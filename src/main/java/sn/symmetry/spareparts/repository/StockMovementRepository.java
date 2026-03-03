@@ -7,14 +7,16 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.StockMovement;
 import sn.symmetry.spareparts.enums.StockMovementType;
 
+import java.util.UUID;
+
 @Repository
-public interface StockMovementRepository extends JpaRepository<StockMovement, Long> {
+public interface StockMovementRepository extends JpaRepository<StockMovement, UUID> {
 
-    Page<StockMovement> findByWarehouseId(Long warehouseId, Pageable pageable);
+    Page<StockMovement> findByWarehouseId(UUID warehouseId, Pageable pageable);
 
-    Page<StockMovement> findByPartId(Long partId, Pageable pageable);
+    Page<StockMovement> findByPartId(UUID partId, Pageable pageable);
 
-    Page<StockMovement> findByWarehouseIdAndPartId(Long warehouseId, Long partId, Pageable pageable);
+    Page<StockMovement> findByWarehouseIdAndPartId(UUID warehouseId, UUID partId, Pageable pageable);
 
     Page<StockMovement> findByType(StockMovementType type, Pageable pageable);
 }

@@ -10,6 +10,7 @@ import sn.symmetry.spareparts.enums.RefundMethod;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,9 +19,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RefundResponse {
 
-    private Long id;
-    private Long returnId;
-    private Long invoiceId;
+    private UUID id;
+    private UUID returnId;
+    private UUID invoiceId;
     private BigDecimal amount;
     private RefundMethod refundMethod;
     private LocalDate refundDate;

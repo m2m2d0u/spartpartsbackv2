@@ -8,17 +8,19 @@ import sn.symmetry.spareparts.dto.response.ReturnResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.ReturnStatus;
 
+import java.util.UUID;
+
 public interface ReturnService {
 
-    PagedResponse<ReturnResponse> getAllReturns(Long customerId, ReturnStatus status, Pageable pageable);
+    PagedResponse<ReturnResponse> getAllReturns(UUID customerId, ReturnStatus status, Pageable pageable);
 
-    ReturnResponse getReturnById(Long id);
+    ReturnResponse getReturnById(UUID id);
 
     ReturnResponse createReturn(CreateReturnRequest request);
 
-    ReturnResponse updateReturn(Long id, UpdateReturnRequest request);
+    ReturnResponse updateReturn(UUID id, UpdateReturnRequest request);
 
-    ReturnResponse updateReturnStatus(Long id, UpdateReturnStatusRequest request);
+    ReturnResponse updateReturnStatus(UUID id, UpdateReturnStatusRequest request);
 
-    void deleteReturn(Long id);
+    void deleteReturn(UUID id);
 }

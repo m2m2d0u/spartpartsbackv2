@@ -4,9 +4,11 @@ import org.springframework.data.domain.Pageable;
 import sn.symmetry.spareparts.dto.response.AuditLogResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface AuditLogService {
 
-    PagedResponse<AuditLogResponse> getAllAuditLogs(String entityType, Long entityId, Long userId, String action, Pageable pageable);
+    PagedResponse<AuditLogResponse> getAllAuditLogs(String entityType, UUID entityId, UUID userId, String action, Pageable pageable);
 
-    AuditLogResponse getAuditLogById(Long id);
+    AuditLogResponse getAuditLogById(UUID id);
 }

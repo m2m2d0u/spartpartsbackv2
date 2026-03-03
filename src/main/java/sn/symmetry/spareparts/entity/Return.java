@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity(name = "Return")
 @Table(name = "\"return\"")
@@ -35,8 +36,8 @@ import java.util.List;
 public class Return {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "return_number", nullable = false, unique = true, length = 30)
     private String returnNumber;

@@ -9,17 +9,19 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.InvoiceStatus;
 import sn.symmetry.spareparts.enums.InvoiceType;
 
+import java.util.UUID;
+
 public interface InvoiceService {
 
-    PagedResponse<InvoiceResponse> getAllInvoices(Long customerId, InvoiceStatus status, InvoiceType invoiceType, Pageable pageable);
+    PagedResponse<InvoiceResponse> getAllInvoices(UUID customerId, InvoiceStatus status, InvoiceType invoiceType, Pageable pageable);
 
-    InvoiceResponse getInvoiceById(Long id);
+    InvoiceResponse getInvoiceById(UUID id);
 
     InvoiceResponse createInvoice(CreateInvoiceRequest request);
 
-    InvoiceResponse updateInvoice(Long id, UpdateInvoiceRequest request);
+    InvoiceResponse updateInvoice(UUID id, UpdateInvoiceRequest request);
 
-    InvoiceResponse updateInvoiceStatus(Long id, UpdateInvoiceStatusRequest request);
+    InvoiceResponse updateInvoiceStatus(UUID id, UpdateInvoiceStatusRequest request);
 
-    void deleteInvoice(Long id);
+    void deleteInvoice(UUID id);
 }

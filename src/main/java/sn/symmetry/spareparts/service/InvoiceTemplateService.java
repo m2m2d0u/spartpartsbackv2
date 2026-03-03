@@ -6,15 +6,17 @@ import sn.symmetry.spareparts.dto.request.UpdateInvoiceTemplateRequest;
 import sn.symmetry.spareparts.dto.response.InvoiceTemplateResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface InvoiceTemplateService {
 
     PagedResponse<InvoiceTemplateResponse> getAllInvoiceTemplates(Pageable pageable);
 
-    InvoiceTemplateResponse getInvoiceTemplateById(Long id);
+    InvoiceTemplateResponse getInvoiceTemplateById(UUID id);
 
     InvoiceTemplateResponse createInvoiceTemplate(CreateInvoiceTemplateRequest request);
 
-    InvoiceTemplateResponse updateInvoiceTemplate(Long id, UpdateInvoiceTemplateRequest request);
+    InvoiceTemplateResponse updateInvoiceTemplate(UUID id, UpdateInvoiceTemplateRequest request);
 
-    void deleteInvoiceTemplate(Long id);
+    void deleteInvoiceTemplate(UUID id);
 }

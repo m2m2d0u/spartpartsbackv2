@@ -10,6 +10,7 @@ import sn.symmetry.spareparts.enums.ReturnStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,11 +19,11 @@ import java.util.List;
 @AllArgsConstructor
 public class ReturnResponse {
 
-    private Long id;
+    private UUID id;
     private String returnNumber;
-    private Long invoiceId;
-    private Long orderId;
-    private Long customerId;
+    private UUID invoiceId;
+    private UUID orderId;
+    private UUID customerId;
     private String customerName;
     private ReturnStatus status;
     private LocalDate returnDate;

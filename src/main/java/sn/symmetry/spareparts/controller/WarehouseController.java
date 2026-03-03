@@ -22,6 +22,8 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.WarehouseResponse;
 import sn.symmetry.spareparts.service.WarehouseService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/warehouses")
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<WarehouseResponse>> getWarehouseById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<WarehouseResponse>> getWarehouseById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(warehouseService.getWarehouseById(id)));
     }
 
@@ -51,14 +53,14 @@ public class WarehouseController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WarehouseResponse>> updateWarehouse(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateWarehouseRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Warehouse updated successfully",
                 warehouseService.updateWarehouse(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable UUID id) {
         warehouseService.deleteWarehouse(id);
         return ResponseEntity.ok(ApiResponse.success("Warehouse deactivated successfully", null));
     }

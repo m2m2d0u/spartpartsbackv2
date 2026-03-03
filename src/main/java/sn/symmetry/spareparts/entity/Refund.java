@@ -21,6 +21,7 @@ import sn.symmetry.spareparts.enums.RefundMethod;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "refund")
@@ -31,8 +32,8 @@ import java.time.LocalDateTime;
 public class Refund {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "return_id", nullable = false)

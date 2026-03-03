@@ -18,6 +18,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "credit_note")
@@ -28,8 +29,8 @@ import java.time.LocalDateTime;
 public class CreditNote {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "credit_note_number", nullable = false, unique = true, length = 30)
     private String creditNoteNumber;

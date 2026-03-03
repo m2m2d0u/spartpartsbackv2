@@ -23,6 +23,8 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.StockTransferStatus;
 import sn.symmetry.spareparts.service.StockTransferService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/stock-transfers")
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class StockTransferController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<StockTransferResponse>> getStockTransferById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<StockTransferResponse>> getStockTransferById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(stockTransferService.getStockTransferById(id)));
     }
 
@@ -53,14 +55,14 @@ public class StockTransferController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<StockTransferResponse>> updateStockTransfer(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateStockTransferRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Stock transfer updated successfully",
                 stockTransferService.updateStockTransfer(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteStockTransfer(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteStockTransfer(@PathVariable UUID id) {
         stockTransferService.deleteStockTransfer(id);
         return ResponseEntity.ok(ApiResponse.success("Stock transfer deleted successfully", null));
     }

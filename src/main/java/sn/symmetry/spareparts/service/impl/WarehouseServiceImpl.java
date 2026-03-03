@@ -16,6 +16,8 @@ import sn.symmetry.spareparts.mapper.WarehouseMapper;
 import sn.symmetry.spareparts.repository.WarehouseRepository;
 import sn.symmetry.spareparts.service.WarehouseService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -36,7 +38,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public WarehouseResponse getWarehouseById(Long id) {
+    public WarehouseResponse getWarehouseById(UUID id) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", id));
         return warehouseMapper.toResponse(warehouse);
@@ -56,7 +58,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public WarehouseResponse updateWarehouse(Long id, UpdateWarehouseRequest request) {
+    public WarehouseResponse updateWarehouse(UUID id, UpdateWarehouseRequest request) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", id));
 
@@ -71,7 +73,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public void deleteWarehouse(Long id) {
+    public void deleteWarehouse(UUID id) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", id));
         warehouse.setIsActive(false);

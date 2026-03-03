@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "sequence_counter", uniqueConstraints = {
         @UniqueConstraint(name = "uk_sequence", columnNames = {"entity_type", "\"year\""})
@@ -23,8 +25,8 @@ import lombok.Setter;
 public class SequenceCounter {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "entity_type", nullable = false, length = 30)
     private String entityType;

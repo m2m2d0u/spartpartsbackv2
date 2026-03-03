@@ -5,9 +5,10 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.CartItem;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface CartItemRepository extends JpaRepository<CartItem, Long> {
+public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
 
-    Optional<CartItem> findByCartIdAndPartId(Long cartId, Long partId);
+    Optional<CartItem> findByCartIdAndPartId(UUID cartId, UUID partId);
 }

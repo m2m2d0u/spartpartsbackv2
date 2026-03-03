@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,9 +18,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CreditNoteResponse {
 
-    private Long id;
+    private UUID id;
     private String creditNoteNumber;
-    private Long returnId;
+    private UUID returnId;
     private BigDecimal totalAmount;
     private LocalDate issuedDate;
     private LocalDateTime createdAt;

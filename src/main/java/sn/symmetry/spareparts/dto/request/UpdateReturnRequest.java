@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,9 +17,9 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateReturnRequest {
 
-    private Long invoiceId;
+    private UUID invoiceId;
 
-    private Long orderId;
+    private UUID orderId;
 
     private LocalDate returnDate;
 

@@ -9,6 +9,8 @@ import lombok.Setter;
 import sn.symmetry.spareparts.enums.RestockAction;
 import sn.symmetry.spareparts.enums.ReturnReason;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,7 +18,7 @@ import sn.symmetry.spareparts.enums.ReturnReason;
 public class ReturnItemRequest {
 
     @NotNull(message = "Part ID is required")
-    private Long partId;
+    private UUID partId;
 
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
@@ -27,5 +29,5 @@ public class ReturnItemRequest {
 
     private RestockAction restockAction;
 
-    private Long warehouseId;
+    private UUID warehouseId;
 }

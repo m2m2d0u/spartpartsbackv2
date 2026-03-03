@@ -25,6 +25,7 @@ import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.service.UserService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(userService.getUserById(id)));
     }
 
@@ -55,20 +56,20 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(ApiResponse.success("User updated successfully", userService.updateUser(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success("User deactivated successfully", null));
     }
 
     @PutMapping("/{id}/warehouses")
     public ResponseEntity<ApiResponse<UserResponse>> updateUserWarehouses(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody List<UserWarehouseAssignmentRequest> assignments) {
         return ResponseEntity.ok(ApiResponse.success("Warehouse assignments updated successfully",
                 userService.updateUserWarehouses(id, assignments)));

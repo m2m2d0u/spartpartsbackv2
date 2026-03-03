@@ -43,7 +43,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final PurchaseOrderMapper purchaseOrderMapper;
 
     @Override
-    public PagedResponse<PurchaseOrderResponse> getAllPurchaseOrders(Long supplierId, PurchaseOrderStatus status, Pageable pageable) {
+    public PagedResponse<PurchaseOrderResponse> getAllPurchaseOrders(UUID supplierId, PurchaseOrderStatus status, Pageable pageable) {
         Page<PurchaseOrder> page;
         if (supplierId != null && status != null) {
             page = purchaseOrderRepository.findBySupplierIdAndStatus(supplierId, status, pageable);
@@ -58,7 +58,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     }
 
     @Override
-    public PurchaseOrderResponse getPurchaseOrderById(Long id) {
+    public PurchaseOrderResponse getPurchaseOrderById(UUID id) {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseOrder", "id", id));
         return purchaseOrderMapper.toResponse(purchaseOrder);
@@ -108,7 +108,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     @Transactional
-    public PurchaseOrderResponse updatePurchaseOrder(Long id, UpdatePurchaseOrderRequest request) {
+    public PurchaseOrderResponse updatePurchaseOrder(UUID id, UpdatePurchaseOrderRequest request) {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseOrder", "id", id));
 
@@ -155,7 +155,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     @Transactional
-    public void deletePurchaseOrder(Long id) {
+    public void deletePurchaseOrder(UUID id) {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseOrder", "id", id));
 

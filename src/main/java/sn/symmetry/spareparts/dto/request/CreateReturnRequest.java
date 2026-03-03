@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,12 +18,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateReturnRequest {
 
-    private Long invoiceId;
+    private UUID invoiceId;
 
-    private Long orderId;
+    private UUID orderId;
 
     @NotNull(message = "Customer ID is required")
-    private Long customerId;
+    private UUID customerId;
 
     @NotNull(message = "Return date is required")
     private LocalDate returnDate;

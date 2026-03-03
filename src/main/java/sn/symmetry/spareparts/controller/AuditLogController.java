@@ -14,6 +14,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.AuditLogService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/audit-logs")
 @RequiredArgsConstructor
@@ -24,8 +26,8 @@ public class AuditLogController {
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<AuditLogResponse>>> getAllAuditLogs(
             @RequestParam(required = false) String entityType,
-            @RequestParam(required = false) Long entityId,
-            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) UUID entityId,
+            @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) String action,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -33,7 +35,7 @@ public class AuditLogController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AuditLogResponse>> getAuditLogById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<AuditLogResponse>> getAuditLogById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(auditLogService.getAuditLogById(id)));
     }
 }

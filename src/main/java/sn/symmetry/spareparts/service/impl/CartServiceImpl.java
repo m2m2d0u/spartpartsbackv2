@@ -19,6 +19,7 @@ import sn.symmetry.spareparts.repository.PartRepository;
 import sn.symmetry.spareparts.service.CartService;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,14 +33,14 @@ public class CartServiceImpl implements CartService {
     private final CartMapper cartMapper;
 
     @Override
-    public CartResponse getCart(Long customerId) {
+    public CartResponse getCart(UUID customerId) {
         Cart cart = findOrCreateCart(customerId);
         return cartMapper.toResponse(cart);
     }
 
     @Override
     @Transactional
-    public CartResponse addItem(Long customerId, AddCartItemRequest request) {
+    public CartResponse addItem(UUID customerId, AddCartItemRequest request) {
         Cart cart = findOrCreateCart(customerId);
 
         Part part = partRepository.findById(request.getPartId())
@@ -67,7 +68,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse updateItem(Long customerId, Long itemId, UpdateCartItemRequest request) {
+    public CartResponse updateItem(UUID customerId, UUID itemId, UpdateCartItemRequest request) {
         Cart cart = cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart", "customerId", customerId));
 
@@ -88,7 +89,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse removeItem(Long customerId, Long itemId) {
+    public CartResponse removeItem(UUID customerId, UUID itemId) {
         Cart cart = cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart", "customerId", customerId));
 
@@ -109,7 +110,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void clearCart(Long customerId) {
+    public void clearCart(UUID customerId) {
         Cart cart = cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart", "customerId", customerId));
 
@@ -117,7 +118,7 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cart);
     }
 
-    private Cart findOrCreateCart(Long customerId) {
+    private Cart findOrCreateCart(UUID customerId) {
         return cartRepository.findByCustomerId(customerId)
                 .orElseGet(() -> {
                     Customer customer = customerRepository.findById(customerId)

@@ -8,6 +8,8 @@ import lombok.Setter;
 import sn.symmetry.spareparts.enums.RestockAction;
 import sn.symmetry.spareparts.enums.ReturnReason;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -15,13 +17,13 @@ import sn.symmetry.spareparts.enums.ReturnReason;
 @AllArgsConstructor
 public class ReturnItemResponse {
 
-    private Long id;
-    private Long partId;
+    private UUID id;
+    private UUID partId;
     private String partName;
     private String partNumber;
     private Integer quantity;
     private ReturnReason reason;
     private RestockAction restockAction;
-    private Long warehouseId;
+    private UUID warehouseId;
     private String warehouseName;
 }

@@ -25,6 +25,8 @@ import sn.symmetry.spareparts.enums.InvoiceStatus;
 import sn.symmetry.spareparts.enums.InvoiceType;
 import sn.symmetry.spareparts.service.InvoiceService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/invoices")
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class InvoiceController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<InvoiceResponse>>> getAllInvoices(
-            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) UUID customerId,
             @RequestParam(required = false) InvoiceStatus status,
             @RequestParam(required = false) InvoiceType invoiceType,
             @PageableDefault(size = 20) Pageable pageable) {
@@ -43,7 +45,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<InvoiceResponse>> getInvoiceById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<InvoiceResponse>> getInvoiceById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(invoiceService.getInvoiceById(id)));
     }
 
@@ -57,7 +59,7 @@ public class InvoiceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<InvoiceResponse>> updateInvoice(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateInvoiceRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Invoice updated successfully",
                 invoiceService.updateInvoice(id, request)));
@@ -65,14 +67,14 @@ public class InvoiceController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<ApiResponse<InvoiceResponse>> updateInvoiceStatus(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateInvoiceStatusRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Invoice status updated successfully",
                 invoiceService.updateInvoiceStatus(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteInvoice(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteInvoice(@PathVariable UUID id) {
         invoiceService.deleteInvoice(id);
         return ResponseEntity.ok(ApiResponse.success("Invoice deleted successfully", null));
     }

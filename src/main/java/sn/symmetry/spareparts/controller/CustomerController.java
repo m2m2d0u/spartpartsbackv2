@@ -21,6 +21,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.CustomerService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CustomerResponse>> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CustomerResponse>> getCustomerById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(customerService.getCustomerById(id)));
     }
 
@@ -49,14 +51,14 @@ public class CustomerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CustomerResponse>> updateCustomer(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateCustomerRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Customer updated successfully",
                 customerService.updateCustomer(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCustomer(@PathVariable UUID id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.ok(ApiResponse.success("Customer deleted successfully", null));
     }

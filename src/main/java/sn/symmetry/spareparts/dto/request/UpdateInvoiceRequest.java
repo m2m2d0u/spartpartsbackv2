@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,13 +17,13 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateInvoiceRequest {
 
-    private Long orderId;
+    private UUID orderId;
 
-    private Long proformaId;
+    private UUID proformaId;
 
-    private Long depositId;
+    private UUID depositId;
 
-    private Long templateId;
+    private UUID templateId;
 
     private LocalDate issuedDate;
 
@@ -30,7 +31,7 @@ public class UpdateInvoiceRequest {
 
     private LocalDate validityDate;
 
-    private Long sourceWarehouseId;
+    private UUID sourceWarehouseId;
 
     private String notes;
 

@@ -6,15 +6,17 @@ import sn.symmetry.spareparts.dto.request.UpdateWarehouseRequest;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.WarehouseResponse;
 
+import java.util.UUID;
+
 public interface WarehouseService {
 
     PagedResponse<WarehouseResponse> getAllWarehouses(Boolean isActive, Pageable pageable);
 
-    WarehouseResponse getWarehouseById(Long id);
+    WarehouseResponse getWarehouseById(UUID id);
 
     WarehouseResponse createWarehouse(CreateWarehouseRequest request);
 
-    WarehouseResponse updateWarehouse(Long id, UpdateWarehouseRequest request);
+    WarehouseResponse updateWarehouse(UUID id, UpdateWarehouseRequest request);
 
-    void deleteWarehouse(Long id);
+    void deleteWarehouse(UUID id);
 }

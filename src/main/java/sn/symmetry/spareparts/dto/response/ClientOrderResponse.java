@@ -10,6 +10,7 @@ import sn.symmetry.spareparts.enums.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,9 +19,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ClientOrderResponse {
 
-    private Long id;
+    private UUID id;
     private String orderNumber;
-    private Long customerId;
+    private UUID customerId;
     private String customerName;
     private OrderStatus status;
     private BigDecimal subtotal;
@@ -35,7 +36,7 @@ public class ClientOrderResponse {
     private String shippingCountry;
     private String notes;
     private String trackingNumber;
-    private Long warehouseId;
+    private UUID warehouseId;
     private String warehouseName;
     private LocalDateTime orderDate;
     private List<OrderItemResponse> items;

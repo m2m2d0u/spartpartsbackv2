@@ -4,12 +4,13 @@ import sn.symmetry.spareparts.dto.request.CreatePaymentRequest;
 import sn.symmetry.spareparts.dto.response.PaymentResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface PaymentService {
 
-    List<PaymentResponse> getPayments(Long invoiceId);
+    List<PaymentResponse> getPayments(UUID invoiceId);
 
-    PaymentResponse addPayment(Long invoiceId, CreatePaymentRequest request);
+    PaymentResponse addPayment(UUID invoiceId, CreatePaymentRequest request);
 
-    void deletePayment(Long invoiceId, Long paymentId);
+    void deletePayment(UUID invoiceId, UUID paymentId);
 }

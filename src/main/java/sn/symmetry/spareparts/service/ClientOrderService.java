@@ -8,17 +8,19 @@ import sn.symmetry.spareparts.dto.response.ClientOrderResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.OrderStatus;
 
+import java.util.UUID;
+
 public interface ClientOrderService {
 
-    PagedResponse<ClientOrderResponse> getAllOrders(Long customerId, OrderStatus status, Pageable pageable);
+    PagedResponse<ClientOrderResponse> getAllOrders(UUID customerId, OrderStatus status, Pageable pageable);
 
-    ClientOrderResponse getOrderById(Long id);
+    ClientOrderResponse getOrderById(UUID id);
 
     ClientOrderResponse createOrder(CreateClientOrderRequest request);
 
-    ClientOrderResponse updateOrder(Long id, UpdateClientOrderRequest request);
+    ClientOrderResponse updateOrder(UUID id, UpdateClientOrderRequest request);
 
-    ClientOrderResponse updateOrderStatus(Long id, UpdateOrderStatusRequest request);
+    ClientOrderResponse updateOrderStatus(UUID id, UpdateOrderStatusRequest request);
 
-    void deleteOrder(Long id);
+    void deleteOrder(UUID id);
 }

@@ -22,6 +22,8 @@ import sn.symmetry.spareparts.repository.PartImageRepository;
 import sn.symmetry.spareparts.repository.PartRepository;
 import sn.symmetry.spareparts.service.PartService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,7 +35,7 @@ public class PartServiceImpl implements PartService {
     private final PartMapper partMapper;
 
     @Override
-    public PagedResponse<PartResponse> getAllParts(Long categoryId, Boolean published, Pageable pageable) {
+    public PagedResponse<PartResponse> getAllParts(UUID categoryId, Boolean published, Pageable pageable) {
         Page<Part> page;
         if (categoryId != null && published != null) {
             page = partRepository.findByCategoryIdAndPublished(categoryId, published, pageable);
@@ -48,7 +50,7 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public PartResponse getPartById(Long id) {
+    public PartResponse getPartById(UUID id) {
         Part part = partRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", id));
         return partMapper.toResponse(part);
@@ -75,7 +77,7 @@ public class PartServiceImpl implements PartService {
 
     @Override
     @Transactional
-    public PartResponse updatePart(Long id, UpdatePartRequest request) {
+    public PartResponse updatePart(UUID id, UpdatePartRequest request) {
         Part part = partRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", id));
 
@@ -99,7 +101,7 @@ public class PartServiceImpl implements PartService {
 
     @Override
     @Transactional
-    public void deletePart(Long id) {
+    public void deletePart(UUID id) {
         Part part = partRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", id));
         partRepository.delete(part);
@@ -107,7 +109,7 @@ public class PartServiceImpl implements PartService {
 
     @Override
     @Transactional
-    public PartImageResponse addImageToPart(Long partId, CreatePartImageRequest request) {
+    public PartImageResponse addImageToPart(UUID partId, CreatePartImageRequest request) {
         Part part = partRepository.findById(partId)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
 
@@ -124,7 +126,7 @@ public class PartServiceImpl implements PartService {
 
     @Override
     @Transactional
-    public void removeImageFromPart(Long partId, Long imageId) {
+    public void removeImageFromPart(UUID partId, UUID imageId) {
         Part part = partRepository.findById(partId)
                 .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
 

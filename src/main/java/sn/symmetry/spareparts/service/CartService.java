@@ -4,15 +4,17 @@ import sn.symmetry.spareparts.dto.request.AddCartItemRequest;
 import sn.symmetry.spareparts.dto.request.UpdateCartItemRequest;
 import sn.symmetry.spareparts.dto.response.CartResponse;
 
+import java.util.UUID;
+
 public interface CartService {
 
-    CartResponse getCart(Long customerId);
+    CartResponse getCart(UUID customerId);
 
-    CartResponse addItem(Long customerId, AddCartItemRequest request);
+    CartResponse addItem(UUID customerId, AddCartItemRequest request);
 
-    CartResponse updateItem(Long customerId, Long itemId, UpdateCartItemRequest request);
+    CartResponse updateItem(UUID customerId, UUID itemId, UpdateCartItemRequest request);
 
-    CartResponse removeItem(Long customerId, Long itemId);
+    CartResponse removeItem(UUID customerId, UUID itemId);
 
-    void clearCart(Long customerId);
+    void clearCart(UUID customerId);
 }

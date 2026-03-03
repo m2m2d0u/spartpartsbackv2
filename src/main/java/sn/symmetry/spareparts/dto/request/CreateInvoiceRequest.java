@@ -11,6 +11,7 @@ import sn.symmetry.spareparts.enums.InvoiceType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,15 +23,15 @@ public class CreateInvoiceRequest {
     private InvoiceType invoiceType;
 
     @NotNull(message = "Customer ID is required")
-    private Long customerId;
+    private UUID customerId;
 
-    private Long orderId;
+    private UUID orderId;
 
-    private Long proformaId;
+    private UUID proformaId;
 
-    private Long depositId;
+    private UUID depositId;
 
-    private Long templateId;
+    private UUID templateId;
 
     @NotNull(message = "Issued date is required")
     private LocalDate issuedDate;
@@ -39,7 +40,7 @@ public class CreateInvoiceRequest {
 
     private LocalDate validityDate;
 
-    private Long sourceWarehouseId;
+    private UUID sourceWarehouseId;
 
     private String notes;
 

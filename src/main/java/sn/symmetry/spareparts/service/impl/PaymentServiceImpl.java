@@ -15,6 +15,7 @@ import sn.symmetry.spareparts.repository.PaymentRepository;
 import sn.symmetry.spareparts.service.PaymentService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     @Override
-    public List<PaymentResponse> getPayments(Long invoiceId) {
+    public List<PaymentResponse> getPayments(UUID invoiceId) {
         if (!invoiceRepository.existsById(invoiceId)) {
             throw new ResourceNotFoundException("Invoice", "id", invoiceId);
         }
@@ -37,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponse addPayment(Long invoiceId, CreatePaymentRequest request) {
+    public PaymentResponse addPayment(UUID invoiceId, CreatePaymentRequest request) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "id", invoiceId));
 
@@ -55,7 +56,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public void deletePayment(Long invoiceId, Long paymentId) {
+    public void deletePayment(UUID invoiceId, UUID paymentId) {
         if (!invoiceRepository.existsById(invoiceId)) {
             throw new ResourceNotFoundException("Invoice", "id", invoiceId);
         }

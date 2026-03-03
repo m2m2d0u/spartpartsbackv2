@@ -48,7 +48,7 @@ public class ReturnServiceImpl implements ReturnService {
     private final ReturnMapper returnMapper;
 
     @Override
-    public PagedResponse<ReturnResponse> getAllReturns(Long customerId, ReturnStatus status, Pageable pageable) {
+    public PagedResponse<ReturnResponse> getAllReturns(UUID customerId, ReturnStatus status, Pageable pageable) {
         Page<Return> page;
 
         if (customerId != null) {
@@ -63,7 +63,7 @@ public class ReturnServiceImpl implements ReturnService {
     }
 
     @Override
-    public ReturnResponse getReturnById(Long id) {
+    public ReturnResponse getReturnById(UUID id) {
         Return returnEntity = returnRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Return", "id", id));
         return returnMapper.toResponse(returnEntity);
@@ -103,7 +103,7 @@ public class ReturnServiceImpl implements ReturnService {
 
     @Override
     @Transactional
-    public ReturnResponse updateReturn(Long id, UpdateReturnRequest request) {
+    public ReturnResponse updateReturn(UUID id, UpdateReturnRequest request) {
         Return returnEntity = returnRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Return", "id", id));
 
@@ -142,7 +142,7 @@ public class ReturnServiceImpl implements ReturnService {
 
     @Override
     @Transactional
-    public ReturnResponse updateReturnStatus(Long id, UpdateReturnStatusRequest request) {
+    public ReturnResponse updateReturnStatus(UUID id, UpdateReturnStatusRequest request) {
         Return returnEntity = returnRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Return", "id", id));
 
@@ -154,7 +154,7 @@ public class ReturnServiceImpl implements ReturnService {
 
     @Override
     @Transactional
-    public void deleteReturn(Long id) {
+    public void deleteReturn(UUID id) {
         Return returnEntity = returnRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Return", "id", id));
 

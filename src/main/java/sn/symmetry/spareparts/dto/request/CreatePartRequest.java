@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,7 +32,7 @@ public class CreatePartRequest {
     @Size(max = 500, message = "Short description must not exceed 500 characters")
     private String shortDescription;
 
-    private Long categoryId;
+    private UUID categoryId;
 
     @NotNull(message = "Selling price is required")
     @DecimalMin(value = "0", message = "Selling price must be at least 0")

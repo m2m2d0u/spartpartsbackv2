@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,10 +19,10 @@ import java.util.List;
 public class CreateStockTransferRequest {
 
     @NotNull(message = "Source warehouse ID is required")
-    private Long sourceWarehouseId;
+    private UUID sourceWarehouseId;
 
     @NotNull(message = "Destination warehouse ID is required")
-    private Long destinationWarehouseId;
+    private UUID destinationWarehouseId;
 
     @NotNull(message = "Transfer date is required")
     private LocalDate transferDate;

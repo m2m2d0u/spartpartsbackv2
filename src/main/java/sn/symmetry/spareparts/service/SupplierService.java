@@ -6,15 +6,17 @@ import sn.symmetry.spareparts.dto.request.UpdateSupplierRequest;
 import sn.symmetry.spareparts.dto.response.SupplierResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface SupplierService {
 
     PagedResponse<SupplierResponse> getAllSuppliers(Pageable pageable);
 
-    SupplierResponse getSupplierById(Long id);
+    SupplierResponse getSupplierById(UUID id);
 
     SupplierResponse createSupplier(CreateSupplierRequest request);
 
-    SupplierResponse updateSupplier(Long id, UpdateSupplierRequest request);
+    SupplierResponse updateSupplier(UUID id, UpdateSupplierRequest request);
 
-    void deleteSupplier(Long id);
+    void deleteSupplier(UUID id);
 }

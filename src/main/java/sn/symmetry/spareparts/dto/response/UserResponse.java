@@ -9,6 +9,7 @@ import sn.symmetry.spareparts.enums.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserResponse {
 
-    private Long id;
+    private UUID id;
     private String name;
     private String email;
     private UserRole role;

@@ -7,12 +7,14 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.User;
 import sn.symmetry.spareparts.enums.UserRole;
 
+import java.util.UUID;
+
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
-    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByEmailAndIdNot(String email, UUID id);
 
     Page<User> findByRoleAndIsActive(UserRole role, Boolean isActive, Pageable pageable);
 

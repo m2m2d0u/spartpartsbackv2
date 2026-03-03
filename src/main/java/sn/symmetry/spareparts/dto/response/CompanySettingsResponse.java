@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CompanySettingsResponse {
 
-    private Long id;
+    private UUID id;
     private String companyName;
     private String logoUrl;
     private String street;
@@ -41,13 +42,13 @@ public class CompanySettingsResponse {
     private Integer defaultPaymentTerms;
     private Integer defaultProformaValidity;
     private String defaultInvoiceNotes;
-    private Long defaultTemplateId;
+    private UUID defaultTemplateId;
     private Boolean sequentialResetYearly;
     private String currencySymbol;
     private String currencyPosition;
     private Integer currencyDecimals;
-    private Long defaultWarehouseId;
-    private Long portalWarehouseId;
+    private UUID defaultWarehouseId;
+    private UUID portalWarehouseId;
     private Boolean portalEnabled;
     private BigDecimal portalMinOrderAmount;
     private BigDecimal portalShippingFlatRate;

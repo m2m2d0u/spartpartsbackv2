@@ -15,6 +15,8 @@ import sn.symmetry.spareparts.mapper.InvoiceTemplateMapper;
 import sn.symmetry.spareparts.repository.InvoiceTemplateRepository;
 import sn.symmetry.spareparts.service.InvoiceTemplateService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,7 +32,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
     }
 
     @Override
-    public InvoiceTemplateResponse getInvoiceTemplateById(Long id) {
+    public InvoiceTemplateResponse getInvoiceTemplateById(UUID id) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
         return invoiceTemplateMapper.toResponse(invoiceTemplate);
@@ -46,7 +48,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
 
     @Override
     @Transactional
-    public InvoiceTemplateResponse updateInvoiceTemplate(Long id, UpdateInvoiceTemplateRequest request) {
+    public InvoiceTemplateResponse updateInvoiceTemplate(UUID id, UpdateInvoiceTemplateRequest request) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
 
@@ -57,7 +59,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
 
     @Override
     @Transactional
-    public void deleteInvoiceTemplate(Long id) {
+    public void deleteInvoiceTemplate(UUID id) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
         invoiceTemplateRepository.delete(invoiceTemplate);

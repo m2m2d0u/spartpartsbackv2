@@ -24,6 +24,8 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.OrderStatus;
 import sn.symmetry.spareparts.service.ClientOrderService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -33,14 +35,14 @@ public class ClientOrderController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ClientOrderResponse>>> getAllOrders(
-            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) UUID customerId,
             @RequestParam(required = false) OrderStatus status,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(clientOrderService.getAllOrders(customerId, status, pageable)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ClientOrderResponse>> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ClientOrderResponse>> getOrderById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(clientOrderService.getOrderById(id)));
     }
 
@@ -54,7 +56,7 @@ public class ClientOrderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ClientOrderResponse>> updateOrder(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateClientOrderRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Order updated successfully",
                 clientOrderService.updateOrder(id, request)));
@@ -62,14 +64,14 @@ public class ClientOrderController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<ApiResponse<ClientOrderResponse>> updateOrderStatus(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Order status updated successfully",
                 clientOrderService.updateOrderStatus(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable UUID id) {
         clientOrderService.deleteOrder(id);
         return ResponseEntity.ok(ApiResponse.success("Order deleted successfully", null));
     }

@@ -13,6 +13,8 @@ import sn.symmetry.spareparts.mapper.AuditLogMapper;
 import sn.symmetry.spareparts.repository.AuditLogRepository;
 import sn.symmetry.spareparts.service.AuditLogService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -22,7 +24,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     private final AuditLogMapper auditLogMapper;
 
     @Override
-    public PagedResponse<AuditLogResponse> getAllAuditLogs(String entityType, Long entityId, Long userId, String action, Pageable pageable) {
+    public PagedResponse<AuditLogResponse> getAllAuditLogs(String entityType, UUID entityId, UUID userId, String action, Pageable pageable) {
         Page<AuditLog> page;
         if (entityType != null && entityId != null) {
             page = auditLogRepository.findByEntityTypeAndEntityId(entityType, entityId, pageable);
@@ -39,7 +41,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
-    public AuditLogResponse getAuditLogById(Long id) {
+    public AuditLogResponse getAuditLogById(UUID id) {
         AuditLog auditLog = auditLogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("AuditLog", "id", id));
         return auditLogMapper.toResponse(auditLog);

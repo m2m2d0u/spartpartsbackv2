@@ -8,19 +8,21 @@ import sn.symmetry.spareparts.dto.response.PartImageResponse;
 import sn.symmetry.spareparts.dto.response.PartResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface PartService {
 
-    PagedResponse<PartResponse> getAllParts(Long categoryId, Boolean published, Pageable pageable);
+    PagedResponse<PartResponse> getAllParts(UUID categoryId, Boolean published, Pageable pageable);
 
-    PartResponse getPartById(Long id);
+    PartResponse getPartById(UUID id);
 
     PartResponse createPart(CreatePartRequest request);
 
-    PartResponse updatePart(Long id, UpdatePartRequest request);
+    PartResponse updatePart(UUID id, UpdatePartRequest request);
 
-    void deletePart(Long id);
+    void deletePart(UUID id);
 
-    PartImageResponse addImageToPart(Long partId, CreatePartImageRequest request);
+    PartImageResponse addImageToPart(UUID partId, CreatePartImageRequest request);
 
-    void removeImageFromPart(Long partId, Long imageId);
+    void removeImageFromPart(UUID partId, UUID imageId);
 }

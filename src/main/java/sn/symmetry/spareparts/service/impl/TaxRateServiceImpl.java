@@ -15,6 +15,8 @@ import sn.symmetry.spareparts.mapper.TaxRateMapper;
 import sn.symmetry.spareparts.repository.TaxRateRepository;
 import sn.symmetry.spareparts.service.TaxRateService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,7 +32,7 @@ public class TaxRateServiceImpl implements TaxRateService {
     }
 
     @Override
-    public TaxRateResponse getTaxRateById(Long id) {
+    public TaxRateResponse getTaxRateById(UUID id) {
         TaxRate taxRate = taxRateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", id));
         return taxRateMapper.toResponse(taxRate);
@@ -46,7 +48,7 @@ public class TaxRateServiceImpl implements TaxRateService {
 
     @Override
     @Transactional
-    public TaxRateResponse updateTaxRate(Long id, UpdateTaxRateRequest request) {
+    public TaxRateResponse updateTaxRate(UUID id, UpdateTaxRateRequest request) {
         TaxRate taxRate = taxRateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", id));
 
@@ -57,7 +59,7 @@ public class TaxRateServiceImpl implements TaxRateService {
 
     @Override
     @Transactional
-    public void deleteTaxRate(Long id) {
+    public void deleteTaxRate(UUID id) {
         TaxRate taxRate = taxRateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", id));
         taxRateRepository.delete(taxRate);

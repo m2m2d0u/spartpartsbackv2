@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,15 +21,15 @@ import java.util.List;
 @AllArgsConstructor
 public class InvoiceResponse {
 
-    private Long id;
+    private UUID id;
     private String invoiceNumber;
     private InvoiceType invoiceType;
-    private Long customerId;
+    private UUID customerId;
     private String customerName;
-    private Long orderId;
-    private Long proformaId;
-    private Long depositId;
-    private Long templateId;
+    private UUID orderId;
+    private UUID proformaId;
+    private UUID depositId;
+    private UUID templateId;
     private InvoiceStatus status;
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
@@ -39,7 +40,7 @@ public class InvoiceResponse {
     private LocalDate dueDate;
     private LocalDate validityDate;
     private LocalDate paidDate;
-    private Long sourceWarehouseId;
+    private UUID sourceWarehouseId;
     private String sourceWarehouseName;
     private String issuerName;
     private String issuerNinea;

@@ -7,15 +7,17 @@ import sn.symmetry.spareparts.dto.response.StockTransferResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.StockTransferStatus;
 
+import java.util.UUID;
+
 public interface StockTransferService {
 
     PagedResponse<StockTransferResponse> getAllStockTransfers(StockTransferStatus status, Pageable pageable);
 
-    StockTransferResponse getStockTransferById(Long id);
+    StockTransferResponse getStockTransferById(UUID id);
 
     StockTransferResponse createStockTransfer(CreateStockTransferRequest request);
 
-    StockTransferResponse updateStockTransfer(Long id, UpdateStockTransferRequest request);
+    StockTransferResponse updateStockTransfer(UUID id, UpdateStockTransferRequest request);
 
-    void deleteStockTransfer(Long id);
+    void deleteStockTransfer(UUID id);
 }

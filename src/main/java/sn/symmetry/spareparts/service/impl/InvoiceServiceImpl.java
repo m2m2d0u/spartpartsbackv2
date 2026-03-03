@@ -52,7 +52,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceMapper invoiceMapper;
 
     @Override
-    public PagedResponse<InvoiceResponse> getAllInvoices(Long customerId, InvoiceStatus status, InvoiceType invoiceType, Pageable pageable) {
+    public PagedResponse<InvoiceResponse> getAllInvoices(UUID customerId, InvoiceStatus status, InvoiceType invoiceType, Pageable pageable) {
         Page<Invoice> page;
 
         if (customerId != null && status != null) {
@@ -71,7 +71,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public InvoiceResponse getInvoiceById(Long id) {
+    public InvoiceResponse getInvoiceById(UUID id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "id", id));
         return invoiceMapper.toResponse(invoice);
@@ -135,7 +135,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public InvoiceResponse updateInvoice(Long id, UpdateInvoiceRequest request) {
+    public InvoiceResponse updateInvoice(UUID id, UpdateInvoiceRequest request) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "id", id));
 
@@ -203,7 +203,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public InvoiceResponse updateInvoiceStatus(Long id, UpdateInvoiceStatusRequest request) {
+    public InvoiceResponse updateInvoiceStatus(UUID id, UpdateInvoiceStatusRequest request) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "id", id));
 
@@ -219,7 +219,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    public void deleteInvoice(Long id) {
+    public void deleteInvoice(UUID id) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "id", id));
 

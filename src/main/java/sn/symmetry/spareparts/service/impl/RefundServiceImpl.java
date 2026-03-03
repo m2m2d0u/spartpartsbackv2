@@ -16,6 +16,7 @@ import sn.symmetry.spareparts.repository.ReturnRepository;
 import sn.symmetry.spareparts.service.RefundService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class RefundServiceImpl implements RefundService {
     private final RefundMapper refundMapper;
 
     @Override
-    public List<RefundResponse> getRefunds(Long returnId) {
+    public List<RefundResponse> getRefunds(UUID returnId) {
         if (!returnRepository.existsById(returnId)) {
             throw new ResourceNotFoundException("Return", "id", returnId);
         }
@@ -39,7 +40,7 @@ public class RefundServiceImpl implements RefundService {
 
     @Override
     @Transactional
-    public RefundResponse createRefund(Long returnId, CreateRefundRequest request) {
+    public RefundResponse createRefund(UUID returnId, CreateRefundRequest request) {
         Return returnEntity = returnRepository.findById(returnId)
                 .orElseThrow(() -> new ResourceNotFoundException("Return", "id", returnId));
 

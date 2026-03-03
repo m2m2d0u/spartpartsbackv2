@@ -16,6 +16,8 @@ import sn.symmetry.spareparts.mapper.CustomerMapper;
 import sn.symmetry.spareparts.repository.CustomerRepository;
 import sn.symmetry.spareparts.service.CustomerService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponse getCustomerById(Long id) {
+    public CustomerResponse getCustomerById(UUID id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
         return customerMapper.toResponse(customer);
@@ -51,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest request) {
+    public CustomerResponse updateCustomer(UUID id, UpdateCustomerRequest request) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
 
@@ -66,7 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public void deleteCustomer(Long id) {
+    public void deleteCustomer(UUID id) {
         if (!customerRepository.existsById(id)) {
             throw new ResourceNotFoundException("Customer", "id", id);
         }

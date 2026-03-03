@@ -21,6 +21,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.TaxRateService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/tax-rates")
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class TaxRateController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TaxRateResponse>> getTaxRateById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TaxRateResponse>> getTaxRateById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(taxRateService.getTaxRateById(id)));
     }
 
@@ -49,14 +51,14 @@ public class TaxRateController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TaxRateResponse>> updateTaxRate(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateTaxRateRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Tax rate updated successfully",
                 taxRateService.updateTaxRate(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteTaxRate(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTaxRate(@PathVariable UUID id) {
         taxRateService.deleteTaxRate(id);
         return ResponseEntity.ok(ApiResponse.success("Tax rate deleted successfully", null));
     }

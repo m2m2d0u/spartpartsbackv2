@@ -6,15 +6,17 @@ import sn.symmetry.spareparts.dto.request.UpdateCategoryRequest;
 import sn.symmetry.spareparts.dto.response.CategoryResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface CategoryService {
 
     PagedResponse<CategoryResponse> getAllCategories(Pageable pageable);
 
-    CategoryResponse getCategoryById(Long id);
+    CategoryResponse getCategoryById(UUID id);
 
     CategoryResponse createCategory(CreateCategoryRequest request);
 
-    CategoryResponse updateCategory(Long id, UpdateCategoryRequest request);
+    CategoryResponse updateCategory(UUID id, UpdateCategoryRequest request);
 
-    void deleteCategory(Long id);
+    void deleteCategory(UUID id);
 }

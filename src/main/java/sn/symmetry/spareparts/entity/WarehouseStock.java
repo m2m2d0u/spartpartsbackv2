@@ -16,6 +16,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "warehouse_stock", uniqueConstraints = {
         @UniqueConstraint(name = "uk_warehouse_part", columnNames = {"warehouse_id", "part_id"})
@@ -30,8 +32,8 @@ import lombok.Setter;
 public class WarehouseStock {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id", nullable = false)

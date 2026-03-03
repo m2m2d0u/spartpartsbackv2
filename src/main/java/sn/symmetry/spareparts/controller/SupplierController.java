@@ -21,6 +21,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.SupplierService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/suppliers")
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class SupplierController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<SupplierResponse>> getSupplierById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SupplierResponse>> getSupplierById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(supplierService.getSupplierById(id)));
     }
 
@@ -49,14 +51,14 @@ public class SupplierController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SupplierResponse>> updateSupplier(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateSupplierRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Supplier updated successfully",
                 supplierService.updateSupplier(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable UUID id) {
         supplierService.deleteSupplier(id);
         return ResponseEntity.ok(ApiResponse.success("Supplier deleted successfully", null));
     }

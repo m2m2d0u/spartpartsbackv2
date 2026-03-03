@@ -10,6 +10,7 @@ import sn.symmetry.spareparts.enums.PaymentMethod;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,8 +19,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PaymentResponse {
 
-    private Long id;
-    private Long invoiceId;
+    private UUID id;
+    private UUID invoiceId;
     private BigDecimal amount;
     private PaymentMethod paymentMethod;
     private LocalDate paymentDate;

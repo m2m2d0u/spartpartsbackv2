@@ -14,6 +14,8 @@ import sn.symmetry.spareparts.mapper.WarehouseStockMapper;
 import sn.symmetry.spareparts.repository.WarehouseStockRepository;
 import sn.symmetry.spareparts.service.WarehouseStockService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,7 +25,7 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     private final WarehouseStockMapper warehouseStockMapper;
 
     @Override
-    public PagedResponse<WarehouseStockResponse> getAllWarehouseStock(Long warehouseId, Long partId, Pageable pageable) {
+    public PagedResponse<WarehouseStockResponse> getAllWarehouseStock(UUID warehouseId, UUID partId, Pageable pageable) {
         Page<WarehouseStock> page;
         if (partId != null) {
             page = warehouseStockRepository.findByWarehouseIdAndPartId(warehouseId, partId, pageable);
@@ -34,7 +36,7 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
     }
 
     @Override
-    public WarehouseStockResponse getWarehouseStockById(Long id) {
+    public WarehouseStockResponse getWarehouseStockById(UUID id) {
         WarehouseStock warehouseStock = warehouseStockRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("WarehouseStock", "id", id));
         return warehouseStockMapper.toResponse(warehouseStock);
@@ -42,7 +44,7 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 
     @Override
     @Transactional
-    public WarehouseStockResponse updateWarehouseStock(Long id, UpdateWarehouseStockRequest request) {
+    public WarehouseStockResponse updateWarehouseStock(UUID id, UpdateWarehouseStockRequest request) {
         WarehouseStock warehouseStock = warehouseStockRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("WarehouseStock", "id", id));
 

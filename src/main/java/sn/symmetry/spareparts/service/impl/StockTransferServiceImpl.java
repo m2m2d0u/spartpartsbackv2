@@ -50,7 +50,7 @@ public class StockTransferServiceImpl implements StockTransferService {
     }
 
     @Override
-    public StockTransferResponse getStockTransferById(Long id) {
+    public StockTransferResponse getStockTransferById(UUID id) {
         StockTransfer stockTransfer = stockTransferRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StockTransfer", "id", id));
         return stockTransferMapper.toResponse(stockTransfer);
@@ -94,7 +94,7 @@ public class StockTransferServiceImpl implements StockTransferService {
 
     @Override
     @Transactional
-    public StockTransferResponse updateStockTransfer(Long id, UpdateStockTransferRequest request) {
+    public StockTransferResponse updateStockTransfer(UUID id, UpdateStockTransferRequest request) {
         StockTransfer stockTransfer = stockTransferRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StockTransfer", "id", id));
 
@@ -136,7 +136,7 @@ public class StockTransferServiceImpl implements StockTransferService {
 
     @Override
     @Transactional
-    public void deleteStockTransfer(Long id) {
+    public void deleteStockTransfer(UUID id) {
         StockTransfer stockTransfer = stockTransferRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StockTransfer", "id", id));
 

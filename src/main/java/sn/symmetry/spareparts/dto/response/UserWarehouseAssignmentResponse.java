@@ -8,6 +8,7 @@ import lombok.Setter;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserWarehouseAssignmentResponse {
 
-    private Long warehouseId;
+    private UUID warehouseId;
     private String warehouseName;
     private String warehouseCode;
     private List<WarehousePermission> permissions;

@@ -7,12 +7,14 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.Return;
 import sn.symmetry.spareparts.enums.ReturnStatus;
 
+import java.util.UUID;
+
 @Repository
-public interface ReturnRepository extends JpaRepository<Return, Long> {
+public interface ReturnRepository extends JpaRepository<Return, UUID> {
 
     boolean existsByReturnNumber(String returnNumber);
 
-    Page<Return> findByCustomerId(Long customerId, Pageable pageable);
+    Page<Return> findByCustomerId(UUID customerId, Pageable pageable);
 
     Page<Return> findByStatus(ReturnStatus status, Pageable pageable);
 }

@@ -15,6 +15,8 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.StockMovementType;
 import sn.symmetry.spareparts.service.StockMovementService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/stock-movements")
 @RequiredArgsConstructor
@@ -24,8 +26,8 @@ public class StockMovementController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<StockMovementResponse>>> getAllStockMovements(
-            @RequestParam(required = false) Long warehouseId,
-            @RequestParam(required = false) Long partId,
+            @RequestParam(required = false) UUID warehouseId,
+            @RequestParam(required = false) UUID partId,
             @RequestParam(required = false) StockMovementType type,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -33,7 +35,7 @@ public class StockMovementController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<StockMovementResponse>> getStockMovementById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<StockMovementResponse>> getStockMovementById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(stockMovementService.getStockMovementById(id)));
     }
 }

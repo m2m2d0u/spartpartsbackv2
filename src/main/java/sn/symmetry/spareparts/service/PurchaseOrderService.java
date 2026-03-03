@@ -7,15 +7,17 @@ import sn.symmetry.spareparts.dto.response.PurchaseOrderResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.PurchaseOrderStatus;
 
+import java.util.UUID;
+
 public interface PurchaseOrderService {
 
-    PagedResponse<PurchaseOrderResponse> getAllPurchaseOrders(Long supplierId, PurchaseOrderStatus status, Pageable pageable);
+    PagedResponse<PurchaseOrderResponse> getAllPurchaseOrders(UUID supplierId, PurchaseOrderStatus status, Pageable pageable);
 
-    PurchaseOrderResponse getPurchaseOrderById(Long id);
+    PurchaseOrderResponse getPurchaseOrderById(UUID id);
 
     PurchaseOrderResponse createPurchaseOrder(CreatePurchaseOrderRequest request);
 
-    PurchaseOrderResponse updatePurchaseOrder(Long id, UpdatePurchaseOrderRequest request);
+    PurchaseOrderResponse updatePurchaseOrder(UUID id, UpdatePurchaseOrderRequest request);
 
-    void deletePurchaseOrder(Long id);
+    void deletePurchaseOrder(UUID id);
 }

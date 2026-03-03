@@ -1,0 +1,1791 @@
+{
+  "info": {
+    "_postman_id": "spareparts-collection",
+    "name": "Spareparts API",
+    "description": "Complete API collection for the Spareparts management system.\n\nCovers: Users, Warehouses, Categories, Suppliers, Customers, Parts, Tax Rates, Invoice Templates, Company Settings, Audit Logs, Client Orders, Cart, Purchase Orders, Stock Transfers, Warehouse Stock, Stock Movements, Invoices, Payments, Returns, Credit Notes, and Refunds.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "role", "value": "ADMIN", "disabled": true },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securePass123\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('userId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"role\": \"WAREHOUSE_OPERATOR\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete User (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User Warehouses",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"warehouseId\": \"{{warehouseId}}\",\n    \"permissions\": [\"STOCK_MANAGE\", \"ORDER_MANAGE\"]\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/warehouses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "warehouses"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Warehouses",
+      "item": [
+        {
+          "name": "List Warehouses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouses?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouses"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Warehouse by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouses/{{warehouseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouses", "{{warehouseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Warehouse",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Warehouse\",\n  \"code\": \"WH-MAIN\",\n  \"location\": \"Dakar\",\n  \"street\": \"123 Rue de Commerce\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"contactPerson\": \"Amadou Diallo\",\n  \"phone\": \"+221771234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouses"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('warehouseId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Warehouse",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Warehouse Updated\",\n  \"code\": \"WH-MAIN\",\n  \"location\": \"Dakar Centre\",\n  \"street\": \"456 Avenue Bourguiba\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"contactPerson\": \"Amadou Diallo\",\n  \"phone\": \"+221771234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouses/{{warehouseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouses", "{{warehouseId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Warehouse (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouses/{{warehouseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouses", "{{warehouseId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engine Parts\",\n  \"description\": \"All engine-related spare parts\",\n  \"imageUrl\": \"https://example.com/images/engine.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('categoryId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engine Parts Updated\",\n  \"description\": \"All engine-related spare parts and accessories\",\n  \"imageUrl\": \"https://example.com/images/engine-v2.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "{{categoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Suppliers",
+      "item": [
+        {
+          "name": "List Suppliers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Supplier by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Supplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AutoParts International\",\n  \"contactPerson\": \"Marie Ndiaye\",\n  \"email\": \"contact@autoparts-intl.com\",\n  \"phone\": \"+221771112233\",\n  \"street\": \"Zone Industrielle\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"notes\": \"Primary engine parts supplier\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('supplierId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Supplier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AutoParts International Updated\",\n  \"contactPerson\": \"Marie Ndiaye\",\n  \"email\": \"info@autoparts-intl.com\",\n  \"phone\": \"+221771112233\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Supplier",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/suppliers/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "suppliers", "{{supplierId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Garage Moderne\",\n  \"company\": \"Garage Moderne SARL\",\n  \"email\": \"garage.moderne@example.com\",\n  \"phone\": \"+221779998877\",\n  \"street\": \"15 Rue de Thiès\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"taxId\": \"SN12345678\",\n  \"portalAccess\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('customerId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Garage Moderne Updated\",\n  \"company\": \"Garage Moderne SARL\",\n  \"email\": \"info@garage-moderne.sn\",\n  \"phone\": \"+221779998877\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"portalAccess\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parts",
+      "item": [
+        {
+          "name": "List Parts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/parts?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "categoryId", "value": "{{categoryId}}", "disabled": true },
+                { "key": "published", "value": "true", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Part by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/parts/{{partId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts", "{{partId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Part",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partNumber\": \"ENG-001\",\n  \"name\": \"Oil Filter\",\n  \"description\": \"Universal oil filter for most vehicles\",\n  \"shortDescription\": \"Oil filter\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"sellingPrice\": 15000,\n  \"purchasePrice\": 8000,\n  \"minStockLevel\": 10,\n  \"published\": true,\n  \"notes\": \"High demand item\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/parts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('partId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Part",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partNumber\": \"ENG-001\",\n  \"name\": \"Oil Filter Premium\",\n  \"description\": \"Premium universal oil filter\",\n  \"shortDescription\": \"Premium oil filter\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"sellingPrice\": 18000,\n  \"purchasePrice\": 9000,\n  \"minStockLevel\": 15,\n  \"published\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/parts/{{partId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts", "{{partId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Part",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/parts/{{partId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts", "{{partId}}"]
+            }
+          }
+        },
+        {
+          "name": "Add Image to Part",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/images/oil-filter-1.png\",\n  \"sortOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/parts/{{partId}}/images",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts", "{{partId}}", "images"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('imageId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Image from Part",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/parts/{{partId}}/images/{{imageId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "parts", "{{partId}}", "images", "{{imageId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tax Rates",
+      "item": [
+        {
+          "name": "List Tax Rates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tax-rates?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tax-rates"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Tax Rate by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tax-rates/{{taxRateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tax-rates", "{{taxRateId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Tax Rate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"TVA 18%\",\n  \"rate\": 18.00,\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tax-rates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tax-rates"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('taxRateId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Tax Rate",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"TVA 20%\",\n  \"rate\": 20.00,\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tax-rates/{{taxRateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tax-rates", "{{taxRateId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Tax Rate",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tax-rates/{{taxRateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tax-rates", "{{taxRateId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoice Templates",
+      "item": [
+        {
+          "name": "List Invoice Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice-templates?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoice-templates"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice Template by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice-templates/{{invoiceTemplateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoice-templates", "{{invoiceTemplateId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Invoice Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Default Template\",\n  \"description\": \"Standard invoice template\",\n  \"isDefault\": true,\n  \"primaryColor\": \"#2563EB\",\n  \"accentColor\": \"#1E40AF\",\n  \"fontFamily\": \"Helvetica\",\n  \"headerLayout\": \"standard\",\n  \"showNinea\": true,\n  \"showRccm\": true,\n  \"showTaxId\": true,\n  \"showWarehouseAddress\": false,\n  \"showCustomerTaxId\": true,\n  \"showPaymentTerms\": true,\n  \"showDiscountColumn\": true,\n  \"defaultNotes\": \"Thank you for your business!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice-templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoice-templates"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('invoiceTemplateId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Invoice Template",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Default Template Updated\",\n  \"description\": \"Updated standard invoice template\",\n  \"isDefault\": true,\n  \"primaryColor\": \"#1D4ED8\",\n  \"fontFamily\": \"Arial\",\n  \"showDiscountColumn\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice-templates/{{invoiceTemplateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoice-templates", "{{invoiceTemplateId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Invoice Template",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoice-templates/{{invoiceTemplateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoice-templates", "{{invoiceTemplateId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Company Settings",
+      "item": [
+        {
+          "name": "Get Company Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Update Company Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Symmetry Spareparts SARL\",\n  \"street\": \"10 Avenue Cheikh Anta Diop\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"phone\": \"+221338001234\",\n  \"email\": \"contact@symmetry-parts.sn\",\n  \"taxId\": \"SN-TAX-001\",\n  \"ninea\": \"NINEA-12345\",\n  \"rccm\": \"RCCM-SN-67890\",\n  \"defaultTaxRate\": 18.00,\n  \"invoicePrefix\": \"INV\",\n  \"proformaPrefix\": \"PRO\",\n  \"depositPrefix\": \"DEP\",\n  \"creditNotePrefix\": \"CN\",\n  \"orderPrefix\": \"ORD\",\n  \"poPrefix\": \"PO\",\n  \"transferPrefix\": \"ST\",\n  \"returnPrefix\": \"RET\",\n  \"defaultPaymentTerms\": 30,\n  \"defaultProformaValidity\": 30,\n  \"currencySymbol\": \"FCFA\",\n  \"currencyPosition\": \"after\",\n  \"currencyDecimals\": 0,\n  \"portalEnabled\": false,\n  \"sequentialResetYearly\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "settings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "List Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit-logs?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit-logs"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "entityType", "value": "Invoice", "disabled": true },
+                { "key": "entityId", "value": "550e8400-e29b-41d4-a716-446655440000", "disabled": true },
+                { "key": "userId", "value": "550e8400-e29b-41d4-a716-446655440001", "disabled": true },
+                { "key": "action", "value": "CREATE", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Log by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit-logs/550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit-logs", "550e8400-e29b-41d4-a716-446655440000"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Client Orders",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "customerId", "value": "{{customerId}}", "disabled": true },
+                { "key": "status", "value": "PENDING", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{{orderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"warehouseId\": \"{{warehouseId}}\",\n  \"shippingStreet\": \"15 Rue de Thiès\",\n  \"shippingCity\": \"Dakar\",\n  \"shippingCountry\": \"Senegal\",\n  \"notes\": \"Urgent delivery\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 5,\n      \"unitPrice\": 15000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('orderId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouseId\": \"{{warehouseId}}\",\n  \"shippingStreet\": \"20 Avenue Bourguiba\",\n  \"shippingCity\": \"Dakar\",\n  \"shippingCountry\": \"Senegal\",\n  \"notes\": \"Updated delivery address\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 10,\n      \"unitPrice\": 14000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{{orderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\",\n  \"trackingNumber\": \"TRK-2024-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{{orderId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{{orderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}", "cart"]
+            }
+          }
+        },
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"partId\": \"{{partId}}\",\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}/cart/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}", "cart", "items"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.items && json.data.items.length > 0) {",
+                  "        pm.environment.set('cartItemId', json.data.items[json.data.items.length - 1].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}/cart/items/{{cartItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}", "cart", "items", "{{cartItemId}}"]
+            }
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}/cart/items/{{cartItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}", "cart", "items", "{{cartItemId}}"]
+            }
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}", "cart"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Purchase Orders",
+      "item": [
+        {
+          "name": "List Purchase Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/purchase-orders?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchase-orders"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "supplierId", "value": "{{supplierId}}", "disabled": true },
+                { "key": "status", "value": "DRAFT", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Purchase Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/purchase-orders/{{purchaseOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchase-orders", "{{purchaseOrderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Purchase Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"orderDate\": \"2026-03-03\",\n  \"expectedDeliveryDate\": \"2026-03-15\",\n  \"destinationWarehouseId\": \"{{warehouseId}}\",\n  \"notes\": \"Monthly restock order\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 50,\n      \"unitPrice\": 8000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/purchase-orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchase-orders"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('purchaseOrderId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Purchase Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplierId\": \"{{supplierId}}\",\n  \"orderDate\": \"2026-03-03\",\n  \"expectedDeliveryDate\": \"2026-03-20\",\n  \"destinationWarehouseId\": \"{{warehouseId}}\",\n  \"notes\": \"Updated delivery date\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 100,\n      \"unitPrice\": 7500\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/purchase-orders/{{purchaseOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchase-orders", "{{purchaseOrderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Purchase Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/purchase-orders/{{purchaseOrderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchase-orders", "{{purchaseOrderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock Transfers",
+      "item": [
+        {
+          "name": "List Stock Transfers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-transfers?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-transfers"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "status", "value": "PENDING", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Stock Transfer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-transfers/{{stockTransferId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-transfers", "{{stockTransferId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Stock Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceWarehouseId\": \"{{warehouseId}}\",\n  \"destinationWarehouseId\": \"550e8400-e29b-41d4-a716-446655440012\",\n  \"transferDate\": \"2026-03-03\",\n  \"notes\": \"Rebalance stock between warehouses\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 10\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-transfers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-transfers"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('stockTransferId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Stock Transfer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceWarehouseId\": \"{{warehouseId}}\",\n  \"destinationWarehouseId\": \"550e8400-e29b-41d4-a716-446655440012\",\n  \"transferDate\": \"2026-03-05\",\n  \"notes\": \"Adjusted transfer date\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 20\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-transfers/{{stockTransferId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-transfers", "{{stockTransferId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Stock Transfer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-transfers/{{stockTransferId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-transfers", "{{stockTransferId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Warehouse Stock",
+      "item": [
+        {
+          "name": "List Warehouse Stock",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouse-stock?warehouseId={{warehouseId}}&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouse-stock"],
+              "query": [
+                { "key": "warehouseId", "value": "{{warehouseId}}" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "partId", "value": "{{partId}}", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Warehouse Stock by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouse-stock/{{warehouseStockId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouse-stock", "{{warehouseStockId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Warehouse Stock Min Level",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minStockLevel\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/warehouse-stock/{{warehouseStockId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "warehouse-stock", "{{warehouseStockId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock Movements",
+      "item": [
+        {
+          "name": "List Stock Movements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-movements?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-movements"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "warehouseId", "value": "{{warehouseId}}", "disabled": true },
+                { "key": "partId", "value": "{{partId}}", "disabled": true },
+                { "key": "type", "value": "PURCHASE", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Stock Movement by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-movements/550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-movements", "550e8400-e29b-41d4-a716-446655440000"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "customerId", "value": "{{customerId}}", "disabled": true },
+                { "key": "status", "value": "DRAFT", "disabled": true },
+                { "key": "invoiceType", "value": "STANDARD", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceType\": \"STANDARD\",\n  \"customerId\": \"{{customerId}}\",\n  \"issuedDate\": \"2026-03-03\",\n  \"dueDate\": \"2026-04-02\",\n  \"sourceWarehouseId\": \"{{warehouseId}}\",\n  \"notes\": \"Standard invoice\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 5,\n      \"unitPrice\": 15000,\n      \"discountPercent\": 0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('invoiceId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Invoice",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issuedDate\": \"2026-03-03\",\n  \"dueDate\": \"2026-04-15\",\n  \"sourceWarehouseId\": \"{{warehouseId}}\",\n  \"notes\": \"Updated payment terms\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 10,\n      \"unitPrice\": 14000,\n      \"discountPercent\": 5\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Invoice Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Invoice",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "List Payments for Invoice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Add Payment to Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50000,\n  \"paymentMethod\": \"BANK_TRANSFER\",\n  \"paymentDate\": \"2026-03-03\",\n  \"reference\": \"VIR-2026-001\",\n  \"notes\": \"Partial payment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}", "payments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('paymentId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Payment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/invoices/{{invoiceId}}/payments/{{paymentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "invoices", "{{invoiceId}}", "payments", "{{paymentId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Returns",
+      "item": [
+        {
+          "name": "List Returns",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/returns?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "customerId", "value": "{{customerId}}", "disabled": true },
+                { "key": "status", "value": "REQUESTED", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Return by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"returnDate\": \"2026-03-03\",\n  \"notes\": \"Customer reported defective parts\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 2,\n      \"reason\": \"DEFECTIVE\",\n      \"restockAction\": \"RETURN_TO_STOCK\",\n      \"warehouseId\": \"{{warehouseId}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/returns",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('returnId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Return",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"returnDate\": \"2026-03-04\",\n  \"notes\": \"Updated return details\",\n  \"items\": [\n    {\n      \"partId\": \"{{partId}}\",\n      \"quantity\": 3,\n      \"reason\": \"WRONG_PART\",\n      \"restockAction\": \"RETURN_TO_STOCK\",\n      \"warehouseId\": \"{{warehouseId}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Return Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Return",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Credit Notes",
+      "item": [
+        {
+          "name": "Get Credit Note for Return",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}/credit-note",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}", "credit-note"]
+            }
+          }
+        },
+        {
+          "name": "Create Credit Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalAmount\": 30000,\n  \"issuedDate\": \"2026-03-03\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}/credit-note",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}", "credit-note"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "List Refunds for Return",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}/refunds",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}", "refunds"]
+            }
+          }
+        },
+        {
+          "name": "Create Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\",\n  \"amount\": 30000,\n  \"refundMethod\": \"BANK_TRANSFER\",\n  \"refundDate\": \"2026-03-03\",\n  \"reference\": \"REF-2026-001\",\n  \"notes\": \"Refund for defective parts\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/returns/{{returnId}}/refunds",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "returns", "{{returnId}}", "refunds"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

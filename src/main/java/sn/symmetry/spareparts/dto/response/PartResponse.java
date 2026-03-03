@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,12 +18,12 @@ import java.util.List;
 @AllArgsConstructor
 public class PartResponse {
 
-    private Long id;
+    private UUID id;
     private String partNumber;
     private String name;
     private String description;
     private String shortDescription;
-    private Long categoryId;
+    private UUID categoryId;
     private String categoryName;
     private BigDecimal sellingPrice;
     private BigDecimal purchasePrice;

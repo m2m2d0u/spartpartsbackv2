@@ -18,6 +18,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "user_warehouse_permission", uniqueConstraints = {
         @UniqueConstraint(name = "uk_uwp", columnNames = {"user_warehouse_id", "permission"})
@@ -29,8 +31,8 @@ import sn.symmetry.spareparts.enums.WarehousePermission;
 public class UserWarehousePermission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_warehouse_id", nullable = false)

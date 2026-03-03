@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -89,7 +90,7 @@ public class UpdateCompanySettingsRequest {
 
     private String defaultInvoiceNotes;
 
-    private Long defaultTemplateId;
+    private UUID defaultTemplateId;
 
     private Boolean sequentialResetYearly;
 
@@ -101,9 +102,9 @@ public class UpdateCompanySettingsRequest {
 
     private Integer currencyDecimals;
 
-    private Long defaultWarehouseId;
+    private UUID defaultWarehouseId;
 
-    private Long portalWarehouseId;
+    private UUID portalWarehouseId;
 
     private Boolean portalEnabled;
 

@@ -17,6 +17,7 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.service.PaymentService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/invoices/{invoiceId}/payments")
@@ -27,13 +28,13 @@ public class PaymentController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<PaymentResponse>>> getPayments(
-            @PathVariable Long invoiceId) {
+            @PathVariable UUID invoiceId) {
         return ResponseEntity.ok(ApiResponse.success(paymentService.getPayments(invoiceId)));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<PaymentResponse>> addPayment(
-            @PathVariable Long invoiceId,
+            @PathVariable UUID invoiceId,
             @Valid @RequestBody CreatePaymentRequest request) {
         PaymentResponse response = paymentService.addPayment(invoiceId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,8 +43,8 @@ public class PaymentController {
 
     @DeleteMapping("/{paymentId}")
     public ResponseEntity<ApiResponse<Void>> deletePayment(
-            @PathVariable Long invoiceId,
-            @PathVariable Long paymentId) {
+            @PathVariable UUID invoiceId,
+            @PathVariable UUID paymentId) {
         paymentService.deletePayment(invoiceId, paymentId);
         return ResponseEntity.ok(ApiResponse.success("Payment deleted successfully", null));
     }

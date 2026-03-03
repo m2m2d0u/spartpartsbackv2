@@ -24,6 +24,8 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.ReturnStatus;
 import sn.symmetry.spareparts.service.ReturnService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/returns")
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class ReturnController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<ReturnResponse>>> getAllReturns(
-            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) UUID customerId,
             @RequestParam(required = false) ReturnStatus status,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -41,7 +43,7 @@ public class ReturnController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ReturnResponse>> getReturnById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ReturnResponse>> getReturnById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(returnService.getReturnById(id)));
     }
 
@@ -55,7 +57,7 @@ public class ReturnController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ReturnResponse>> updateReturn(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateReturnRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Return updated successfully",
                 returnService.updateReturn(id, request)));
@@ -63,14 +65,14 @@ public class ReturnController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<ApiResponse<ReturnResponse>> updateReturnStatus(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateReturnStatusRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Return status updated successfully",
                 returnService.updateReturnStatus(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteReturn(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteReturn(@PathVariable UUID id) {
         returnService.deleteReturn(id);
         return ResponseEntity.ok(ApiResponse.success("Return deleted successfully", null));
     }

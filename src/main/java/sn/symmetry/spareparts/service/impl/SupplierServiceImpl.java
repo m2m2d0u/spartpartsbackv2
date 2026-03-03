@@ -15,6 +15,8 @@ import sn.symmetry.spareparts.mapper.SupplierMapper;
 import sn.symmetry.spareparts.repository.SupplierRepository;
 import sn.symmetry.spareparts.service.SupplierService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,7 +32,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public SupplierResponse getSupplierById(Long id) {
+    public SupplierResponse getSupplierById(UUID id) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", "id", id));
         return supplierMapper.toResponse(supplier);
@@ -46,7 +48,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    public SupplierResponse updateSupplier(Long id, UpdateSupplierRequest request) {
+    public SupplierResponse updateSupplier(UUID id, UpdateSupplierRequest request) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", "id", id));
 
@@ -57,7 +59,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    public void deleteSupplier(Long id) {
+    public void deleteSupplier(UUID id) {
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", "id", id));
         supplierRepository.delete(supplier);

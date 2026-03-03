@@ -16,6 +16,7 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.service.RefundService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/returns/{returnId}/refunds")
@@ -26,13 +27,13 @@ public class RefundController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<RefundResponse>>> getRefunds(
-            @PathVariable Long returnId) {
+            @PathVariable UUID returnId) {
         return ResponseEntity.ok(ApiResponse.success(refundService.getRefunds(returnId)));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<RefundResponse>> createRefund(
-            @PathVariable Long returnId,
+            @PathVariable UUID returnId,
             @Valid @RequestBody CreateRefundRequest request) {
         RefundResponse response = refundService.createRefund(returnId, request);
         return ResponseEntity.status(HttpStatus.CREATED)

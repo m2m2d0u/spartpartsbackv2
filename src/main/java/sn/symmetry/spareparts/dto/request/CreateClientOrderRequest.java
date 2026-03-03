@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,9 +19,9 @@ import java.util.List;
 public class CreateClientOrderRequest {
 
     @NotNull(message = "Customer ID is required")
-    private Long customerId;
+    private UUID customerId;
 
-    private Long warehouseId;
+    private UUID warehouseId;
 
     @Size(max = 300, message = "Shipping street must not exceed 300 characters")
     private String shippingStreet;

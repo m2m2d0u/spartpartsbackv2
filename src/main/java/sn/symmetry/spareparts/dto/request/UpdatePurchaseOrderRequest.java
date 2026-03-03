@@ -11,6 +11,7 @@ import sn.symmetry.spareparts.enums.PurchaseOrderStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,7 +20,7 @@ import java.util.List;
 public class UpdatePurchaseOrderRequest {
 
     @NotNull(message = "Supplier ID is required")
-    private Long supplierId;
+    private UUID supplierId;
 
     private PurchaseOrderStatus status;
 
@@ -28,7 +29,7 @@ public class UpdatePurchaseOrderRequest {
 
     private LocalDate expectedDeliveryDate;
 
-    private Long destinationWarehouseId;
+    private UUID destinationWarehouseId;
 
     private String notes;
 

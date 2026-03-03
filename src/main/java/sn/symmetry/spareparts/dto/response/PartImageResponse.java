@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -13,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PartImageResponse {
 
-    private Long id;
+    private UUID id;
     private String url;
     private Integer sortOrder;
 }

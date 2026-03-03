@@ -10,6 +10,7 @@ import sn.symmetry.spareparts.enums.StockTransferStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,11 +19,11 @@ import java.util.List;
 @AllArgsConstructor
 public class StockTransferResponse {
 
-    private Long id;
+    private UUID id;
     private String transferNumber;
-    private Long sourceWarehouseId;
+    private UUID sourceWarehouseId;
     private String sourceWarehouseName;
-    private Long destinationWarehouseId;
+    private UUID destinationWarehouseId;
     private String destinationWarehouseName;
     private StockTransferStatus status;
     private LocalDate transferDate;

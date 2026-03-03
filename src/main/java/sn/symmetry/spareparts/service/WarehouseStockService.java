@@ -5,11 +5,13 @@ import sn.symmetry.spareparts.dto.request.UpdateWarehouseStockRequest;
 import sn.symmetry.spareparts.dto.response.WarehouseStockResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface WarehouseStockService {
 
-    PagedResponse<WarehouseStockResponse> getAllWarehouseStock(Long warehouseId, Long partId, Pageable pageable);
+    PagedResponse<WarehouseStockResponse> getAllWarehouseStock(UUID warehouseId, UUID partId, Pageable pageable);
 
-    WarehouseStockResponse getWarehouseStockById(Long id);
+    WarehouseStockResponse getWarehouseStockById(UUID id);
 
-    WarehouseStockResponse updateWarehouseStock(Long id, UpdateWarehouseStockRequest request);
+    WarehouseStockResponse updateWarehouseStock(UUID id, UpdateWarehouseStockRequest request);
 }

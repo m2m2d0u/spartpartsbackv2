@@ -8,6 +8,7 @@ import lombok.Setter;
 import sn.symmetry.spareparts.enums.StockMovementType;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,17 +17,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class StockMovementResponse {
 
-    private Long id;
-    private Long partId;
+    private UUID id;
+    private UUID partId;
     private String partName;
     private String partNumber;
-    private Long warehouseId;
+    private UUID warehouseId;
     private String warehouseName;
     private StockMovementType type;
     private Integer quantityChange;
     private Integer balanceAfter;
     private String referenceType;
-    private Long referenceId;
+    private UUID referenceId;
     private String notes;
     private LocalDateTime createdAt;
 }

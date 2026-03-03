@@ -26,7 +26,7 @@ public class CreditNoteServiceImpl implements CreditNoteService {
     private final CreditNoteMapper creditNoteMapper;
 
     @Override
-    public CreditNoteResponse getCreditNote(Long returnId) {
+    public CreditNoteResponse getCreditNote(UUID returnId) {
         if (!returnRepository.existsById(returnId)) {
             throw new ResourceNotFoundException("Return", "id", returnId);
         }
@@ -39,7 +39,7 @@ public class CreditNoteServiceImpl implements CreditNoteService {
 
     @Override
     @Transactional
-    public CreditNoteResponse createCreditNote(Long returnId, CreateCreditNoteRequest request) {
+    public CreditNoteResponse createCreditNote(UUID returnId, CreateCreditNoteRequest request) {
         Return returnEntity = returnRepository.findById(returnId)
                 .orElseThrow(() -> new ResourceNotFoundException("Return", "id", returnId));
 

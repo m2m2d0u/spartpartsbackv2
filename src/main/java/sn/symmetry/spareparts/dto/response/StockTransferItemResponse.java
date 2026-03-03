@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -13,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class StockTransferItemResponse {
 
-    private Long id;
-    private Long partId;
+    private UUID id;
+    private UUID partId;
     private String partName;
     private String partNumber;
     private Integer quantity;

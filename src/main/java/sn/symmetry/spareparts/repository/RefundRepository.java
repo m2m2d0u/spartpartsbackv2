@@ -5,9 +5,10 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.Refund;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface RefundRepository extends JpaRepository<Refund, Long> {
+public interface RefundRepository extends JpaRepository<Refund, UUID> {
 
-    List<Refund> findByReturnEntityId(Long returnId);
+    List<Refund> findByReturnEntityId(UUID returnId);
 }

@@ -14,6 +14,8 @@ import sn.symmetry.spareparts.mapper.StockMovementMapper;
 import sn.symmetry.spareparts.repository.StockMovementRepository;
 import sn.symmetry.spareparts.service.StockMovementService;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,7 +25,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     private final StockMovementMapper stockMovementMapper;
 
     @Override
-    public PagedResponse<StockMovementResponse> getAllStockMovements(Long warehouseId, Long partId, StockMovementType type, Pageable pageable) {
+    public PagedResponse<StockMovementResponse> getAllStockMovements(UUID warehouseId, UUID partId, StockMovementType type, Pageable pageable) {
         Page<StockMovement> page;
         if (warehouseId != null && partId != null) {
             page = stockMovementRepository.findByWarehouseIdAndPartId(warehouseId, partId, pageable);
@@ -40,7 +42,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
     @Override
-    public StockMovementResponse getStockMovementById(Long id) {
+    public StockMovementResponse getStockMovementById(UUID id) {
         StockMovement stockMovement = stockMovementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StockMovement", "id", id));
         return stockMovementMapper.toResponse(stockMovement);

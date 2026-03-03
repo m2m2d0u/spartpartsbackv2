@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,15 +20,15 @@ import java.util.List;
 @AllArgsConstructor
 public class PurchaseOrderResponse {
 
-    private Long id;
+    private UUID id;
     private String poNumber;
-    private Long supplierId;
+    private UUID supplierId;
     private String supplierName;
     private PurchaseOrderStatus status;
     private BigDecimal totalAmount;
     private LocalDate orderDate;
     private LocalDate expectedDeliveryDate;
-    private Long destinationWarehouseId;
+    private UUID destinationWarehouseId;
     private String destinationWarehouseName;
     private String notes;
     private List<PurchaseOrderItemResponse> items;

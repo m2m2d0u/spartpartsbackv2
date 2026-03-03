@@ -21,6 +21,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.CategoryService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(categoryService.getCategoryById(id)));
     }
 
@@ -49,14 +51,14 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateCategoryRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Category updated successfully",
                 categoryService.updateCategory(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok(ApiResponse.success("Category deleted successfully", null));
     }

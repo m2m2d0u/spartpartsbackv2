@@ -5,9 +5,11 @@ import sn.symmetry.spareparts.dto.response.StockMovementResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.StockMovementType;
 
+import java.util.UUID;
+
 public interface StockMovementService {
 
-    PagedResponse<StockMovementResponse> getAllStockMovements(Long warehouseId, Long partId, StockMovementType type, Pageable pageable);
+    PagedResponse<StockMovementResponse> getAllStockMovements(UUID warehouseId, UUID partId, StockMovementType type, Pageable pageable);
 
-    StockMovementResponse getStockMovementById(Long id);
+    StockMovementResponse getStockMovementById(UUID id);
 }

@@ -8,16 +8,18 @@ import sn.symmetry.spareparts.entity.Invoice;
 import sn.symmetry.spareparts.enums.InvoiceStatus;
 import sn.symmetry.spareparts.enums.InvoiceType;
 
+import java.util.UUID;
+
 @Repository
-public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
+public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     boolean existsByInvoiceNumber(String invoiceNumber);
 
-    Page<Invoice> findByCustomerId(Long customerId, Pageable pageable);
+    Page<Invoice> findByCustomerId(UUID customerId, Pageable pageable);
 
     Page<Invoice> findByStatus(InvoiceStatus status, Pageable pageable);
 
     Page<Invoice> findByInvoiceType(InvoiceType type, Pageable pageable);
 
-    Page<Invoice> findByCustomerIdAndStatus(Long customerId, InvoiceStatus status, Pageable pageable);
+    Page<Invoice> findByCustomerIdAndStatus(UUID customerId, InvoiceStatus status, Pageable pageable);
 }

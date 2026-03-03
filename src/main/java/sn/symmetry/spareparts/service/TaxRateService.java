@@ -6,15 +6,17 @@ import sn.symmetry.spareparts.dto.request.UpdateTaxRateRequest;
 import sn.symmetry.spareparts.dto.response.TaxRateResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface TaxRateService {
 
     PagedResponse<TaxRateResponse> getAllTaxRates(Pageable pageable);
 
-    TaxRateResponse getTaxRateById(Long id);
+    TaxRateResponse getTaxRateById(UUID id);
 
     TaxRateResponse createTaxRate(CreateTaxRateRequest request);
 
-    TaxRateResponse updateTaxRate(Long id, UpdateTaxRateRequest request);
+    TaxRateResponse updateTaxRate(UUID id, UpdateTaxRateRequest request);
 
-    void deleteTaxRate(Long id);
+    void deleteTaxRate(UUID id);
 }

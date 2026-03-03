@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -16,8 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CartResponse {
 
-    private Long id;
-    private Long customerId;
+    private UUID id;
+    private UUID customerId;
     private List<CartItemResponse> items;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -23,6 +23,8 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.PurchaseOrderStatus;
 import sn.symmetry.spareparts.service.PurchaseOrderService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/purchase-orders")
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class PurchaseOrderController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<PurchaseOrderResponse>>> getAllPurchaseOrders(
-            @RequestParam(required = false) Long supplierId,
+            @RequestParam(required = false) UUID supplierId,
             @RequestParam(required = false) PurchaseOrderStatus status,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -40,7 +42,7 @@ public class PurchaseOrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PurchaseOrderResponse>> getPurchaseOrderById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PurchaseOrderResponse>> getPurchaseOrderById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(purchaseOrderService.getPurchaseOrderById(id)));
     }
 
@@ -54,14 +56,14 @@ public class PurchaseOrderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PurchaseOrderResponse>> updatePurchaseOrder(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdatePurchaseOrderRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Purchase order updated successfully",
                 purchaseOrderService.updatePurchaseOrder(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePurchaseOrder(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePurchaseOrder(@PathVariable UUID id) {
         purchaseOrderService.deletePurchaseOrder(id);
         return ResponseEntity.ok(ApiResponse.success("Purchase order deleted successfully", null));
     }

@@ -7,8 +7,10 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.StockTransfer;
 import sn.symmetry.spareparts.enums.StockTransferStatus;
 
+import java.util.UUID;
+
 @Repository
-public interface StockTransferRepository extends JpaRepository<StockTransfer, Long> {
+public interface StockTransferRepository extends JpaRepository<StockTransfer, UUID> {
 
     boolean existsByTransferNumber(String transferNumber);
 

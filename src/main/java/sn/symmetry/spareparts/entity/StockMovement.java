@@ -20,6 +20,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import sn.symmetry.spareparts.enums.StockMovementType;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "stock_movement", indexes = {
@@ -35,8 +36,8 @@ import java.time.LocalDateTime;
 public class StockMovement {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "part_id", nullable = false)
@@ -60,7 +61,7 @@ public class StockMovement {
     private String referenceType;
 
     @Column(name = "reference_id")
-    private Long referenceId;
+    private UUID referenceId;
 
     @Column(length = 500)
     private String notes;

@@ -27,16 +27,16 @@ public class CompanySettingsServiceImpl implements CompanySettingsService {
 
     @Override
     public CompanySettingsResponse getSettings() {
-        CompanySettings settings = companySettingsRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "id", 1L));
+        CompanySettings settings = companySettingsRepository.findFirstBy()
+                .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "id", "default"));
         return companySettingsMapper.toResponse(settings);
     }
 
     @Override
     @Transactional
     public CompanySettingsResponse updateSettings(UpdateCompanySettingsRequest request) {
-        CompanySettings settings = companySettingsRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "id", 1L));
+        CompanySettings settings = companySettingsRepository.findFirstBy()
+                .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "id", "default"));
 
         companySettingsMapper.updateEntity(request, settings);
 

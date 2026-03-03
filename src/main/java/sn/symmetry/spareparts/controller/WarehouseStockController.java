@@ -18,6 +18,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.WarehouseStockService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/warehouse-stock")
 @RequiredArgsConstructor
@@ -27,21 +29,21 @@ public class WarehouseStockController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<WarehouseStockResponse>>> getAllWarehouseStock(
-            @RequestParam Long warehouseId,
-            @RequestParam(required = false) Long partId,
+            @RequestParam UUID warehouseId,
+            @RequestParam(required = false) UUID partId,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 warehouseStockService.getAllWarehouseStock(warehouseId, partId, pageable)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<WarehouseStockResponse>> getWarehouseStockById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<WarehouseStockResponse>> getWarehouseStockById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(warehouseStockService.getWarehouseStockById(id)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WarehouseStockResponse>> updateWarehouseStock(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateWarehouseStockRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Warehouse stock updated successfully",
                 warehouseStockService.updateWarehouseStock(id, request)));

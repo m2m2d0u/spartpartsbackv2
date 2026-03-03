@@ -24,6 +24,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.PartService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/parts")
 @RequiredArgsConstructor
@@ -33,14 +35,14 @@ public class PartController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<PartResponse>>> getAllParts(
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) UUID categoryId,
             @RequestParam(required = false) Boolean published,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(partService.getAllParts(categoryId, published, pageable)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PartResponse>> getPartById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PartResponse>> getPartById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(partService.getPartById(id)));
     }
 
@@ -54,21 +56,21 @@ public class PartController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PartResponse>> updatePart(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdatePartRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Part updated successfully",
                 partService.updatePart(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletePart(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePart(@PathVariable UUID id) {
         partService.deletePart(id);
         return ResponseEntity.ok(ApiResponse.success("Part deleted successfully", null));
     }
 
     @PostMapping("/{partId}/images")
     public ResponseEntity<ApiResponse<PartImageResponse>> addImageToPart(
-            @PathVariable Long partId,
+            @PathVariable UUID partId,
             @Valid @RequestBody CreatePartImageRequest request) {
         PartImageResponse response = partService.addImageToPart(partId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -77,8 +79,8 @@ public class PartController {
 
     @DeleteMapping("/{partId}/images/{imageId}")
     public ResponseEntity<ApiResponse<Void>> removeImageFromPart(
-            @PathVariable Long partId,
-            @PathVariable Long imageId) {
+            @PathVariable UUID partId,
+            @PathVariable UUID imageId) {
         partService.removeImageFromPart(partId, imageId);
         return ResponseEntity.ok(ApiResponse.success("Image removed successfully", null));
     }

@@ -27,6 +27,7 @@ import sn.symmetry.spareparts.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserById(Long id) {
+    public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
@@ -78,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+    public UserResponse updateUser(UUID id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
@@ -93,7 +94,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Long id) {
+    public void deleteUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         user.setIsActive(false);
@@ -102,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse updateUserWarehouses(Long id, List<UserWarehouseAssignmentRequest> assignments) {
+    public UserResponse updateUserWarehouses(UUID id, List<UserWarehouseAssignmentRequest> assignments) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
@@ -143,7 +144,7 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
-    private List<UserWarehouseAssignmentResponse> buildWarehouseAssignments(Long userId) {
+    private List<UserWarehouseAssignmentResponse> buildWarehouseAssignments(UUID userId) {
         List<UserWarehouse> assignments = userWarehouseRepository.findByUserId(userId);
         return assignments.stream()
                 .map(uw -> UserWarehouseAssignmentResponse.builder()

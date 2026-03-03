@@ -15,6 +15,8 @@ import sn.symmetry.spareparts.dto.response.CreditNoteResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.service.CreditNoteService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/returns/{returnId}/credit-note")
 @RequiredArgsConstructor
@@ -24,13 +26,13 @@ public class CreditNoteController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<CreditNoteResponse>> getCreditNote(
-            @PathVariable Long returnId) {
+            @PathVariable UUID returnId) {
         return ResponseEntity.ok(ApiResponse.success(creditNoteService.getCreditNote(returnId)));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<CreditNoteResponse>> createCreditNote(
-            @PathVariable Long returnId,
+            @PathVariable UUID returnId,
             @Valid @RequestBody CreateCreditNoteRequest request) {
         CreditNoteResponse response = creditNoteService.createCreditNote(returnId, request);
         return ResponseEntity.status(HttpStatus.CREATED)

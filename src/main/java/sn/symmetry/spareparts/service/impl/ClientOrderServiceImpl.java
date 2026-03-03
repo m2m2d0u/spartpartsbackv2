@@ -44,7 +44,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
     private final ClientOrderMapper clientOrderMapper;
 
     @Override
-    public PagedResponse<ClientOrderResponse> getAllOrders(Long customerId, OrderStatus status, Pageable pageable) {
+    public PagedResponse<ClientOrderResponse> getAllOrders(UUID customerId, OrderStatus status, Pageable pageable) {
         Page<ClientOrder> page;
         if (customerId != null && status != null) {
             page = clientOrderRepository.findByCustomerIdAndStatus(customerId, status, pageable);
@@ -59,7 +59,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
     }
 
     @Override
-    public ClientOrderResponse getOrderById(Long id) {
+    public ClientOrderResponse getOrderById(UUID id) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ClientOrder", "id", id));
         return clientOrderMapper.toResponse(order);
@@ -103,7 +103,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     @Override
     @Transactional
-    public ClientOrderResponse updateOrder(Long id, UpdateClientOrderRequest request) {
+    public ClientOrderResponse updateOrder(UUID id, UpdateClientOrderRequest request) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ClientOrder", "id", id));
 
@@ -135,7 +135,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     @Override
     @Transactional
-    public ClientOrderResponse updateOrderStatus(Long id, UpdateOrderStatusRequest request) {
+    public ClientOrderResponse updateOrderStatus(UUID id, UpdateOrderStatusRequest request) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ClientOrder", "id", id));
 
@@ -152,7 +152,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     @Override
     @Transactional
-    public void deleteOrder(Long id) {
+    public void deleteOrder(UUID id) {
         ClientOrder order = clientOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ClientOrder", "id", id));
 

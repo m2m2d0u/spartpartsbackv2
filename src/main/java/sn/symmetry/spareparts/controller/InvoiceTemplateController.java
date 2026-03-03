@@ -21,6 +21,8 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.InvoiceTemplateService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/invoice-templates")
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class InvoiceTemplateController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<InvoiceTemplateResponse>> getInvoiceTemplateById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<InvoiceTemplateResponse>> getInvoiceTemplateById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(invoiceTemplateService.getInvoiceTemplateById(id)));
     }
 
@@ -49,14 +51,14 @@ public class InvoiceTemplateController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<InvoiceTemplateResponse>> updateInvoiceTemplate(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody UpdateInvoiceTemplateRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Invoice template updated successfully",
                 invoiceTemplateService.updateInvoiceTemplate(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteInvoiceTemplate(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteInvoiceTemplate(@PathVariable UUID id) {
         invoiceTemplateService.deleteInvoiceTemplate(id);
         return ResponseEntity.ok(ApiResponse.success("Invoice template deleted successfully", null));
     }

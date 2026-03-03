@@ -18,6 +18,8 @@ import sn.symmetry.spareparts.dto.response.CartResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.service.CartService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/customers/{customerId}/cart")
 @RequiredArgsConstructor
@@ -26,13 +28,13 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<CartResponse>> getCart(@PathVariable Long customerId) {
+    public ResponseEntity<ApiResponse<CartResponse>> getCart(@PathVariable UUID customerId) {
         return ResponseEntity.ok(ApiResponse.success(cartService.getCart(customerId)));
     }
 
     @PostMapping("/items")
     public ResponseEntity<ApiResponse<CartResponse>> addItem(
-            @PathVariable Long customerId,
+            @PathVariable UUID customerId,
             @Valid @RequestBody AddCartItemRequest request) {
         CartResponse response = cartService.addItem(customerId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -41,8 +43,8 @@ public class CartController {
 
     @PutMapping("/items/{itemId}")
     public ResponseEntity<ApiResponse<CartResponse>> updateItem(
-            @PathVariable Long customerId,
-            @PathVariable Long itemId,
+            @PathVariable UUID customerId,
+            @PathVariable UUID itemId,
             @Valid @RequestBody UpdateCartItemRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Cart item updated successfully",
                 cartService.updateItem(customerId, itemId, request)));
@@ -50,14 +52,14 @@ public class CartController {
 
     @DeleteMapping("/items/{itemId}")
     public ResponseEntity<ApiResponse<CartResponse>> removeItem(
-            @PathVariable Long customerId,
-            @PathVariable Long itemId) {
+            @PathVariable UUID customerId,
+            @PathVariable UUID itemId) {
         return ResponseEntity.ok(ApiResponse.success("Item removed from cart successfully",
                 cartService.removeItem(customerId, itemId)));
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<Void>> clearCart(@PathVariable Long customerId) {
+    public ResponseEntity<ApiResponse<Void>> clearCart(@PathVariable UUID customerId) {
         cartService.clearCart(customerId);
         return ResponseEntity.ok(ApiResponse.success("Cart cleared successfully", null));
     }

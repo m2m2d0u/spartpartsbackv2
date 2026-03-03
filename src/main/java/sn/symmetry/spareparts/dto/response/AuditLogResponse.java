@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,14 +16,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AuditLogResponse {
 
-    private Long id;
-    private Long userId;
+    private UUID id;
+    private UUID userId;
     private String userName;
-    private Long customerId;
+    private UUID customerId;
     private String customerName;
     private String action;
     private String entityType;
-    private Long entityId;
+    private UUID entityId;
     private Object changes;
     private String ipAddress;
     private LocalDateTime createdAt;

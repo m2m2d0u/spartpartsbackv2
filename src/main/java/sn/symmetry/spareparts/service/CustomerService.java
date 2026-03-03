@@ -6,15 +6,17 @@ import sn.symmetry.spareparts.dto.request.UpdateCustomerRequest;
 import sn.symmetry.spareparts.dto.response.CustomerResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.UUID;
+
 public interface CustomerService {
 
     PagedResponse<CustomerResponse> getAllCustomers(Pageable pageable);
 
-    CustomerResponse getCustomerById(Long id);
+    CustomerResponse getCustomerById(UUID id);
 
     CustomerResponse createCustomer(CreateCustomerRequest request);
 
-    CustomerResponse updateCustomer(Long id, UpdateCustomerRequest request);
+    CustomerResponse updateCustomer(UUID id, UpdateCustomerRequest request);
 
-    void deleteCustomer(Long id);
+    void deleteCustomer(UUID id);
 }

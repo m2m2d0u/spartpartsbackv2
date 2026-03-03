@@ -9,18 +9,19 @@ import sn.symmetry.spareparts.dto.response.UserResponse;
 import sn.symmetry.spareparts.enums.UserRole;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
 
     PagedResponse<UserResponse> getAllUsers(UserRole role, Boolean isActive, Pageable pageable);
 
-    UserResponse getUserById(Long id);
+    UserResponse getUserById(UUID id);
 
     UserResponse createUser(CreateUserRequest request);
 
-    UserResponse updateUser(Long id, UpdateUserRequest request);
+    UserResponse updateUser(UUID id, UpdateUserRequest request);
 
-    void deleteUser(Long id);
+    void deleteUser(UUID id);
 
-    UserResponse updateUserWarehouses(Long id, List<UserWarehouseAssignmentRequest> assignments);
+    UserResponse updateUserWarehouses(UUID id, List<UserWarehouseAssignmentRequest> assignments);
 }
