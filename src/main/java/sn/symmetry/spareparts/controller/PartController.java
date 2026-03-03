@@ -37,8 +37,10 @@ public class PartController {
     public ResponseEntity<ApiResponse<PagedResponse<PartResponse>>> getAllParts(
             @RequestParam(required = false) UUID categoryId,
             @RequestParam(required = false) Boolean published,
+            @RequestParam(required = false) UUID carBrandId,
+            @RequestParam(required = false) UUID carModelId,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(partService.getAllParts(categoryId, published, pageable)));
+        return ResponseEntity.ok(ApiResponse.success(partService.getAllParts(categoryId, published, carBrandId, carModelId, pageable)));
     }
 
     @GetMapping("/{id}")

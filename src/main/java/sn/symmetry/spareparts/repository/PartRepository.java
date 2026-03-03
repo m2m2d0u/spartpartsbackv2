@@ -20,4 +20,8 @@ public interface PartRepository extends JpaRepository<Part, UUID> {
     Page<Part> findByPublished(Boolean published, Pageable pageable);
 
     Page<Part> findByCategoryIdAndPublished(UUID categoryId, Boolean published, Pageable pageable);
+
+    Page<Part> findByCarBrandId(UUID carBrandId, Pageable pageable);
+
+    Page<Part> findByCarModelId(UUID carModelId, Pageable pageable);
 }

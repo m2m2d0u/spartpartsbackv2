@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface PartService {
 
-    PagedResponse<PartResponse> getAllParts(UUID categoryId, Boolean published, Pageable pageable);
+    PagedResponse<PartResponse> getAllParts(UUID categoryId, Boolean published, UUID carBrandId, UUID carModelId, Pageable pageable);
 
     PartResponse getPartById(UUID id);
 

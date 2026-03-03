@@ -25,12 +25,17 @@ public class PartResponse {
     private String shortDescription;
     private UUID categoryId;
     private String categoryName;
+    private UUID carBrandId;
+    private String carBrandName;
+    private UUID carModelId;
+    private String carModelName;
     private BigDecimal sellingPrice;
     private BigDecimal purchasePrice;
     private Integer minStockLevel;
     private Boolean published;
     private String notes;
     private List<PartImageResponse> images;
+    private List<TagResponse> tags;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

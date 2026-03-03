@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -28,7 +30,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "part", indexes = {
         @Index(name = "idx_part_category", columnList = "category_id"),
-        @Index(name = "idx_part_published", columnList = "published")
+        @Index(name = "idx_part_published", columnList = "published"),
+        @Index(name = "idx_part_car_brand", columnList = "car_brand_id"),
+        @Index(name = "idx_part_car_model", columnList = "car_model_id")
 })
 @Getter
 @Setter
@@ -56,6 +60,14 @@ public class Part {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_brand_id")
+    private CarBrand carBrand;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_model_id")
+    private CarModel carModel;
+
     @Column(name = "selling_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal sellingPrice;
 
@@ -81,4 +93,12 @@ public class Part {
 
     @OneToMany(mappedBy = "part", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PartImage> images = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "part_tag",
+            joinColumns = @JoinColumn(name = "part_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags = new ArrayList<>();
 }

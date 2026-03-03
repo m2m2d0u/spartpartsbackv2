@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -48,4 +49,10 @@ public class UpdatePartRequest {
     private Boolean published;
 
     private String notes;
+
+    private UUID carBrandId;
+
+    private UUID carModelId;
+
+    private List<UUID> tagIds;
 }
