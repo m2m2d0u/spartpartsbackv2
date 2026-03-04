@@ -4,9 +4,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import sn.symmetry.spareparts.entity.CarBrand;
 import sn.symmetry.spareparts.entity.CarModel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -19,4 +21,6 @@ public interface CarModelRepository extends JpaRepository<CarModel, UUID> {
     boolean existsByNameAndBrandId(String name, UUID brandId);
 
     boolean existsByNameAndBrandIdAndIdNot(String name, UUID brandId, UUID id);
+
+    Optional<CarModel> findByNameIgnoreCaseAndBrand(String modelName, CarBrand brand);
 }
