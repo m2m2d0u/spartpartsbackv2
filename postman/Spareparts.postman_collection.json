@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "spareparts-collection",
     "name": "Spareparts API",
-    "description": "Complete API collection for the Spareparts management system.\n\nCovers: Auth, Users, Warehouses, Stores, Categories, Suppliers, Customers, Parts, Tax Rates, Invoice Templates, Company Settings, Audit Logs, Client Orders, Cart, Purchase Orders, Stock Transfers, Warehouse Stock, Stock Movements, Invoices, Payments, Returns, Credit Notes, and Refunds.",
+    "description": "Complete API collection for the Spareparts management system.\n\nCovers: Auth, Users, Stores, Warehouses, Roles, Permissions, Categories, Suppliers, Customers, Parts, Tax Rates, Invoice Templates, Company Settings, Audit Logs, Client Orders, Cart, Purchase Orders, Stock Transfers, Warehouse Stock, Stock Movements, Invoices, Payments, Returns, Credit Notes, and Refunds.\n\nAccess control uses permission-based authorities (e.g. hasAuthority('USER_VIEW')).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -89,6 +89,19 @@
               "path": ["api", "auth", "refresh"]
             }
           }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Returns the currently authenticated user. Requires: isAuthenticated()"
+          }
         }
       ]
     },
@@ -134,7 +147,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securePass123\",\n  \"role\": \"ADMIN\"\n}"
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securePass123\",\n  \"roleCode\": \"OPERATEUR_ENTREPOT\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
@@ -168,7 +181,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"role\": \"WAREHOUSE_OPERATOR\",\n  \"isActive\": true\n}"
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"email\": \"john.updated@example.com\",\n  \"roleCode\": \"OPERATEUR_ENTREPOT\",\n  \"isActive\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
@@ -198,13 +211,155 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "[\n  {\n    \"warehouseId\": \"{{warehouseId}}\",\n    \"permissions\": [\"STOCK_MANAGE\", \"ORDER_MANAGE\"]\n  }\n]"
+              "raw": "[\n  {\n    \"warehouseId\": \"{{warehouseId}}\"\n  }\n]"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}/warehouses",
               "host": ["{{baseUrl}}"],
               "path": ["api", "users", "{{userId}}", "warehouses"]
+            },
+            "description": "Requires: USER_UPDATE"
+          }
+        },
+        {
+          "name": "Update User Stores",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeIds\": [\"{{storeId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/stores",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "stores"]
+            },
+            "description": "Requires: USER_UPDATE"
+          }
+        },
+        {
+          "name": "Assign Roles to User Warehouse",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouseId\": \"{{warehouseId}}\",\n  \"roleIds\": [\"{{roleId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/warehouse-roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "warehouse-roles"]
+            },
+            "description": "Requires: USER_UPDATE"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stores",
+      "item": [
+        {
+          "name": "List Stores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stores?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stores"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            },
+            "description": "Requires: isAuthenticated()"
+          }
+        },
+        {
+          "name": "Get Store by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stores/{{storeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stores", "{{storeId}}"]
+            },
+            "description": "Requires: isAuthenticated()"
+          }
+        },
+        {
+          "name": "Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Magasin Central\",\n  \"code\": \"MAG-CENTRAL\",\n  \"street\": \"10 Avenue Cheikh Anta Diop\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"phone\": \"+221338001234\",\n  \"email\": \"central@symmetry.sn\",\n  \"ninea\": \"NINEA-12345\",\n  \"rccm\": \"RCCM-SN-67890\",\n  \"taxId\": \"SN-TAX-001\",\n  \"invoicePrefix\": \"INV\",\n  \"proformaPrefix\": \"PRO\",\n  \"depositPrefix\": \"DEP\",\n  \"creditNotePrefix\": \"CN\",\n  \"orderPrefix\": \"ORD\",\n  \"defaultPaymentTerms\": 30,\n  \"defaultProformaValidity\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stores",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stores"]
+            },
+            "description": "Requires: STORE_CREATE"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('storeId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
             }
+          ]
+        },
+        {
+          "name": "Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Magasin Central Updated\",\n  \"code\": \"MAG-CENTRAL\",\n  \"street\": \"20 Avenue Bourguiba\",\n  \"city\": \"Dakar\",\n  \"country\": \"Senegal\",\n  \"phone\": \"+221338001234\",\n  \"email\": \"central@symmetry.sn\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stores/{{storeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stores", "{{storeId}}"]
+            },
+            "description": "Requires: STORE_UPDATE"
+          }
+        },
+        {
+          "name": "Delete Store (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stores/{{storeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stores", "{{storeId}}"]
+            },
+            "description": "Requires: STORE_DELETE"
           }
         }
       ]
@@ -303,6 +458,313 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "warehouses", "{{warehouseId}}"]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles?page=0&size=20&sort=displayName,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "displayName,asc" }
+              ]
+            },
+            "description": "Requires: ROLE_VIEW"
+          }
+        },
+        {
+          "name": "Get Active Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "active"]
+            },
+            "description": "Requires: ROLE_VIEW"
+          }
+        },
+        {
+          "name": "Get System Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/system",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "system"]
+            },
+            "description": "Requires: ROLE_VIEW"
+          }
+        },
+        {
+          "name": "Get Custom Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/custom",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "custom"]
+            },
+            "description": "Requires: ROLE_VIEW"
+          }
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "{{roleId}}"]
+            },
+            "description": "Requires: ROLE_VIEW"
+          }
+        },
+        {
+          "name": "Get Role by Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/code/ADMINISTRATEUR",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "code", "ADMINISTRATEUR"]
+            },
+            "description": "Requires: ROLE_VIEW"
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CUSTOM_ROLE\",\n  \"displayName\": \"Rôle personnalisé\",\n  \"description\": \"Un rôle personnalisé pour test\",\n  \"permissionIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles"]
+            },
+            "description": "Requires: ROLE_CREATE"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('roleId', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Rôle personnalisé mis à jour\",\n  \"description\": \"Description mise à jour\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "{{roleId}}"]
+            },
+            "description": "Requires: ROLE_UPDATE"
+          }
+        },
+        {
+          "name": "Assign Permissions to Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permissionIds\": [\"{{permissionId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}/permissions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "{{roleId}}", "permissions"]
+            },
+            "description": "Requires: ROLE_UPDATE"
+          }
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "roles", "{{roleId}}"]
+            },
+            "description": "Requires: ROLE_DELETE"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permissions",
+      "item": [
+        {
+          "name": "List All Permissions (Grouped)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions"]
+            },
+            "description": "Returns all permissions grouped by category. Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "List Permissions (Paged)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/paged?page=0&size=20&sort=code,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "paged"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "code,asc" }
+              ]
+            },
+            "description": "Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get Permission by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/{{permissionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "{{permissionId}}"]
+            },
+            "description": "Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get Permissions by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/by-category?category=SYSTEM",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "by-category"],
+              "query": [
+                { "key": "category", "value": "SYSTEM" }
+              ]
+            },
+            "description": "Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get Permissions by Level",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/by-level?level=READ",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "by-level"],
+              "query": [
+                { "key": "level", "value": "READ" }
+              ]
+            },
+            "description": "Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get Read-Only Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/read-only",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "read-only"]
+            },
+            "description": "Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get Write Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/write",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "write"]
+            },
+            "description": "Returns WRITE, DELETE, and APPROVE level permissions. Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "categories"]
+            },
+            "description": "Requires: PERMISSION_VIEW"
+          }
+        },
+        {
+          "name": "Get All Levels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/levels",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "permissions", "levels"]
+            },
+            "description": "Requires: PERMISSION_VIEW"
           }
         }
       ]

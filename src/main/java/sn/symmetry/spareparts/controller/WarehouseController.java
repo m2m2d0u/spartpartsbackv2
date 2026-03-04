@@ -47,7 +47,7 @@ public class WarehouseController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('WAREHOUSE_CREATE')")
     public ResponseEntity<ApiResponse<WarehouseResponse>> createWarehouse(
             @Valid @RequestBody CreateWarehouseRequest request) {
         WarehouseResponse response = warehouseService.createWarehouse(request);
@@ -56,7 +56,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
     public ResponseEntity<ApiResponse<WarehouseResponse>> updateWarehouse(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateWarehouseRequest request) {
@@ -65,7 +65,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('WAREHOUSE_DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable UUID id) {
         warehouseService.deleteWarehouse(id);
         return ResponseEntity.ok(ApiResponse.success("Warehouse deactivated successfully", null));

@@ -7,8 +7,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sn.symmetry.spareparts.entity.User;
+import sn.symmetry.spareparts.repository.RolePermissionRepository;
 import sn.symmetry.spareparts.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,6 +18,7 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final RolePermissionRepository rolePermissionRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -26,10 +29,18 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User account is deactivated: " + email);
         }
 
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getCode()));
+
+        List<String> permissionCodes = rolePermissionRepository.findPermissionCodesByRoleId(user.getRole().getId());
+        for (String code : permissionCodes) {
+            authorities.add(new SimpleGrantedAuthority(code));
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getCode()))
+                authorities
         );
     }
 }

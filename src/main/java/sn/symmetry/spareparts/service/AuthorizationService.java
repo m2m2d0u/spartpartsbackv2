@@ -66,7 +66,7 @@ public class AuthorizationService {
      * @return true if user is ADMIN, false otherwise
      */
     public boolean isAdmin() {
-        return "ADMIN".equals(getCurrentUserRoleCode());
+        return "ADMINISTRATEUR".equals(getCurrentUserRoleCode());
     }
 
     /**
@@ -75,7 +75,7 @@ public class AuthorizationService {
      * @return true if user is STORE_MANAGER, false otherwise
      */
     public boolean isStoreManager() {
-        return "STORE_MANAGER".equals(getCurrentUserRoleCode());
+        return "RESPONSABLE_MAGASIN".equals(getCurrentUserRoleCode());
     }
 
     /**
@@ -84,7 +84,7 @@ public class AuthorizationService {
      * @return true if user is WAREHOUSE_OPERATOR, false otherwise
      */
     public boolean isWarehouseOperator() {
-        return "WAREHOUSE_OPERATOR".equals(getCurrentUserRoleCode());
+        return "OPERATEUR_ENTREPOT".equals(getCurrentUserRoleCode());
     }
 
     /**
@@ -99,11 +99,11 @@ public class AuthorizationService {
         User user = getCurrentUser();
         String roleCode = user.getRole().getCode();
 
-        if ("ADMIN".equals(roleCode)) {
+        if ("ADMINISTRATEUR".equals(roleCode)) {
             return null; // null means all stores
         }
 
-        if ("STORE_MANAGER".equals(roleCode)) {
+        if ("RESPONSABLE_MAGASIN".equals(roleCode)) {
             return userStoreRepository.findStoreIdsByUserId(user.getId());
         }
 
@@ -122,11 +122,11 @@ public class AuthorizationService {
         User user = getCurrentUser();
         String roleCode = user.getRole().getCode();
 
-        if ("ADMIN".equals(roleCode)) {
+        if ("ADMINISTRATEUR".equals(roleCode)) {
             return null; // null means all warehouses
         }
 
-        if ("STORE_MANAGER".equals(roleCode)) {
+        if ("RESPONSABLE_MAGASIN".equals(roleCode)) {
             List<UUID> storeIds = userStoreRepository.findStoreIdsByUserId(user.getId());
             if (storeIds.isEmpty()) {
                 return List.of();
@@ -134,7 +134,7 @@ public class AuthorizationService {
             return warehouseRepository.findWarehouseIdsByStoreIds(storeIds);
         }
 
-        if ("WAREHOUSE_OPERATOR".equals(roleCode)) {
+        if ("OPERATEUR_ENTREPOT".equals(roleCode)) {
             return userWarehouseRepository.findWarehouseIdsByUserId(user.getId());
         }
 
@@ -193,17 +193,17 @@ public class AuthorizationService {
         String roleCode = user.getRole().getCode();
 
         // ADMIN has all permissions
-        if ("ADMIN".equals(roleCode)) {
+        if ("ADMINISTRATEUR".equals(roleCode)) {
             return true;
         }
 
         // STORE_MANAGER has all permissions for warehouses in their stores
-        if ("STORE_MANAGER".equals(roleCode)) {
+        if ("RESPONSABLE_MAGASIN".equals(roleCode)) {
             return canAccessWarehouse(warehouseId);
         }
 
         // WAREHOUSE_OPERATOR needs specific permission
-        if ("WAREHOUSE_OPERATOR".equals(roleCode)) {
+        if ("OPERATEUR_ENTREPOT".equals(roleCode)) {
             // Check permissions from roles
             List<String> rolePermissions = userWarehouseRoleRepository.findPermissionCodesByUserAndWarehouse(user.getId(), warehouseId);
             if (rolePermissions.contains(permissionCode)) {

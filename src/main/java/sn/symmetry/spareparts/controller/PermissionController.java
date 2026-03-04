@@ -33,7 +33,7 @@ public class PermissionController {
      * This endpoint is useful for building permission selection UIs.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<PermissionsResponse>> getAllPermissions() {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getAllPermissions()));
     }
@@ -42,7 +42,7 @@ public class PermissionController {
      * Get all permissions with pagination.
      */
     @GetMapping("/paged")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<PagedResponse<PermissionInfo>>> getAllPermissionsPaged(
             @PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getAllPermissions(pageable)));
@@ -52,7 +52,7 @@ public class PermissionController {
      * Get permission by ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<PermissionInfo>> getPermissionById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getPermissionById(id)));
     }
@@ -61,7 +61,7 @@ public class PermissionController {
      * Get permissions for a specific category.
      */
     @GetMapping("/by-category")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getPermissionsByCategory(
             @RequestParam String category) {
         List<PermissionInfo> permissions = permissionService.getPermissionsByCategory(category);
@@ -72,7 +72,7 @@ public class PermissionController {
      * Get permissions by level.
      */
     @GetMapping("/by-level")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getPermissionsByLevel(
             @RequestParam String level) {
         List<PermissionInfo> permissions = permissionService.getPermissionsByLevel(level);
@@ -83,7 +83,7 @@ public class PermissionController {
      * Get all read-only permissions.
      */
     @GetMapping("/read-only")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getReadOnlyPermissions() {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getPermissionsByLevel("READ")));
     }
@@ -92,7 +92,7 @@ public class PermissionController {
      * Get all write permissions (WRITE, DELETE, APPROVE).
      */
     @GetMapping("/write")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<List<PermissionInfo>>> getWritePermissions() {
         List<PermissionInfo> writePerms = permissionService.getPermissionsByLevel("WRITE");
         List<PermissionInfo> deletePerms = permissionService.getPermissionsByLevel("DELETE");
@@ -108,7 +108,7 @@ public class PermissionController {
      * Get all permission categories.
      */
     @GetMapping("/categories")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<List<String>>> getCategories() {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getAllCategories()));
     }
@@ -117,7 +117,7 @@ public class PermissionController {
      * Get all permission levels.
      */
     @GetMapping("/levels")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<List<String>>> getLevels() {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getAllLevels()));
     }

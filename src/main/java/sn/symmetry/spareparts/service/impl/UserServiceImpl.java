@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
 
         // Only ADMIN or STORE_MANAGER can assign stores
         if (authorizationService.isWarehouseOperator()) {
-            throw new AccessDeniedException("WAREHOUSE_OPERATOR cannot assign stores");
+            throw new AccessDeniedException("OPERATEUR_ENTREPOT cannot assign stores");
         }
 
         // STORE_MANAGER can only assign their own stores

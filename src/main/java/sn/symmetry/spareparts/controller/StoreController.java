@@ -41,7 +41,7 @@ public class StoreController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('STORE_CREATE')")
     public ResponseEntity<ApiResponse<StoreResponse>> createStore(
             @Valid @RequestBody CreateStoreRequest request) {
         StoreResponse response = storeService.createStore(request);
@@ -50,7 +50,7 @@ public class StoreController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
     public ResponseEntity<ApiResponse<StoreResponse>> updateStore(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateStoreRequest request) {
@@ -59,7 +59,7 @@ public class StoreController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('STORE_DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteStore(@PathVariable UUID id) {
         storeService.deleteStore(id);
         return ResponseEntity.ok(ApiResponse.success("Store deactivated successfully", null));

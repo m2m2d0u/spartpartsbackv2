@@ -34,7 +34,7 @@ public class RoleController {
      * Get all roles with pagination.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<PagedResponse<RoleResponse>>> getAllRoles(
             @PageableDefault(size = 20, sort = "displayName", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(roleService.getAllRoles(pageable)));
@@ -44,7 +44,7 @@ public class RoleController {
      * Get all active roles (for dropdown selection).
      */
     @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllActiveRoles() {
         return ResponseEntity.ok(ApiResponse.success(roleService.getAllActiveRoles()));
     }
@@ -53,7 +53,7 @@ public class RoleController {
      * Get system roles only.
      */
     @GetMapping("/system")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getSystemRoles() {
         return ResponseEntity.ok(ApiResponse.success(roleService.getSystemRoles()));
     }
@@ -62,7 +62,7 @@ public class RoleController {
      * Get custom roles only.
      */
     @GetMapping("/custom")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getCustomRoles() {
         return ResponseEntity.ok(ApiResponse.success(roleService.getCustomRoles()));
     }
@@ -71,7 +71,7 @@ public class RoleController {
      * Get role by ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<RoleResponse>> getRoleById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(roleService.getRoleById(id)));
     }
@@ -80,7 +80,7 @@ public class RoleController {
      * Get role by code.
      */
     @GetMapping("/code/{code}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<RoleResponse>> getRoleByCode(@PathVariable String code) {
         return ResponseEntity.ok(ApiResponse.success(roleService.getRoleByCode(code)));
     }
@@ -89,7 +89,7 @@ public class RoleController {
      * Create a new role.
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE')")
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(@Valid @RequestBody CreateRoleRequest request) {
         RoleResponse response = roleService.createRole(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -100,7 +100,7 @@ public class RoleController {
      * Update an existing role.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateRoleRequest request) {
@@ -112,7 +112,7 @@ public class RoleController {
      * Delete a role.
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_DELETE')")
     public ResponseEntity<ApiResponse<String>> deleteRole(@PathVariable UUID id) {
         roleService.deleteRole(id);
         return ResponseEntity.ok(ApiResponse.success("Role deleted successfully"));
@@ -122,7 +122,7 @@ public class RoleController {
      * Assign permissions to a role.
      */
     @PutMapping("/{id}/permissions")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public ResponseEntity<ApiResponse<RoleResponse>> assignPermissionsToRole(
             @PathVariable UUID id,
             @Valid @RequestBody AssignPermissionsToRoleRequest request) {
