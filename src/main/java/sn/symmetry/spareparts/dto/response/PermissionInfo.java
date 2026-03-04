@@ -33,8 +33,8 @@ public class PermissionInfo implements Serializable {
     private String level;
     private String levelDisplayName;
     private Boolean isActive;
-    private boolean isLegacy;
-    private boolean isReadOnly;
+    private Boolean isLegacy;
+    private Boolean isReadOnly;
 
     /**
      * Convert a WarehousePermission enum to PermissionInfo DTO.

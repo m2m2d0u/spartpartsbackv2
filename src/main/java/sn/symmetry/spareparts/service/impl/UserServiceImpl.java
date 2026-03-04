@@ -243,7 +243,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = CacheConfig.USER_ME_CACHE, key = "#root.target.authorizationService.currentUser.id")
+    @Cacheable(value = CacheConfig.USER_ME_CACHE, key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getName()")
     public MeResponse getCurrentUserInfo() {
         User currentUser = authorizationService.getCurrentUser();
 

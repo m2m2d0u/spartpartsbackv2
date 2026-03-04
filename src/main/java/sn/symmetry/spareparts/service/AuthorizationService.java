@@ -181,7 +181,7 @@ public class AuthorizationService {
      * @return true if user has the permission, false otherwise
      */
     @Cacheable(value = CacheConfig.USER_WAREHOUSE_PERMISSIONS_CACHE,
-            key = "#root.target.currentUser.id + ':' + #warehouseId + ':' + #permissionCode",
+            key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getName() + ':' + #warehouseId + ':' + #permissionCode",
             unless = "#result == false")
     public boolean hasWarehousePermission(UUID warehouseId, String permissionCode) {
         if (warehouseId == null || permissionCode == null) {
