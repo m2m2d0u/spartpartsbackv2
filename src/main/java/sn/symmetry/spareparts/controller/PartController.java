@@ -3,6 +3,7 @@ package sn.symmetry.spareparts.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class PartController {
             @RequestParam(required = false) Boolean published,
             @RequestParam(required = false) UUID carBrandId,
             @RequestParam(required = false) UUID carModelId,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(partService.getAllParts(categoryId, published, carBrandId, carModelId, pageable)));
     }
 
@@ -47,8 +48,16 @@ public class PartController {
     public ResponseEntity<ApiResponse<PagedResponse<PartResponse>>> getPartsNotInWarehouse(
             @RequestParam UUID warehouseId,
             @RequestParam(required = false) String name,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(partService.getPartsNotInWarehouse(warehouseId, name, pageable)));
+    }
+
+    @GetMapping("/in-warehouse")
+    public ResponseEntity<ApiResponse<PagedResponse<PartResponse>>> getPartsInWarehouse(
+            @RequestParam UUID warehouseId,
+            @RequestParam(required = false) String name,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(partService.getPartsInWarehouse(warehouseId, name, pageable)));
     }
 
     @GetMapping("/{id}")

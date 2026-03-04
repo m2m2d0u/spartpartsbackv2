@@ -12,6 +12,7 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V18__add_performance_indexes.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V19__remove_customer_portal_fields.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__initial_schema.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V20__add_invoice_template_design.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__migrate_ids_to_uuid.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__seed_data_fr.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V4__add_store_entity.sql" value="df64ac26-9540-44e7-a185-c04ad16799d2" />

@@ -33,4 +33,12 @@ public interface PartRepository extends JpaRepository<Part, UUID> {
     Page<Part> findPartsNotInWarehouse(@Param("warehouseId") UUID warehouseId,
                                        @Param("name") String name,
                                        Pageable pageable);
+
+    @Query("SELECT p FROM Part p WHERE p.id IN " +
+           "(SELECT ws.part.id FROM WarehouseStock ws WHERE ws.warehouse.id = :warehouseId) " +
+           "AND (COALESCE(:name, '') = '' OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')) " +
+           "OR LOWER(p.partNumber) LIKE LOWER(CONCAT('%', :name, '%')))")
+    Page<Part> findPartsInWarehouse(@Param("warehouseId") UUID warehouseId,
+                                    @Param("name") String name,
+                                    Pageable pageable);
 }

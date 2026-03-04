@@ -36,7 +36,7 @@ public class RoleController {
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<PagedResponse<RoleResponse>>> getAllRoles(
-            @PageableDefault(size = 20, sort = "displayName", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(roleService.getAllRoles(pageable)));
     }
 

@@ -44,7 +44,7 @@ public class PermissionController {
     @GetMapping("/paged")
     @PreAuthorize("hasAuthority('PERMISSION_VIEW')")
     public ResponseEntity<ApiResponse<PagedResponse<PermissionInfo>>> getAllPermissionsPaged(
-            @PageableDefault(size = 20, sort = "code", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(permissionService.getAllPermissions(pageable)));
     }
 

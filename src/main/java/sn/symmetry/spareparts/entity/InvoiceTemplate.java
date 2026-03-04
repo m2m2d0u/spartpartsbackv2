@@ -2,6 +2,8 @@ package sn.symmetry.spareparts.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import sn.symmetry.spareparts.enums.InvoiceDesign;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,6 +48,10 @@ public class InvoiceTemplate {
 
     @Column(name = "font_family", nullable = false, length = 50)
     private String fontFamily = "Helvetica";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "design", nullable = false, length = 20)
+    private InvoiceDesign design = InvoiceDesign.CLASSIC;
 
     @Column(name = "header_layout", nullable = false, length = 20)
     private String headerLayout = "LOGO_LEFT";

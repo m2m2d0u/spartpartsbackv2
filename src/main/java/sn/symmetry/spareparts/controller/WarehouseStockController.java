@@ -3,6 +3,7 @@ package sn.symmetry.spareparts.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +36,7 @@ public class WarehouseStockController {
     public ResponseEntity<ApiResponse<PagedResponse<WarehouseStockResponse>>> getAllWarehouseStock(
             @RequestParam UUID warehouseId,
             @RequestParam(required = false) UUID partId,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 warehouseStockService.getAllWarehouseStock(warehouseId, partId, pageable)));
     }

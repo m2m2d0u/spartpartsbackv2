@@ -2,6 +2,7 @@ package sn.symmetry.spareparts.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ public class AuditLogController {
             @RequestParam(required = false) UUID entityId,
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) String action,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 auditLogService.getAllAuditLogs(entityType, entityId, userId, action, pageable)));
     }

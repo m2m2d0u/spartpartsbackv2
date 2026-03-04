@@ -2,9 +2,13 @@ package sn.symmetry.spareparts.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +28,9 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.enums.InvoiceStatus;
 import sn.symmetry.spareparts.enums.InvoiceType;
 import sn.symmetry.spareparts.service.InvoiceService;
+import sn.symmetry.spareparts.service.InvoicePdfService;
 
+import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
 @RestController
@@ -33,13 +39,14 @@ import java.util.UUID;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+    private final InvoicePdfService invoicePdfService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<InvoiceResponse>>> getAllInvoices(
             @RequestParam(required = false) UUID customerId,
             @RequestParam(required = false) InvoiceStatus status,
             @RequestParam(required = false) InvoiceType invoiceType,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 invoiceService.getAllInvoices(customerId, status, invoiceType, pageable)));
     }
@@ -77,5 +84,32 @@ public class InvoiceController {
     public ResponseEntity<ApiResponse<Void>> deleteInvoice(@PathVariable UUID id) {
         invoiceService.deleteInvoice(id);
         return ResponseEntity.ok(ApiResponse.success("Invoice deleted successfully", null));
+    }
+
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<ByteArrayResource> previewInvoicePdf(@PathVariable UUID id) {
+        ByteArrayOutputStream pdfStream = invoicePdfService.generateInvoicePdf(id);
+        ByteArrayResource resource = new ByteArrayResource(pdfStream.toByteArray());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"invoice-" + id + ".pdf\"")
+                .contentLength(resource.contentLength())
+                .body(resource);
+    }
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<ByteArrayResource> downloadInvoicePdf(@PathVariable UUID id) {
+        InvoiceResponse invoice = invoiceService.getInvoiceById(id);
+        ByteArrayOutputStream pdfStream = invoicePdfService.generateInvoicePdf(id);
+        ByteArrayResource resource = new ByteArrayResource(pdfStream.toByteArray());
+
+        String filename = invoice.getInvoiceNumber().replace("/", "-") + ".pdf";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentLength(resource.contentLength())
+                .body(resource);
     }
 }

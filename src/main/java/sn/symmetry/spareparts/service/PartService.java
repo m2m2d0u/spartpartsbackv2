@@ -16,6 +16,8 @@ public interface PartService {
 
     PagedResponse<PartResponse> getPartsNotInWarehouse(UUID warehouseId, String name, Pageable pageable);
 
+    PagedResponse<PartResponse> getPartsInWarehouse(UUID warehouseId, String name, Pageable pageable);
+
     PartResponse getPartById(UUID id);
 
     PartResponse createPart(CreatePartRequest request);

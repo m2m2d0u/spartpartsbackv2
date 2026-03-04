@@ -3,6 +3,7 @@ package sn.symmetry.spareparts.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class UserController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) Boolean isActive,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(name, roleCode, isActive, pageable)));
     }
 

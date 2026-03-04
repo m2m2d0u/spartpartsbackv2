@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sn.symmetry.spareparts.enums.InvoiceDesign;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class InvoiceTemplateResponse {
     private String primaryColor;
     private String accentColor;
     private String fontFamily;
+    private InvoiceDesign design;
     private String headerLayout;
     private String logoUrl;
     private String headerImageUrl;

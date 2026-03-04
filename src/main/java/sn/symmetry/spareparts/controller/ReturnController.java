@@ -3,6 +3,7 @@ package sn.symmetry.spareparts.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class ReturnController {
     public ResponseEntity<ApiResponse<PagedResponse<ReturnResponse>>> getAllReturns(
             @RequestParam(required = false) UUID customerId,
             @RequestParam(required = false) ReturnStatus status,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 returnService.getAllReturns(customerId, status, pageable)));
     }

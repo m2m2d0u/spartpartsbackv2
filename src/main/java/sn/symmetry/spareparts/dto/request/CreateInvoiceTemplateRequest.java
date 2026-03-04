@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sn.symmetry.spareparts.enums.InvoiceDesign;
 
 @Getter
 @Setter
@@ -30,6 +31,8 @@ public class CreateInvoiceTemplateRequest {
 
     @Size(max = 50, message = "Font family must not exceed 50 characters")
     private String fontFamily;
+
+    private InvoiceDesign design;
 
     @Size(max = 20, message = "Header layout must not exceed 20 characters")
     private String headerLayout;
