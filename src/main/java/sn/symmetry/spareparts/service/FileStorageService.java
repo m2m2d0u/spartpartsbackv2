@@ -38,4 +38,19 @@ public interface FileStorageService {
      * @return File bytes
      */
     byte[] getFileBytes(String objectName);
+
+    /**
+     * Generate a presigned URL for a file
+     * @param fileUrl The file URL
+     * @param expiryInSeconds Expiry time in seconds (default 7 days if not specified)
+     * @return Presigned URL
+     */
+    String getPresignedUrl(String fileUrl, Integer expiryInSeconds);
+
+    /**
+     * Generate a presigned URL for a file with default expiry (7 days)
+     * @param fileUrl The file URL
+     * @return Presigned URL
+     */
+    String getPresignedUrl(String fileUrl);
 }

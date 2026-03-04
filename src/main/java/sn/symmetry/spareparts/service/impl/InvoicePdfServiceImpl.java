@@ -2,6 +2,7 @@ package sn.symmetry.spareparts.service.impl;
 
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
+import com.lowagie.text.Image;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
@@ -20,6 +21,7 @@ import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.repository.InvoiceRepository;
 import sn.symmetry.spareparts.repository.InvoiceTemplateRepository;
 import sn.symmetry.spareparts.service.CompanySettingsService;
+import sn.symmetry.spareparts.service.FileStorageService;
 import sn.symmetry.spareparts.service.InvoicePdfService;
 import sn.symmetry.spareparts.util.NumberToWordsConverter;
 
@@ -41,6 +43,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     private final InvoiceRepository invoiceRepository;
     private final CompanySettingsService companySettingsService;
     private final InvoiceTemplateRepository invoiceTemplateRepository;
+    private final FileStorageService fileStorageService;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final float MARGIN = 36f;
@@ -89,7 +92,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
     // ==================== CLASSIC DESIGN ====================
     private void renderClassicDesign(Document document, PdfWriter writer, Invoice invoice,
-                                    CompanySettingsResponse companySettings, InvoiceTemplate template)
+                                     CompanySettingsResponse companySettings, InvoiceTemplate template)
             throws DocumentException, IOException {
         addClassicHeader(document, invoice, companySettings, template);
         addClassicInvoiceDetails(document, invoice, template);
@@ -97,7 +100,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         addClassicItemsTable(document, invoice, companySettings, template);
         addClassicTotals(document, invoice, companySettings, template);
         addNotes(document, invoice, template);
-        addFooter(document, template);
+        addFooter(document, invoice, template);
     }
 
     private void addClassicHeader(Document document, Invoice invoice, CompanySettingsResponse companySettings,
@@ -110,6 +113,16 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         // Left side - Company info
         PdfPCell leftCell = new PdfPCell();
         leftCell.setBorder(Rectangle.NO_BORDER);
+
+        // Add logo if available
+        Image logo = loadLogo(invoice, template);
+        if (logo != null) {
+            Paragraph logoParagraph = new Paragraph();
+            logoParagraph.add(new Chunk(logo, 0, 0));
+            logoParagraph.setSpacingAfter(10f);
+            leftCell.addElement(logoParagraph);
+        }
+
         Paragraph companyInfo = new Paragraph();
         Font companyNameFont = new Font(Font.HELVETICA, 18, Font.BOLD, parseColor(template.getPrimaryColor()));
         companyInfo.add(new Chunk(companySettings.getCompanyName() != null ?
@@ -202,11 +215,11 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addClassicItemsTable(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                     InvoiceTemplate template) throws DocumentException {
+                                      InvoiceTemplate template) throws DocumentException {
         int columnCount = template.getShowDiscountColumn() ? 6 : 5;
         float[] widths = template.getShowDiscountColumn() ?
-            new float[]{3f, 1f, 1.5f, 1f, 1.5f, 1.5f} :
-            new float[]{3f, 1f, 1.5f, 1.5f, 1.5f};
+                new float[]{3f, 1f, 1.5f, 1f, 1.5f, 1.5f} :
+                new float[]{3f, 1f, 1.5f, 1.5f, 1.5f};
 
         PdfPTable table = new PdfPTable(columnCount);
         table.setWidthPercentage(100);
@@ -241,7 +254,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
             if (template.getShowDiscountColumn()) {
                 String discount = item.getDiscountPercent().compareTo(BigDecimal.ZERO) > 0 ?
-                    item.getDiscountPercent() + "%" : "-";
+                        item.getDiscountPercent() + "%" : "-";
                 addTableCell(table, discount, cellFont, Element.ALIGN_CENTER, bgColor);
             }
 
@@ -254,7 +267,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addClassicTotals(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                 InvoiceTemplate template) throws DocumentException {
+                                  InvoiceTemplate template) throws DocumentException {
         PdfPTable totalsTable = new PdfPTable(2);
         totalsTable.setWidthPercentage(50);
         totalsTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -271,14 +284,14 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         if (invoice.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
             addTotalRow(totalsTable, "Remise:", "- " + currencyFormat.format(invoice.getDiscountAmount()),
-                       labelFont, valueFont, false);
+                    labelFont, valueFont, false);
         }
 
         addTotalRow(totalsTable, "TVA:", currencyFormat.format(invoice.getTaxAmount()), labelFont, valueFont, false);
 
         if (invoice.getDepositDeduction().compareTo(BigDecimal.ZERO) > 0) {
             addTotalRow(totalsTable, "Acompte déduit:", "- " + currencyFormat.format(invoice.getDepositDeduction()),
-                       labelFont, valueFont, false);
+                    labelFont, valueFont, false);
         }
 
         addTotalRow(totalsTable, "TOTAL:", currencyFormat.format(invoice.getTotalAmount()), totalFont, totalFont, true);
@@ -287,9 +300,9 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         // Add amount in words
         String amountInWords = NumberToWordsConverter.convertToWordsWithSymbol(
-            invoice.getTotalAmount(),
-            companySettings.getCurrencySymbol(),
-            companySettings.getCurrencyDecimals()
+                invoice.getTotalAmount(),
+                companySettings.getCurrencySymbol(),
+                companySettings.getCurrencyDecimals()
         );
 
         Font amountWordsFont = new Font(Font.HELVETICA, 8, Font.ITALIC, Color.DARK_GRAY);
@@ -302,7 +315,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
     // ==================== MODERN DESIGN ====================
     private void renderModernDesign(Document document, PdfWriter writer, Invoice invoice,
-                                   CompanySettingsResponse companySettings, InvoiceTemplate template)
+                                    CompanySettingsResponse companySettings, InvoiceTemplate template)
             throws DocumentException, IOException {
         // Modern: Clean lines, bold typography, minimalist
         addModernHeader(document, invoice, companySettings, template);
@@ -310,6 +323,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         addModernItemsTable(document, invoice, companySettings, template);
         addModernTotals(document, invoice, companySettings, template);
         addNotes(document, invoice, template);
+        addFooter(document, invoice, template);
     }
 
     private void addModernHeader(Document document, Invoice invoice, CompanySettingsResponse companySettings,
@@ -335,6 +349,16 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         PdfPCell leftCell = new PdfPCell();
         leftCell.setBorder(Rectangle.NO_BORDER);
+
+        // Add logo if available
+        Image logo = loadLogo(invoice, template);
+        if (logo != null) {
+            Paragraph logoParagraph = new Paragraph();
+            logoParagraph.add(new Chunk(logo, 0, 0));
+            logoParagraph.setSpacingAfter(5f);
+            leftCell.addElement(logoParagraph);
+        }
+
         Font companyFont = new Font(Font.HELVETICA, 14, Font.BOLD, parseColor(template.getPrimaryColor()));
         Paragraph company = new Paragraph(companySettings.getCompanyName() != null ?
                 companySettings.getCompanyName() : "Company Name", companyFont);
@@ -357,7 +381,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addModernInvoiceInfo(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                     InvoiceTemplate template) throws DocumentException {
+                                      InvoiceTemplate template) throws DocumentException {
         PdfPTable infoTable = new PdfPTable(3);
         infoTable.setWidthPercentage(100);
         infoTable.setWidths(new float[]{1.5f, 1.5f, 1f});
@@ -406,11 +430,11 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addModernItemsTable(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                    InvoiceTemplate template) throws DocumentException {
+                                     InvoiceTemplate template) throws DocumentException {
         int columnCount = template.getShowDiscountColumn() ? 5 : 4;
         float[] widths = template.getShowDiscountColumn() ?
-            new float[]{3f, 1f, 1.5f, 1f, 1.5f} :
-            new float[]{3f, 1f, 1.5f, 1.5f};
+                new float[]{3f, 1f, 1.5f, 1f, 1.5f} :
+                new float[]{3f, 1f, 1.5f, 1.5f};
 
         PdfPTable table = new PdfPTable(columnCount);
         table.setWidthPercentage(100);
@@ -438,7 +462,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
             if (template.getShowDiscountColumn()) {
                 String discount = item.getDiscountPercent().compareTo(BigDecimal.ZERO) > 0 ?
-                    item.getDiscountPercent() + "%" : "-";
+                        item.getDiscountPercent() + "%" : "-";
                 addModernTableCell(table, discount, cellFont, Element.ALIGN_CENTER);
             }
 
@@ -449,7 +473,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addModernTotals(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                InvoiceTemplate template) throws DocumentException {
+                                 InvoiceTemplate template) throws DocumentException {
         PdfPTable totalsTable = new PdfPTable(2);
         totalsTable.setWidthPercentage(40);
         totalsTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -482,9 +506,9 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         // Add amount in words
         String amountInWords = NumberToWordsConverter.convertToWordsWithSymbol(
-            invoice.getTotalAmount(),
-            companySettings.getCurrencySymbol(),
-            companySettings.getCurrencyDecimals()
+                invoice.getTotalAmount(),
+                companySettings.getCurrencySymbol(),
+                companySettings.getCurrencyDecimals()
         );
 
         Font amountWordsFont = new Font(Font.HELVETICA, 9, Font.ITALIC, Color.GRAY);
@@ -497,7 +521,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
     // ==================== ELEGANT DESIGN ====================
     private void renderElegantDesign(Document document, PdfWriter writer, Invoice invoice,
-                                    CompanySettingsResponse companySettings, InvoiceTemplate template)
+                                     CompanySettingsResponse companySettings, InvoiceTemplate template)
             throws DocumentException, IOException {
         // Elegant: Decorative borders, refined spacing, sophisticated
         addElegantBorder(document);
@@ -506,7 +530,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         addElegantItemsTable(document, invoice, companySettings, template);
         addElegantTotals(document, invoice, companySettings, template);
         addNotes(document, invoice, template);
-        addElegantFooter(document, template);
+        addElegantFooter(document, invoice, template);
     }
 
     private void addElegantBorder(Document document) throws DocumentException {
@@ -528,6 +552,16 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     private void addElegantHeader(Document document, Invoice invoice, CompanySettingsResponse companySettings,
                                   InvoiceTemplate template) throws DocumentException {
         // Centered header with decorative elements
+        // Add logo if available
+        Image logo = loadLogo(invoice, template);
+        if (logo != null) {
+            Paragraph logoParagraph = new Paragraph();
+            logoParagraph.setAlignment(Element.ALIGN_CENTER);
+            logoParagraph.add(new Chunk(logo, 0, 0));
+            logoParagraph.setSpacingAfter(10f);
+            document.add(logoParagraph);
+        }
+
         Font companyFont = new Font(Font.TIMES_ROMAN, 22, Font.BOLD, parseColor(template.getPrimaryColor()));
         Paragraph companyName = new Paragraph(companySettings.getCompanyName() != null ?
                 companySettings.getCompanyName() : "Company Name", companyFont);
@@ -618,11 +652,11 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addElegantItemsTable(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                     InvoiceTemplate template) throws DocumentException {
+                                      InvoiceTemplate template) throws DocumentException {
         int columnCount = template.getShowDiscountColumn() ? 5 : 4;
         float[] widths = template.getShowDiscountColumn() ?
-            new float[]{3f, 1f, 1.5f, 1f, 1.5f} :
-            new float[]{3f, 1f, 1.5f, 1.5f};
+                new float[]{3f, 1f, 1.5f, 1f, 1.5f} :
+                new float[]{3f, 1f, 1.5f, 1.5f};
 
         PdfPTable table = new PdfPTable(columnCount);
         table.setWidthPercentage(100);
@@ -651,7 +685,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
             if (template.getShowDiscountColumn()) {
                 String discount = item.getDiscountPercent().compareTo(BigDecimal.ZERO) > 0 ?
-                    item.getDiscountPercent() + "%" : "-";
+                        item.getDiscountPercent() + "%" : "-";
                 addElegantTableCell(table, discount, cellFont, Element.ALIGN_CENTER);
             }
 
@@ -662,7 +696,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addElegantTotals(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                 InvoiceTemplate template) throws DocumentException {
+                                  InvoiceTemplate template) throws DocumentException {
         PdfPTable totalsTable = new PdfPTable(2);
         totalsTable.setWidthPercentage(45);
         totalsTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -679,26 +713,26 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         if (invoice.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
             addElegantTotalRow(totalsTable, "Remise", "- " + currencyFormat.format(invoice.getDiscountAmount()),
-                              labelFont, valueFont, false);
+                    labelFont, valueFont, false);
         }
 
         addElegantTotalRow(totalsTable, "TVA", currencyFormat.format(invoice.getTaxAmount()), labelFont, valueFont, false);
 
         if (invoice.getDepositDeduction().compareTo(BigDecimal.ZERO) > 0) {
             addElegantTotalRow(totalsTable, "Acompte déduit", "- " + currencyFormat.format(invoice.getDepositDeduction()),
-                              labelFont, valueFont, false);
+                    labelFont, valueFont, false);
         }
 
         addElegantTotalRow(totalsTable, "MONTANT TOTAL", currencyFormat.format(invoice.getTotalAmount()),
-                          totalFont, totalFont, true);
+                totalFont, totalFont, true);
 
         document.add(totalsTable);
 
         // Add amount in words
         String amountInWords = NumberToWordsConverter.convertToWordsWithSymbol(
-            invoice.getTotalAmount(),
-            companySettings.getCurrencySymbol(),
-            companySettings.getCurrencyDecimals()
+                invoice.getTotalAmount(),
+                companySettings.getCurrencySymbol(),
+                companySettings.getCurrencyDecimals()
         );
 
         Font amountWordsFont = new Font(Font.TIMES_ROMAN, 9, Font.ITALIC, new Color(80, 80, 80));
@@ -709,7 +743,18 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         document.add(amountWordsParagraph);
     }
 
-    private void addElegantFooter(Document document, InvoiceTemplate template) throws DocumentException {
+    private void addElegantFooter(Document document, Invoice invoice, InvoiceTemplate template) throws DocumentException {
+        // Add stamp if available
+        com.lowagie.text.Image stamp = loadStamp(invoice, template);
+        if (stamp != null) {
+            Paragraph stampParagraph = new Paragraph();
+            stampParagraph.setAlignment(Element.ALIGN_RIGHT);
+            stampParagraph.add(new Chunk(stamp, 0, 0));
+            stampParagraph.setSpacingBefore(20f);
+            stampParagraph.setSpacingAfter(10f);
+            document.add(stampParagraph);
+        }
+
         if (template.getDefaultNotes() != null && !template.getDefaultNotes().isEmpty()) {
             addLineSeparator(document, new Color(200, 200, 200), 1f);
 
@@ -723,7 +768,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
     // ==================== COMPACT DESIGN ====================
     private void renderCompactDesign(Document document, PdfWriter writer, Invoice invoice,
-                                    CompanySettingsResponse companySettings, InvoiceTemplate template)
+                                     CompanySettingsResponse companySettings, InvoiceTemplate template)
             throws DocumentException, IOException {
         // Compact: Space-efficient, smaller fonts, tighter spacing
         addCompactHeader(document, invoice, companySettings, template);
@@ -732,6 +777,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         if (invoice.getNotes() != null && !invoice.getNotes().isEmpty()) {
             addCompactNotes(document, invoice);
         }
+        addCompactFooter(document, invoice, template);
     }
 
     private void addCompactHeader(Document document, Invoice invoice, CompanySettingsResponse companySettings,
@@ -751,6 +797,15 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         companyCell.setPadding(2f);
 
         Paragraph company = new Paragraph();
+
+        // Add logo if available (smaller for compact design)
+        Image logo = loadLogo(invoice, template);
+        if (logo != null) {
+            logo.scaleToFit(80, 40); // Smaller logo for compact design
+            company.add(new Chunk(logo, 0, 0));
+            company.add(Chunk.NEWLINE);
+        }
+
         company.add(new Chunk(companySettings.getCompanyName() != null ?
                 companySettings.getCompanyName() : "Company", new Font(Font.HELVETICA, 9, Font.BOLD)));
         company.add(Chunk.NEWLINE);
@@ -801,7 +856,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addCompactItemsTable(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                     InvoiceTemplate template) throws DocumentException {
+                                      InvoiceTemplate template) throws DocumentException {
         int columnCount = 4; // Compact: no discount column shown separately
         PdfPTable table = new PdfPTable(columnCount);
         table.setWidthPercentage(100);
@@ -832,7 +887,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addCompactTotals(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                 InvoiceTemplate template) throws DocumentException {
+                                  InvoiceTemplate template) throws DocumentException {
         PdfPTable totalsTable = new PdfPTable(2);
         totalsTable.setWidthPercentage(40);
         totalsTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -864,9 +919,9 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         // Add amount in words
         String amountInWords = NumberToWordsConverter.convertToWordsWithSymbol(
-            invoice.getTotalAmount(),
-            companySettings.getCurrencySymbol(),
-            companySettings.getCurrencyDecimals()
+                invoice.getTotalAmount(),
+                companySettings.getCurrencySymbol(),
+                companySettings.getCurrencyDecimals()
         );
 
         Font amountWordsFont = new Font(Font.HELVETICA, 7, Font.ITALIC, Color.DARK_GRAY);
@@ -884,9 +939,31 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         document.add(notes);
     }
 
+    private void addCompactFooter(Document document, Invoice invoice, InvoiceTemplate template) throws DocumentException {
+        // Add stamp if available
+        com.lowagie.text.Image stamp = loadStamp(invoice, template);
+        if (stamp != null) {
+            stamp.scaleToFit(80, 80); // Smaller stamp for compact design
+            Paragraph stampParagraph = new Paragraph();
+            stampParagraph.setAlignment(Element.ALIGN_RIGHT);
+            stampParagraph.add(new Chunk(stamp, 0, 0));
+            stampParagraph.setSpacingBefore(10f);
+            stampParagraph.setSpacingAfter(5f);
+            document.add(stampParagraph);
+        }
+
+        if (template.getDefaultNotes() != null && !template.getDefaultNotes().isEmpty()) {
+            Font footerFont = new Font(Font.HELVETICA, 6, Font.ITALIC, Color.GRAY);
+            Paragraph footer = new Paragraph(template.getDefaultNotes(), footerFont);
+            footer.setAlignment(Element.ALIGN_CENTER);
+            footer.setSpacingBefore(5f);
+            document.add(footer);
+        }
+    }
+
     // ==================== PROFESSIONAL DESIGN ====================
     private void renderProfessionalDesign(Document document, PdfWriter writer, Invoice invoice,
-                                         CompanySettingsResponse companySettings, InvoiceTemplate template)
+                                          CompanySettingsResponse companySettings, InvoiceTemplate template)
             throws DocumentException, IOException {
         // Professional: Corporate structure, clear sections, formal
         addProfessionalHeader(document, invoice, companySettings, template);
@@ -912,6 +989,15 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         companyCell.setBorder(Rectangle.NO_BORDER);
 
         Paragraph companyInfo = new Paragraph();
+
+        // Add logo if available
+        Image logo = loadLogo(invoice, template);
+        if (logo != null) {
+            companyInfo.add(new Chunk(logo, 0, 0));
+            companyInfo.add(Chunk.NEWLINE);
+            companyInfo.add(Chunk.NEWLINE);
+        }
+
         companyInfo.add(new Chunk(companySettings.getCompanyName() != null ?
                 companySettings.getCompanyName() : "Company Name", companyFont));
         companyInfo.add(Chunk.NEWLINE);
@@ -947,7 +1033,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addProfessionalSummary(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                       InvoiceTemplate template) throws DocumentException {
+                                        InvoiceTemplate template) throws DocumentException {
         PdfPTable summaryTable = new PdfPTable(2);
         summaryTable.setWidthPercentage(100);
         summaryTable.setWidths(new float[]{1, 1});
@@ -1028,11 +1114,11 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addProfessionalItemsTable(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                          InvoiceTemplate template) throws DocumentException {
+                                           InvoiceTemplate template) throws DocumentException {
         int columnCount = template.getShowDiscountColumn() ? 6 : 5;
         float[] widths = template.getShowDiscountColumn() ?
-            new float[]{3f, 1f, 1.5f, 1f, 1.5f, 1.5f} :
-            new float[]{3f, 1f, 1.5f, 1.5f, 1.5f};
+                new float[]{3f, 1f, 1.5f, 1f, 1.5f, 1.5f} :
+                new float[]{3f, 1f, 1.5f, 1.5f, 1.5f};
 
         PdfPTable table = new PdfPTable(columnCount);
         table.setWidthPercentage(100);
@@ -1066,7 +1152,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
             if (template.getShowDiscountColumn()) {
                 String discount = item.getDiscountPercent().compareTo(BigDecimal.ZERO) > 0 ?
-                    item.getDiscountPercent() + "%" : "-";
+                        item.getDiscountPercent() + "%" : "-";
                 addTableCell(table, discount, cellFont, Element.ALIGN_CENTER, bgColor);
             }
 
@@ -1079,7 +1165,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addProfessionalTotalsAndPayment(Document document, Invoice invoice, CompanySettingsResponse companySettings,
-                                                InvoiceTemplate template) throws DocumentException {
+                                                 InvoiceTemplate template) throws DocumentException {
         PdfPTable mainTable = new PdfPTable(2);
         mainTable.setWidthPercentage(100);
         mainTable.setWidths(new float[]{1, 1});
@@ -1116,23 +1202,23 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         NumberFormat currencyFormat = getCurrencyFormat(companySettings);
 
         addProfessionalTotalRow(totalsTable, "Sous-total HT", currencyFormat.format(invoice.getSubtotal()),
-                               labelFont, valueFont, false, Color.WHITE);
+                labelFont, valueFont, false, Color.WHITE);
 
         if (invoice.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
             addProfessionalTotalRow(totalsTable, "Remise", "- " + currencyFormat.format(invoice.getDiscountAmount()),
-                                   labelFont, valueFont, false, Color.WHITE);
+                    labelFont, valueFont, false, Color.WHITE);
         }
 
         addProfessionalTotalRow(totalsTable, "TVA", currencyFormat.format(invoice.getTaxAmount()),
-                               labelFont, valueFont, false, Color.WHITE);
+                labelFont, valueFont, false, Color.WHITE);
 
         if (invoice.getDepositDeduction().compareTo(BigDecimal.ZERO) > 0) {
             addProfessionalTotalRow(totalsTable, "Acompte déduit", "- " + currencyFormat.format(invoice.getDepositDeduction()),
-                                   labelFont, valueFont, false, Color.WHITE);
+                    labelFont, valueFont, false, Color.WHITE);
         }
 
         addProfessionalTotalRow(totalsTable, "TOTAL TTC", currencyFormat.format(invoice.getTotalAmount()),
-                               totalFont, totalFont, true, parseColor(template.getAccentColor()));
+                totalFont, totalFont, true, parseColor(template.getAccentColor()));
 
         rightCell.addElement(totalsTable);
         mainTable.addCell(rightCell);
@@ -1141,9 +1227,9 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         // Add amount in words
         String amountInWords = NumberToWordsConverter.convertToWordsWithSymbol(
-            invoice.getTotalAmount(),
-            companySettings.getCurrencySymbol(),
-            companySettings.getCurrencyDecimals()
+                invoice.getTotalAmount(),
+                companySettings.getCurrencySymbol(),
+                companySettings.getCurrencyDecimals()
         );
 
         Font amountWordsFont = new Font(Font.HELVETICA, 9, Font.ITALIC, Color.DARK_GRAY);
@@ -1157,6 +1243,17 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     private void addProfessionalFooter(Document document, Invoice invoice, InvoiceTemplate template)
             throws DocumentException {
         addLineSeparator(document, Color.LIGHT_GRAY, 1f);
+
+        // Add stamp if available
+        com.lowagie.text.Image stamp = loadStamp(invoice, template);
+        if (stamp != null) {
+            Paragraph stampParagraph = new Paragraph();
+            stampParagraph.setAlignment(Element.ALIGN_RIGHT);
+            stampParagraph.add(new Chunk(stamp, 0, 0));
+            stampParagraph.setSpacingBefore(15f);
+            stampParagraph.setSpacingAfter(10f);
+            document.add(stampParagraph);
+        }
 
         if (invoice.getNotes() != null && !invoice.getNotes().isEmpty()) {
             Font notesFont = new Font(Font.HELVETICA, 8, Font.NORMAL);
@@ -1239,8 +1336,8 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addCompanyRegistration(Paragraph paragraph, Invoice invoice,
-                                       CompanySettingsResponse companySettings,
-                                       InvoiceTemplate template, Font font) {
+                                        CompanySettingsResponse companySettings,
+                                        InvoiceTemplate template, Font font) {
         // Get store info from invoice's source warehouse, fallback to company settings
         String taxId = null;
         String ninea = null;
@@ -1306,7 +1403,18 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         }
     }
 
-    private void addFooter(Document document, InvoiceTemplate template) throws DocumentException {
+    private void addFooter(Document document, Invoice invoice, InvoiceTemplate template) throws DocumentException {
+        // Add stamp if available
+        com.lowagie.text.Image stamp = loadStamp(invoice, template);
+        if (stamp != null) {
+            Paragraph stampParagraph = new Paragraph();
+            stampParagraph.setAlignment(Element.ALIGN_RIGHT);
+            stampParagraph.add(new Chunk(stamp, 0, 0));
+            stampParagraph.setSpacingBefore(20f);
+            stampParagraph.setSpacingAfter(10f);
+            document.add(stampParagraph);
+        }
+
         if (template.getDefaultNotes() != null && !template.getDefaultNotes().isEmpty()) {
             Font footerFont = new Font(Font.HELVETICA, 8, Font.ITALIC, Color.GRAY);
             Paragraph footer = new Paragraph(template.getDefaultNotes(), footerFont);
@@ -1403,7 +1511,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addTotalRow(PdfPTable table, String label, String value, Font labelFont,
-                            Font valueFont, boolean bold) {
+                             Font valueFont, boolean bold) {
         PdfPCell labelCell = new PdfPCell(new Phrase(label, labelFont));
         labelCell.setBorder(bold ? Rectangle.TOP : Rectangle.NO_BORDER);
         labelCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -1420,7 +1528,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addElegantTotalRow(PdfPTable table, String label, String value, Font labelFont,
-                                   Font valueFont, boolean isTotal) {
+                                    Font valueFont, boolean isTotal) {
         Color borderColor = isTotal ? parseColor("#4F46E5") : new Color(220, 220, 220);
         int borderType = isTotal ? Rectangle.TOP : Rectangle.NO_BORDER;
 
@@ -1460,7 +1568,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     }
 
     private void addProfessionalTotalRow(PdfPTable table, String label, String value, Font labelFont,
-                                        Font valueFont, boolean isTotal, Color bgColor) {
+                                         Font valueFont, boolean isTotal, Color bgColor) {
         PdfPCell labelCell = new PdfPCell(new Phrase(label, labelFont));
         labelCell.setBackgroundColor(isTotal ? bgColor : Color.WHITE);
         labelCell.setBorder(isTotal ? Rectangle.NO_BORDER : Rectangle.NO_BORDER);
@@ -1520,9 +1628,76 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         NumberFormat format = NumberFormat.getCurrencyInstance(Locale.FRANCE);
         format.setCurrency(java.util.Currency.getInstance("XOF"));
         format.setMinimumFractionDigits(companySettings.getCurrencyDecimals() != null ?
-            companySettings.getCurrencyDecimals() : 0);
+                companySettings.getCurrencyDecimals() : 0);
         format.setMaximumFractionDigits(companySettings.getCurrencyDecimals() != null ?
-            companySettings.getCurrencyDecimals() : 0);
+                companySettings.getCurrencyDecimals() : 0);
         return format;
+    }
+
+    private Image loadLogo(Invoice invoice, InvoiceTemplate template) {
+        try {
+            String logoUrl = null;
+
+            // Priority 1: Template logo
+            if (template != null && template.getLogoUrl() != null && !template.getLogoUrl().isEmpty()) {
+                logoUrl = template.getLogoUrl();
+            }
+            // Priority 2: Store logo (fallback)
+            else if (invoice.getSourceWarehouse() != null &&
+                    invoice.getSourceWarehouse().getStore() != null &&
+                    invoice.getSourceWarehouse().getStore().getLogoUrl() != null) {
+                logoUrl = invoice.getSourceWarehouse().getStore().getLogoUrl();
+            }
+
+            if (logoUrl != null) {
+                byte[] logoBytes = fileStorageService.getFileBytes(extractObjectName(logoUrl));
+                Image logo = Image.getInstance(logoBytes);
+                logo.scaleToFit(120, 60); // Max width: 120, max height: 60
+                return logo;
+            }
+        } catch (Exception e) {
+            log.warn("Could not load logo image: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private Image loadStamp(Invoice invoice, InvoiceTemplate template) {
+        try {
+            String stampUrl = null;
+
+            // Priority 1: Template stamp
+            if (template != null && template.getStampImageUrl() != null && !template.getStampImageUrl().isEmpty()) {
+                stampUrl = template.getStampImageUrl();
+            }
+            // Priority 2: Store stamp (fallback)
+            else if (invoice.getSourceWarehouse() != null &&
+                    invoice.getSourceWarehouse().getStore() != null &&
+                    invoice.getSourceWarehouse().getStore().getStampImageUrl() != null) {
+                stampUrl = invoice.getSourceWarehouse().getStore().getStampImageUrl();
+            }
+
+            if (stampUrl != null) {
+                byte[] stampBytes = fileStorageService.getFileBytes(extractObjectName(stampUrl));
+                Image stamp = Image.getInstance(stampBytes);
+                stamp.scaleToFit(100, 100); // Max width/height: 100
+                return stamp;
+            }
+        } catch (Exception e) {
+            log.warn("Could not load stamp image: {}", e.getMessage());
+        }
+        return null;
+    }
+
+    private String extractObjectName(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return null;
+        }
+        // Extract object name from URL
+        // URL format: http://localhost:9000/spareparts/folder/filename.ext
+        int lastSlashIndex = fileUrl.lastIndexOf("/spareparts/");
+        if (lastSlashIndex != -1) {
+            return fileUrl.substring(lastSlashIndex + "/spareparts/".length());
+        }
+        return null;
     }
 }

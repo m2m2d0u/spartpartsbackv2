@@ -2,10 +2,12 @@ package sn.symmetry.spareparts.service.impl;
 
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
+import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -170,5 +172,44 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
 
         return fileUrl.substring(bucketIndex + bucketPrefix.length());
+    }
+
+    @Override
+    public String getPresignedUrl(String fileUrl, Integer expiryInSeconds) {
+        try {
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                return null;
+            }
+
+            String objectName = extractObjectNameFromUrl(fileUrl);
+            if (objectName == null) {
+                log.warn("Could not extract object name from URL: {}", fileUrl);
+                return fileUrl; // Return original URL if extraction fails
+            }
+
+            // Default to 7 days (604800 seconds) if not specified
+            int expiry = (expiryInSeconds != null && expiryInSeconds > 0) ? expiryInSeconds : 604800;
+
+            String presignedUrl = minioClient.getPresignedObjectUrl(
+                GetPresignedObjectUrlArgs.builder()
+                    .method(Method.GET)
+                    .bucket(minioProperties.getBucket())
+                    .object(objectName)
+                    .expiry(expiry)
+                    .build()
+            );
+
+            log.debug("Generated presigned URL for object: {}, expires in: {}s", objectName, expiry);
+            return presignedUrl;
+
+        } catch (Exception e) {
+            log.error("Error generating presigned URL for: {}", fileUrl, e);
+            return fileUrl; // Return original URL if presigned URL generation fails
+        }
+    }
+
+    @Override
+    public String getPresignedUrl(String fileUrl) {
+        return getPresignedUrl(fileUrl, null);
     }
 }
