@@ -15,6 +15,7 @@ import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.repository.PermissionRepository;
 import sn.symmetry.spareparts.service.PermissionService;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -96,13 +97,13 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Cacheable(value = CacheConfig.PERMISSIONS_ALL_CACHE, key = "'categories'")
     public List<String> getAllCategories() {
-        return permissionRepository.findAllActiveCategories();
+        return new ArrayList<>(permissionRepository.findAllActiveCategories());
     }
 
     @Override
     @Cacheable(value = CacheConfig.PERMISSIONS_ALL_CACHE, key = "'levels'")
     public List<String> getAllLevels() {
-        return permissionRepository.findAllActiveLevels();
+        return new ArrayList<>(permissionRepository.findAllActiveLevels());
     }
 
     private PermissionInfo toPermissionInfo(Permission permission) {

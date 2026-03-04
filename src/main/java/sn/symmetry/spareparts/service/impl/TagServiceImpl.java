@@ -20,6 +20,7 @@ import sn.symmetry.spareparts.service.TagService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class TagServiceImpl implements TagService {
     public List<TagResponse> getAllTagsList() {
         return tagRepository.findAll().stream()
                 .map(tagMapper::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override

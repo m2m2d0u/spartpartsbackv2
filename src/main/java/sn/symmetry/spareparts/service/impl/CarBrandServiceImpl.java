@@ -20,6 +20,7 @@ import sn.symmetry.spareparts.service.CarBrandService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class CarBrandServiceImpl implements CarBrandService {
     public List<CarBrandResponse> getAllCarBrandsList() {
         return carBrandRepository.findAll().stream()
                 .map(carBrandMapper::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override

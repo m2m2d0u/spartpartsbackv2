@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService {
             List<UUID> managerWarehouseIds = authorizationService.getAccessibleWarehouseIds();
             List<UUID> requestedWarehouseIds = assignments.stream()
                     .map(UserWarehouseAssignmentRequest::getWarehouseId)
-                    .toList();
+                    .collect(Collectors.toList());
 
             if (!new HashSet<>(managerWarehouseIds).containsAll(requestedWarehouseIds)) {
                 throw new AccessDeniedException("Cannot assign warehouses outside your stores");
@@ -232,7 +233,7 @@ public class UserServiceImpl implements UserService {
                     us.setStore(store);
                     return us;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
         userStoreRepository.saveAll(newAssignments);
 
@@ -276,7 +277,7 @@ public class UserServiceImpl implements UserService {
                             .email(store.getEmail())
                             .isActive(store.getIsActive())
                             .build())
-                    .toList();
+                    .collect(Collectors.toList());
             response.setAccessibleStores(storeInfos);
         } else if (accessibleStoreIds == null) {
             // ADMIN - get all stores
@@ -295,7 +296,7 @@ public class UserServiceImpl implements UserService {
                             .email(store.getEmail())
                             .isActive(store.getIsActive())
                             .build())
-                    .toList();
+                    .collect(Collectors.toList());
             response.setAccessibleStores(storeInfos);
         }
 
@@ -313,7 +314,7 @@ public class UserServiceImpl implements UserService {
                             .storeName(warehouse.getStore().getName())
                             .isActive(warehouse.getIsActive())
                             .build())
-                    .toList();
+                    .collect(Collectors.toList());
             response.setAccessibleWarehouses(warehouseInfos);
         } else if (accessibleWarehouseIds == null) {
             // ADMIN - get all warehouses
@@ -328,7 +329,7 @@ public class UserServiceImpl implements UserService {
                             .storeName(warehouse.getStore().getName())
                             .isActive(warehouse.getIsActive())
                             .build())
-                    .toList();
+                    .collect(Collectors.toList());
             response.setAccessibleWarehouses(warehouseInfos);
         }
 
@@ -348,7 +349,7 @@ public class UserServiceImpl implements UserService {
                         .storeCode(us.getStore().getCode())
                         .createdAt(us.getCreatedAt())
                         .build())
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private List<UserWarehouseAssignmentResponse> buildWarehouseAssignments(UUID userId) {
@@ -362,7 +363,7 @@ public class UserServiceImpl implements UserService {
                                 .map(UserWarehousePermission::getPermission)
                                 .toList())
                         .build())
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -410,7 +411,7 @@ public class UserServiceImpl implements UserService {
                     uwr.setRole(role);
                     return uwr;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
         userWarehouseRoleRepository.saveAll(roleAssignments);
 
