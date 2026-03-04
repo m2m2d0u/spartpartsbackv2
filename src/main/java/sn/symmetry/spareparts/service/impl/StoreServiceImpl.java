@@ -8,12 +8,18 @@ import org.springframework.transaction.annotation.Transactional;
 import sn.symmetry.spareparts.dto.request.CreateStoreRequest;
 import sn.symmetry.spareparts.dto.request.UpdateStoreRequest;
 import sn.symmetry.spareparts.dto.response.StoreResponse;
+import sn.symmetry.spareparts.dto.response.UserResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.entity.Store;
+import sn.symmetry.spareparts.entity.User;
+import sn.symmetry.spareparts.entity.UserStore;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.StoreMapper;
+import sn.symmetry.spareparts.mapper.UserMapper;
 import sn.symmetry.spareparts.repository.StoreRepository;
+import sn.symmetry.spareparts.repository.UserRepository;
+import sn.symmetry.spareparts.repository.UserStoreRepository;
 import sn.symmetry.spareparts.service.AuthorizationService;
 import sn.symmetry.spareparts.service.StoreService;
 
@@ -28,6 +34,9 @@ public class StoreServiceImpl implements StoreService {
     private final StoreRepository storeRepository;
     private final StoreMapper storeMapper;
     private final AuthorizationService authorizationService;
+    private final UserStoreRepository userStoreRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public PagedResponse<StoreResponse> getAllStores(Boolean isActive, Pageable pageable) {
@@ -103,5 +112,48 @@ public class StoreServiceImpl implements StoreService {
                 .orElseThrow(() -> new ResourceNotFoundException("Store", "id", id));
         store.setIsActive(false);
         storeRepository.save(store);
+    }
+
+    @Override
+    public List<UserResponse> getStoreUsers(UUID storeId) {
+        if (!storeRepository.existsById(storeId)) {
+            throw new ResourceNotFoundException("Store", "id", storeId);
+        }
+        return userStoreRepository.findByStoreId(storeId).stream()
+                .map(us -> userMapper.toResponse(us.getUser()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void assignUserToStore(UUID storeId, UUID userId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Store", "id", storeId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        if (userStoreRepository.existsByUserIdAndStoreId(userId, storeId)) {
+            throw new DuplicateResourceException("UserStore", "userId+storeId", userId + "+" + storeId);
+        }
+
+        UserStore userStore = new UserStore();
+        userStore.setUser(user);
+        userStore.setStore(store);
+        userStoreRepository.save(userStore);
+    }
+
+    @Override
+    @Transactional
+    public void unassignUserFromStore(UUID storeId, UUID userId) {
+        if (!storeRepository.existsById(storeId)) {
+            throw new ResourceNotFoundException("Store", "id", storeId);
+        }
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User", "id", userId);
+        }
+        if (!userStoreRepository.existsByUserIdAndStoreId(userId, storeId)) {
+            throw new ResourceNotFoundException("UserStore", "userId+storeId", userId + "+" + storeId);
+        }
+        userStoreRepository.deleteByUserIdAndStoreId(userId, storeId);
     }
 }

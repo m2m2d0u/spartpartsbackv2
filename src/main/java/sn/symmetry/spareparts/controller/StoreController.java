@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import sn.symmetry.spareparts.dto.request.CreateStoreRequest;
 import sn.symmetry.spareparts.dto.request.UpdateStoreRequest;
 import sn.symmetry.spareparts.dto.response.StoreResponse;
+import sn.symmetry.spareparts.dto.response.UserResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.StoreService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -63,5 +65,28 @@ public class StoreController {
     public ResponseEntity<ApiResponse<Void>> deleteStore(@PathVariable UUID id) {
         storeService.deleteStore(id);
         return ResponseEntity.ok(ApiResponse.success("Store deactivated successfully", null));
+    }
+
+    @GetMapping("/{id}/users")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getStoreUsers(@PathVariable UUID id) {
+        List<UserResponse> users = storeService.getStoreUsers(id);
+        return ResponseEntity.ok(ApiResponse.success(users));
+    }
+
+    @PostMapping("/{id}/users/{userId}")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
+    public ResponseEntity<ApiResponse<Void>> assignUserToStore(
+            @PathVariable UUID id, @PathVariable UUID userId) {
+        storeService.assignUserToStore(id, userId);
+        return ResponseEntity.ok(ApiResponse.success("User assigned to store successfully", null));
+    }
+
+    @DeleteMapping("/{id}/users/{userId}")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
+    public ResponseEntity<ApiResponse<Void>> unassignUserFromStore(
+            @PathVariable UUID id, @PathVariable UUID userId) {
+        storeService.unassignUserFromStore(id, userId);
+        return ResponseEntity.ok(ApiResponse.success("User unassigned from store successfully", null));
     }
 }

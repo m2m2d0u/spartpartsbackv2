@@ -44,4 +44,8 @@ public interface UserWarehouseRepository extends JpaRepository<UserWarehouse, UU
      */
     @Query("SELECT uw.warehouse.id FROM UserWarehouse uw WHERE uw.user.id = :userId")
     List<UUID> findWarehouseIdsByUserId(@Param("userId") UUID userId);
+
+    List<UserWarehouse> findByWarehouseId(UUID warehouseId);
+
+    void deleteByUserIdAndWarehouseId(UUID userId, UUID warehouseId);
 }

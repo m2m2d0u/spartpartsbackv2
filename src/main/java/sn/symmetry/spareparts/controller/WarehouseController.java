@@ -20,9 +20,11 @@ import sn.symmetry.spareparts.dto.request.CreateWarehouseRequest;
 import sn.symmetry.spareparts.dto.request.UpdateWarehouseRequest;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
+import sn.symmetry.spareparts.dto.response.UserResponse;
 import sn.symmetry.spareparts.dto.response.WarehouseResponse;
 import sn.symmetry.spareparts.service.WarehouseService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -69,5 +71,28 @@ public class WarehouseController {
     public ResponseEntity<ApiResponse<Void>> deleteWarehouse(@PathVariable UUID id) {
         warehouseService.deleteWarehouse(id);
         return ResponseEntity.ok(ApiResponse.success("Warehouse deactivated successfully", null));
+    }
+
+    @GetMapping("/{id}/users")
+    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getWarehouseUsers(@PathVariable UUID id) {
+        List<UserResponse> users = warehouseService.getWarehouseUsers(id);
+        return ResponseEntity.ok(ApiResponse.success(users));
+    }
+
+    @PostMapping("/{id}/users/{userId}")
+    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
+    public ResponseEntity<ApiResponse<Void>> assignUserToWarehouse(
+            @PathVariable UUID id, @PathVariable UUID userId) {
+        warehouseService.assignUserToWarehouse(id, userId);
+        return ResponseEntity.ok(ApiResponse.success("User assigned to warehouse successfully", null));
+    }
+
+    @DeleteMapping("/{id}/users/{userId}")
+    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
+    public ResponseEntity<ApiResponse<Void>> unassignUserFromWarehouse(
+            @PathVariable UUID id, @PathVariable UUID userId) {
+        warehouseService.unassignUserFromWarehouse(id, userId);
+        return ResponseEntity.ok(ApiResponse.success("User unassigned from warehouse successfully", null));
     }
 }

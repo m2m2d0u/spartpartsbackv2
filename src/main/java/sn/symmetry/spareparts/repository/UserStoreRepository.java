@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.UserStore;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -49,4 +50,10 @@ public interface UserStoreRepository extends JpaRepository<UserStore, UUID> {
      */
     @Query("SELECT us.store.id FROM UserStore us WHERE us.user.id = :userId")
     List<UUID> findStoreIdsByUserId(@Param("userId") UUID userId);
+
+    List<UserStore> findByStoreId(UUID storeId);
+
+    Optional<UserStore> findByUserIdAndStoreId(UUID userId, UUID storeId);
+
+    void deleteByUserIdAndStoreId(UUID userId, UUID storeId);
 }
