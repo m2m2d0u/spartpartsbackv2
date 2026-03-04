@@ -47,6 +47,4 @@ public class UpdateCustomerRequest {
     private String taxId;
 
     private String notes;
-
-    private Boolean portalAccess;
 }

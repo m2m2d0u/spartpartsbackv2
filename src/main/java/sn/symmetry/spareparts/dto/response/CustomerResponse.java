@@ -28,7 +28,6 @@ public class CustomerResponse {
     private String country;
     private String taxId;
     private String notes;
-    private Boolean portalAccess;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

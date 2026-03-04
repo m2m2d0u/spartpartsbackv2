@@ -19,8 +19,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "customer", indexes = {
-        @Index(name = "idx_customer_email", columnList = "email"),
-        @Index(name = "idx_customer_portal", columnList = "portal_access")
+        @Index(name = "idx_customer_email", columnList = "email")
 })
 @Getter
 @Setter
@@ -64,12 +63,6 @@ public class Customer {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
-
-    @Column(name = "portal_access", nullable = false)
-    private Boolean portalAccess = false;
-
-    @Column(name = "password_hash", length = 255)
-    private String passwordHash;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
