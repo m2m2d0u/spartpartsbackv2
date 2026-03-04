@@ -36,7 +36,7 @@ public class WarehouseStockController {
     public ResponseEntity<ApiResponse<PagedResponse<WarehouseStockResponse>>> getAllWarehouseStock(
             @RequestParam UUID warehouseId,
             @RequestParam(required = false) UUID partId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 warehouseStockService.getAllWarehouseStock(warehouseId, partId, pageable)));
     }

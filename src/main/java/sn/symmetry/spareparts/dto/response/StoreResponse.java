@@ -22,6 +22,7 @@ public class StoreResponse {
     private String phone;
     private String email;
     private String logoUrl;
+    private String stampImageUrl;
     private String ninea;
     private String rccm;
     private String taxId;

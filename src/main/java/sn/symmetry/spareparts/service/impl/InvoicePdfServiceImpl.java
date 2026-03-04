@@ -14,6 +14,7 @@ import sn.symmetry.spareparts.dto.response.CompanySettingsResponse;
 import sn.symmetry.spareparts.entity.Invoice;
 import sn.symmetry.spareparts.entity.InvoiceItem;
 import sn.symmetry.spareparts.entity.InvoiceTemplate;
+import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.enums.InvoiceDesign;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.repository.InvoiceRepository;
@@ -117,7 +118,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         Font normalFont = new Font(Font.HELVETICA, 9, Font.NORMAL);
         addCompanyAddress(companyInfo, companySettings, normalFont);
-        addCompanyRegistration(companyInfo, companySettings, template, normalFont);
+        addCompanyRegistration(companyInfo, invoice, companySettings, template, normalFont);
         leftCell.addElement(companyInfo);
         headerTable.addCell(leftCell);
 
@@ -916,7 +917,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         companyInfo.add(Chunk.NEWLINE);
         companyInfo.add(Chunk.NEWLINE);
         addCompanyAddress(companyInfo, companySettings, normalFont);
-        addCompanyRegistration(companyInfo, companySettings, template, normalFont);
+        addCompanyRegistration(companyInfo, invoice, companySettings, template, normalFont);
 
         companyCell.addElement(companyInfo);
         headerTable.addCell(companyCell);
@@ -1237,16 +1238,34 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         }
     }
 
-    private void addCompanyRegistration(Paragraph paragraph, CompanySettingsResponse companySettings,
+    private void addCompanyRegistration(Paragraph paragraph, Invoice invoice,
+                                       CompanySettingsResponse companySettings,
                                        InvoiceTemplate template, Font font) {
-        if (template.getShowTaxId() && companySettings.getTaxId() != null) {
-            paragraph.add(new Chunk("TVA: " + companySettings.getTaxId() + "\n", font));
+        // Get store info from invoice's source warehouse, fallback to company settings
+        String taxId = null;
+        String ninea = null;
+        String rccm = null;
+
+        if (invoice.getSourceWarehouse() != null && invoice.getSourceWarehouse().getStore() != null) {
+            Store store = invoice.getSourceWarehouse().getStore();
+            taxId = store.getTaxId();
+            ninea = store.getNinea();
+            rccm = store.getRccm();
+        } else {
+            // Fallback to company settings
+            taxId = companySettings.getTaxId();
+            ninea = companySettings.getNinea();
+            rccm = companySettings.getRccm();
         }
-        if (template.getShowNinea() && companySettings.getNinea() != null) {
-            paragraph.add(new Chunk("NINEA: " + companySettings.getNinea() + "\n", font));
+
+        if (template.getShowTaxId() && taxId != null) {
+            paragraph.add(new Chunk("TVA: " + taxId + "\n", font));
         }
-        if (template.getShowRccm() && companySettings.getRccm() != null) {
-            paragraph.add(new Chunk("RCCM: " + companySettings.getRccm() + "\n", font));
+        if (template.getShowNinea() && ninea != null) {
+            paragraph.add(new Chunk("NINEA: " + ninea + "\n", font));
+        }
+        if (template.getShowRccm() && rccm != null) {
+            paragraph.add(new Chunk("RCCM: " + rccm + "\n", font));
         }
     }
 

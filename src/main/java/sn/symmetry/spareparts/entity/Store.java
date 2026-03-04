@@ -50,6 +50,9 @@ public class Store {
     @Column(name = "logo_url", length = 500)
     private String logoUrl;
 
+    @Column(name = "stamp_image_url", length = 500)
+    private String stampImageUrl;
+
     @Column(length = 50)
     private String ninea;
 

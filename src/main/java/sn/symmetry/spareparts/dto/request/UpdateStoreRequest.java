@@ -44,6 +44,9 @@ public class UpdateStoreRequest {
     @Size(max = 500)
     private String logoUrl;
 
+    @Size(max = 500)
+    private String stampImageUrl;
+
     @Size(max = 50)
     private String ninea;
 
