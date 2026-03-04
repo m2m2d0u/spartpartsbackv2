@@ -23,4 +23,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Page<User> findByRoleCode(String roleCode, Pageable pageable);
 
     Page<User> findByIsActive(Boolean isActive, Pageable pageable);
+
+    Page<User> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    Page<User> findByNameContainingIgnoreCaseAndRoleCode(String name, String roleCode, Pageable pageable);
+
+    Page<User> findByNameContainingIgnoreCaseAndIsActive(String name, Boolean isActive, Pageable pageable);
+
+    Page<User> findByNameContainingIgnoreCaseAndRoleCodeAndIsActive(String name, String roleCode, Boolean isActive, Pageable pageable);
 }

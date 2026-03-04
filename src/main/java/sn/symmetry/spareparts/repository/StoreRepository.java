@@ -23,4 +23,10 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
      * @return page of stores
      */
     Page<Store> findByIdIn(List<UUID> ids, Pageable pageable);
+
+    Page<Store> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    Page<Store> findByNameContainingIgnoreCaseAndIsActive(String name, Boolean isActive, Pageable pageable);
+
+    Page<Store> findByNameContainingIgnoreCaseAndIdIn(String name, List<UUID> ids, Pageable pageable);
 }

@@ -64,4 +64,10 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, UUID> {
      * @return list of warehouses
      */
     List<Warehouse> findByStoreIdIn(List<UUID> storeIds);
+
+    Page<Warehouse> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    Page<Warehouse> findByNameContainingIgnoreCaseAndIsActive(String name, Boolean isActive, Pageable pageable);
+
+    Page<Warehouse> findByNameContainingIgnoreCaseAndIdIn(String name, List<UUID> ids, Pageable pageable);
 }

@@ -39,10 +39,11 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAuthority('USER_VIEW')")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) Boolean isActive,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(roleCode, isActive, pageable)));
+        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(name, roleCode, isActive, pageable)));
     }
 
     @GetMapping("/{id}")

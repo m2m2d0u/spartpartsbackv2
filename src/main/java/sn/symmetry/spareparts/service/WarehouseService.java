@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface WarehouseService {
 
-    PagedResponse<WarehouseResponse> getAllWarehouses(Boolean isActive, Pageable pageable);
+    PagedResponse<WarehouseResponse> getAllWarehouses(String name, Boolean isActive, Pageable pageable);
 
     WarehouseResponse getWarehouseById(UUID id);
 

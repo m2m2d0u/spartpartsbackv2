@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface UserService {
 
-    PagedResponse<UserResponse> getAllUsers(String roleCode, Boolean isActive, Pageable pageable);
+    PagedResponse<UserResponse> getAllUsers(String name, String roleCode, Boolean isActive, Pageable pageable);
 
     UserResponse getUserById(UUID id);
 

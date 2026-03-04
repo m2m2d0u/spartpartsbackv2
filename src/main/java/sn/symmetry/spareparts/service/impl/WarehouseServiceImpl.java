@@ -42,21 +42,31 @@ public class WarehouseServiceImpl implements WarehouseService {
     private final UserMapper userMapper;
 
     @Override
-    public PagedResponse<WarehouseResponse> getAllWarehouses(Boolean isActive, Pageable pageable) {
+    public PagedResponse<WarehouseResponse> getAllWarehouses(String name, Boolean isActive, Pageable pageable) {
         List<UUID> accessibleWarehouseIds = authorizationService.getAccessibleWarehouseIds();
 
         Page<Warehouse> page;
         if (accessibleWarehouseIds == null) {
             // ADMIN - see all warehouses
-            page = isActive != null
-                    ? warehouseRepository.findByIsActive(isActive, pageable)
-                    : warehouseRepository.findAll(pageable);
+            if (name != null && isActive != null) {
+                page = warehouseRepository.findByNameContainingIgnoreCaseAndIsActive(name, isActive, pageable);
+            } else if (name != null) {
+                page = warehouseRepository.findByNameContainingIgnoreCase(name, pageable);
+            } else if (isActive != null) {
+                page = warehouseRepository.findByIsActive(isActive, pageable);
+            } else {
+                page = warehouseRepository.findAll(pageable);
+            }
         } else if (accessibleWarehouseIds.isEmpty()) {
             // No access - return empty
             page = Page.empty(pageable);
         } else {
             // Filter by accessible warehouses
-            page = warehouseRepository.findByIdIn(accessibleWarehouseIds, pageable);
+            if (name != null) {
+                page = warehouseRepository.findByNameContainingIgnoreCaseAndIdIn(name, accessibleWarehouseIds, pageable);
+            } else {
+                page = warehouseRepository.findByIdIn(accessibleWarehouseIds, pageable);
+            }
         }
 
         return PagedResponse.of(page.map(warehouseMapper::toResponse));

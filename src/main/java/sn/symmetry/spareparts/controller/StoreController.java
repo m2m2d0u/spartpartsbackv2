@@ -29,9 +29,10 @@ public class StoreController {
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PagedResponse<StoreResponse>>> getAllStores(
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) Boolean isActive,
             @PageableDefault(size = 20) Pageable pageable) {
-        PagedResponse<StoreResponse> response = storeService.getAllStores(isActive, pageable);
+        PagedResponse<StoreResponse> response = storeService.getAllStores(name, isActive, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

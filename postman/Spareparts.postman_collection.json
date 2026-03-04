@@ -120,6 +120,7 @@
               "query": [
                 { "key": "page", "value": "0" },
                 { "key": "size", "value": "20" },
+                { "key": "name", "value": "", "disabled": true },
                 { "key": "role", "value": "ADMIN", "disabled": true },
                 { "key": "isActive", "value": "true", "disabled": true }
               ]
@@ -276,6 +277,7 @@
               "query": [
                 { "key": "page", "value": "0" },
                 { "key": "size", "value": "20" },
+                { "key": "name", "value": "", "disabled": true },
                 { "key": "isActive", "value": "true", "disabled": true }
               ]
             },
@@ -418,6 +420,7 @@
               "query": [
                 { "key": "page", "value": "0" },
                 { "key": "size", "value": "20" },
+                { "key": "name", "value": "", "disabled": true },
                 { "key": "isActive", "value": "true", "disabled": true }
               ]
             }

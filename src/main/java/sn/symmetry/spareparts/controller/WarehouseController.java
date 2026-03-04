@@ -37,9 +37,10 @@ public class WarehouseController {
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<PagedResponse<WarehouseResponse>>> getAllWarehouses(
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) Boolean isActive,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(warehouseService.getAllWarehouses(isActive, pageable)));
+        return ResponseEntity.ok(ApiResponse.success(warehouseService.getAllWarehouses(name, isActive, pageable)));
     }
 
     @GetMapping("/{id}")

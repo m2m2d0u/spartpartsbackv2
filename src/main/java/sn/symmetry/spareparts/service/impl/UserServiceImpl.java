@@ -65,9 +65,17 @@ public class UserServiceImpl implements UserService {
     private final AuthorizationService authorizationService;
 
     @Override
-    public PagedResponse<UserResponse> getAllUsers(String roleCode, Boolean isActive, Pageable pageable) {
+    public PagedResponse<UserResponse> getAllUsers(String name, String roleCode, Boolean isActive, Pageable pageable) {
         Page<User> page;
-        if (roleCode != null && isActive != null) {
+        if (name != null && roleCode != null && isActive != null) {
+            page = userRepository.findByNameContainingIgnoreCaseAndRoleCodeAndIsActive(name, roleCode, isActive, pageable);
+        } else if (name != null && roleCode != null) {
+            page = userRepository.findByNameContainingIgnoreCaseAndRoleCode(name, roleCode, pageable);
+        } else if (name != null && isActive != null) {
+            page = userRepository.findByNameContainingIgnoreCaseAndIsActive(name, isActive, pageable);
+        } else if (name != null) {
+            page = userRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else if (roleCode != null && isActive != null) {
             page = userRepository.findByRoleCodeAndIsActive(roleCode, isActive, pageable);
         } else if (roleCode != null) {
             page = userRepository.findByRoleCode(roleCode, pageable);

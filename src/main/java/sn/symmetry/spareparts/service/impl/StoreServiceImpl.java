@@ -39,23 +39,31 @@ public class StoreServiceImpl implements StoreService {
     private final UserMapper userMapper;
 
     @Override
-    public PagedResponse<StoreResponse> getAllStores(Boolean isActive, Pageable pageable) {
+    public PagedResponse<StoreResponse> getAllStores(String name, Boolean isActive, Pageable pageable) {
         List<UUID> accessibleStoreIds = authorizationService.getAccessibleStoreIds();
 
         Page<Store> page;
         if (accessibleStoreIds == null) {
             // ADMIN - see all stores
-            page = isActive != null
-                    ? storeRepository.findByIsActive(isActive, pageable)
-                    : storeRepository.findAll(pageable);
+            if (name != null && isActive != null) {
+                page = storeRepository.findByNameContainingIgnoreCaseAndIsActive(name, isActive, pageable);
+            } else if (name != null) {
+                page = storeRepository.findByNameContainingIgnoreCase(name, pageable);
+            } else if (isActive != null) {
+                page = storeRepository.findByIsActive(isActive, pageable);
+            } else {
+                page = storeRepository.findAll(pageable);
+            }
         } else if (accessibleStoreIds.isEmpty()) {
             // No access - return empty
             page = Page.empty(pageable);
         } else {
             // Filter by accessible stores
-            // Note: For simplicity, ignoring isActive filter when filtering by IDs
-            // You could add a compound query method if needed
-            page = storeRepository.findByIdIn(accessibleStoreIds, pageable);
+            if (name != null) {
+                page = storeRepository.findByNameContainingIgnoreCaseAndIdIn(name, accessibleStoreIds, pageable);
+            } else {
+                page = storeRepository.findByIdIn(accessibleStoreIds, pageable);
+            }
         }
 
         return PagedResponse.of(page.map(storeMapper::toResponse));
