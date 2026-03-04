@@ -15,6 +15,9 @@ import sn.symmetry.spareparts.dto.request.LoginRequest;
 import sn.symmetry.spareparts.dto.response.AuthResponse;
 import sn.symmetry.spareparts.dto.response.MeResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
+import sn.symmetry.spareparts.entity.User;
+import sn.symmetry.spareparts.exception.ResourceNotFoundException;
+import sn.symmetry.spareparts.repository.UserRepository;
 import sn.symmetry.spareparts.security.JwtService;
 import sn.symmetry.spareparts.service.UserService;
 
@@ -30,6 +33,7 @@ public class AuthController {
     private final JwtProperties jwtProperties;
     private final UserDetailsService userDetailsService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
@@ -37,8 +41,9 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String roleCode = resolveRoleCode(userDetails.getUsername());
 
-        String accessToken = jwtService.generateAccessToken(userDetails);
+        String accessToken = jwtService.generateAccessToken(userDetails, roleCode);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         AuthResponse authResponse = AuthResponse.builder()
@@ -68,7 +73,8 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid or expired refresh token"));
         }
 
-        String newAccessToken = jwtService.generateAccessToken(userDetails);
+        String roleCode = resolveRoleCode(email);
+        String newAccessToken = jwtService.generateAccessToken(userDetails, roleCode);
 
         AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(newAccessToken)
@@ -78,6 +84,12 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", authResponse));
+    }
+
+    private String resolveRoleCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        return user.getRole().getCode();
     }
 
     @GetMapping("/me")

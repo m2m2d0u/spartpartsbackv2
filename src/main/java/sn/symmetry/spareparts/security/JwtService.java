@@ -24,8 +24,8 @@ public class JwtService {
 
     private final JwtProperties jwtProperties;
 
-    public String generateAccessToken(UserDetails userDetails) {
-        Map<String, Object> claims = buildUserClaims(userDetails);
+    public String generateAccessToken(UserDetails userDetails, String roleCode) {
+        Map<String, Object> claims = buildUserClaims(userDetails, roleCode);
         return generateToken(claims, userDetails, jwtProperties.getAccessTokenExpiration());
     }
 
@@ -33,23 +33,16 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails, jwtProperties.getRefreshTokenExpiration());
     }
 
-    private Map<String, Object> buildUserClaims(UserDetails userDetails) {
+    private Map<String, Object> buildUserClaims(UserDetails userDetails, String roleCode) {
         Map<String, Object> claims = new HashMap<>();
-        List<String> authorities = userDetails.getAuthorities().stream()
+
+        String roleAuthority = "ROLE_" + roleCode;
+        List<String> permissions = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
+                .filter(a -> !a.equals(roleAuthority))
                 .toList();
 
-        String role = authorities.stream()
-                .filter(a -> a.startsWith("ROLE_"))
-                .map(a -> a.substring(5))
-                .findFirst()
-                .orElse(null);
-
-        List<String> permissions = authorities.stream()
-                .filter(a -> !a.startsWith("ROLE_"))
-                .toList();
-
-        claims.put("role", role);
+        claims.put("role", roleCode);
         claims.put("permissions", permissions);
         return claims;
     }

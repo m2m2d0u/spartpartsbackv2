@@ -32,6 +32,7 @@ import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.UserMapper;
+import sn.symmetry.spareparts.repository.RolePermissionRepository;
 import sn.symmetry.spareparts.repository.RoleRepository;
 import sn.symmetry.spareparts.repository.StoreRepository;
 import sn.symmetry.spareparts.repository.UserRepository;
@@ -57,6 +58,7 @@ public class UserServiceImpl implements UserService {
     private final UserWarehouseRepository userWarehouseRepository;
     private final UserWarehouseRoleRepository userWarehouseRoleRepository;
     private final UserStoreRepository userStoreRepository;
+    private final RolePermissionRepository rolePermissionRepository;
     private final RoleRepository roleRepository;
     private final WarehouseRepository warehouseRepository;
     private final StoreRepository storeRepository;
@@ -272,6 +274,11 @@ public class UserServiceImpl implements UserService {
                 .createdAt(currentUser.getCreatedAt())
                 .updatedAt(currentUser.getUpdatedAt())
                 .build();
+
+        // Get role-level permissions
+        List<String> rolePermissions = rolePermissionRepository.findPermissionCodesByRoleId(
+                currentUser.getRole().getId());
+        response.setPermissions(rolePermissions);
 
         // Get accessible stores
         List<UUID> accessibleStoreIds = authorizationService.getAccessibleStoreIds();
