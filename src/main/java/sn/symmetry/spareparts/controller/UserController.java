@@ -24,7 +24,6 @@ import sn.symmetry.spareparts.dto.request.UserWarehouseAssignmentRequest;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.UserResponse;
-import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.service.UserService;
 
 import java.util.List;
@@ -40,10 +39,10 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STORE_MANAGER')")
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
-            @RequestParam(required = false) UserRole role,
+            @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) Boolean isActive,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(role, isActive, pageable)));
+        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(roleCode, isActive, pageable)));
     }
 
     @GetMapping("/{id}")

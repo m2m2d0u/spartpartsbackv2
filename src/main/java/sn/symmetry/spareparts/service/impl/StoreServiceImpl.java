@@ -10,7 +10,6 @@ import sn.symmetry.spareparts.dto.request.UpdateStoreRequest;
 import sn.symmetry.spareparts.dto.response.StoreResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.entity.Store;
-import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.StoreMapper;
@@ -80,7 +79,7 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public StoreResponse updateStore(UUID id, UpdateStoreRequest request) {
         // STORE_MANAGER can only update their own stores
-        if (authorizationService.getCurrentUserRole() == UserRole.STORE_MANAGER) {
+        if (authorizationService.isStoreManager()) {
             authorizationService.requireStoreAccess(id);
         }
 

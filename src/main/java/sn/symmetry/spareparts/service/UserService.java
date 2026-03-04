@@ -8,14 +8,12 @@ import sn.symmetry.spareparts.dto.request.UserWarehouseAssignmentRequest;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.MeResponse;
 import sn.symmetry.spareparts.dto.response.UserResponse;
-import sn.symmetry.spareparts.enums.UserRole;
-
 import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
 
-    PagedResponse<UserResponse> getAllUsers(UserRole role, Boolean isActive, Pageable pageable);
+    PagedResponse<UserResponse> getAllUsers(String roleCode, Boolean isActive, Pageable pageable);
 
     UserResponse getUserById(UUID id);
 

@@ -11,7 +11,6 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.WarehouseResponse;
 import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.entity.Warehouse;
-import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.WarehouseMapper;
@@ -67,7 +66,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public WarehouseResponse createWarehouse(CreateWarehouseRequest request) {
         // For STORE_MANAGER, check they can access the store
-        if (authorizationService.getCurrentUserRole() == UserRole.STORE_MANAGER) {
+        if (authorizationService.isStoreManager()) {
             authorizationService.requireStoreAccess(request.getStoreId());
         }
 
@@ -96,7 +95,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
 
         // Check access to the new store if it's being changed
-        if (authorizationService.getCurrentUserRole() == UserRole.STORE_MANAGER) {
+        if (authorizationService.isStoreManager()) {
             authorizationService.requireStoreAccess(request.getStoreId());
         }
 

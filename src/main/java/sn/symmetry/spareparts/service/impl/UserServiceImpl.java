@@ -28,7 +28,6 @@ import sn.symmetry.spareparts.entity.UserWarehouse;
 import sn.symmetry.spareparts.entity.UserWarehousePermission;
 import sn.symmetry.spareparts.entity.UserWarehouseRole;
 import sn.symmetry.spareparts.entity.Warehouse;
-import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
@@ -66,12 +65,12 @@ public class UserServiceImpl implements UserService {
     private final AuthorizationService authorizationService;
 
     @Override
-    public PagedResponse<UserResponse> getAllUsers(UserRole role, Boolean isActive, Pageable pageable) {
+    public PagedResponse<UserResponse> getAllUsers(String roleCode, Boolean isActive, Pageable pageable) {
         Page<User> page;
-        if (role != null && isActive != null) {
-            page = userRepository.findByRoleAndIsActive(role, isActive, pageable);
-        } else if (role != null) {
-            page = userRepository.findByRole(role, pageable);
+        if (roleCode != null && isActive != null) {
+            page = userRepository.findByRoleCodeAndIsActive(roleCode, isActive, pageable);
+        } else if (roleCode != null) {
+            page = userRepository.findByRoleCode(roleCode, pageable);
         } else if (isActive != null) {
             page = userRepository.findByIsActive(isActive, pageable);
         } else {
@@ -99,7 +98,11 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateResourceException("User", "email", request.getEmail());
         }
 
+        Role role = roleRepository.findByCode(request.getRoleCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "code", request.getRoleCode()));
+
         User user = userMapper.toEntity(request);
+        user.setRole(role);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         User saved = userRepository.save(user);
         return userMapper.toResponse(saved);
@@ -116,7 +119,11 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateResourceException("User", "email", request.getEmail());
         }
 
+        Role role = roleRepository.findByCode(request.getRoleCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "code", request.getRoleCode()));
+
         userMapper.updateEntity(request, user);
+        user.setRole(role);
         User saved = userRepository.save(user);
         return userMapper.toResponse(saved);
     }
@@ -142,8 +149,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         // Authorization check: STORE_MANAGER can only assign warehouses from their stores
-        User currentUser = authorizationService.getCurrentUser();
-        if (currentUser.getRole() == UserRole.STORE_MANAGER) {
+        if (authorizationService.isStoreManager()) {
             List<UUID> managerWarehouseIds = authorizationService.getAccessibleWarehouseIds();
             List<UUID> requestedWarehouseIds = assignments.stream()
                     .map(UserWarehouseAssignmentRequest::getWarehouseId)
@@ -196,17 +202,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CacheEvict(value = CacheConfig.USER_ME_CACHE, key = "#id")
     public UserResponse updateUserStores(UUID id, List<UUID> storeIds) {
-        User currentUser = authorizationService.getCurrentUser();
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         // Only ADMIN or STORE_MANAGER can assign stores
-        if (currentUser.getRole() == UserRole.WAREHOUSE_OPERATOR) {
+        if (authorizationService.isWarehouseOperator()) {
             throw new AccessDeniedException("WAREHOUSE_OPERATOR cannot assign stores");
         }
 
         // STORE_MANAGER can only assign their own stores
-        if (currentUser.getRole() == UserRole.STORE_MANAGER) {
+        if (authorizationService.isStoreManager()) {
             List<UUID> managerStoreIds = authorizationService.getAccessibleStoreIds();
             if (!new HashSet<>(managerStoreIds).containsAll(storeIds)) {
                 throw new AccessDeniedException("Cannot assign stores you don't manage");
@@ -253,7 +258,8 @@ public class UserServiceImpl implements UserService {
                 .id(currentUser.getId())
                 .name(currentUser.getName())
                 .email(currentUser.getEmail())
-                .role(currentUser.getRole())
+                .roleCode(currentUser.getRole().getCode())
+                .roleDisplayName(currentUser.getRole().getDisplayName())
                 .isActive(currentUser.getIsActive())
                 .createdAt(currentUser.getCreatedAt())
                 .updatedAt(currentUser.getUpdatedAt())
@@ -380,8 +386,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", "id", request.getWarehouseId()));
 
         // Verify that the current user has permission to assign roles for this warehouse
-        User currentUser = authorizationService.getCurrentUser();
-        if (currentUser.getRole() == UserRole.STORE_MANAGER) {
+        if (authorizationService.isStoreManager()) {
             // STORE_MANAGER can only assign roles for warehouses in their stores
             if (!authorizationService.canAccessWarehouse(warehouse.getId())) {
                 throw new AccessDeniedException("Cannot assign roles for warehouses outside your stores");

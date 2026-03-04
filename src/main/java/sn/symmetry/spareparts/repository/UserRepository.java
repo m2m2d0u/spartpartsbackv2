@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.User;
-import sn.symmetry.spareparts.enums.UserRole;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,9 +18,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmailAndIdNot(String email, UUID id);
 
-    Page<User> findByRoleAndIsActive(UserRole role, Boolean isActive, Pageable pageable);
+    Page<User> findByRoleCodeAndIsActive(String roleCode, Boolean isActive, Pageable pageable);
 
-    Page<User> findByRole(UserRole role, Pageable pageable);
+    Page<User> findByRoleCode(String roleCode, Pageable pageable);
 
     Page<User> findByIsActive(Boolean isActive, Pageable pageable);
 }

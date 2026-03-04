@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import sn.symmetry.spareparts.enums.UserRole;
 
 @Getter
 @Setter
@@ -25,8 +24,8 @@ public class UpdateUserRequest {
     @Size(max = 200, message = "Email must not exceed 200 characters")
     private String email;
 
-    @NotNull(message = "Role is required")
-    private UserRole role;
+    @NotBlank(message = "Role code is required")
+    private String roleCode;
 
     @NotNull(message = "Active status is required")
     private Boolean isActive;

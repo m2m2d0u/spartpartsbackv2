@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sn.symmetry.spareparts.config.CacheConfig;
 import sn.symmetry.spareparts.entity.User;
-import sn.symmetry.spareparts.enums.UserRole;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.UnauthorizedException;
 import sn.symmetry.spareparts.repository.UserRepository;
@@ -53,12 +52,12 @@ public class AuthorizationService {
     }
 
     /**
-     * Get the current user's role.
+     * Get the current user's role code.
      *
-     * @return the user's role
+     * @return the user's role code
      */
-    public UserRole getCurrentUserRole() {
-        return getCurrentUser().getRole();
+    public String getCurrentUserRoleCode() {
+        return getCurrentUser().getRole().getCode();
     }
 
     /**
@@ -67,7 +66,7 @@ public class AuthorizationService {
      * @return true if user is ADMIN, false otherwise
      */
     public boolean isAdmin() {
-        return getCurrentUserRole() == UserRole.ADMIN;
+        return "ADMIN".equals(getCurrentUserRoleCode());
     }
 
     /**
@@ -76,7 +75,7 @@ public class AuthorizationService {
      * @return true if user is STORE_MANAGER, false otherwise
      */
     public boolean isStoreManager() {
-        return getCurrentUserRole() == UserRole.STORE_MANAGER;
+        return "STORE_MANAGER".equals(getCurrentUserRoleCode());
     }
 
     /**
@@ -85,7 +84,7 @@ public class AuthorizationService {
      * @return true if user is WAREHOUSE_OPERATOR, false otherwise
      */
     public boolean isWarehouseOperator() {
-        return getCurrentUserRole() == UserRole.WAREHOUSE_OPERATOR;
+        return "WAREHOUSE_OPERATOR".equals(getCurrentUserRoleCode());
     }
 
     /**
@@ -98,12 +97,13 @@ public class AuthorizationService {
      */
     public List<UUID> getAccessibleStoreIds() {
         User user = getCurrentUser();
+        String roleCode = user.getRole().getCode();
 
-        if (user.getRole() == UserRole.ADMIN) {
+        if ("ADMIN".equals(roleCode)) {
             return null; // null means all stores
         }
 
-        if (user.getRole() == UserRole.STORE_MANAGER) {
+        if ("STORE_MANAGER".equals(roleCode)) {
             return userStoreRepository.findStoreIdsByUserId(user.getId());
         }
 
@@ -120,12 +120,13 @@ public class AuthorizationService {
      */
     public List<UUID> getAccessibleWarehouseIds() {
         User user = getCurrentUser();
+        String roleCode = user.getRole().getCode();
 
-        if (user.getRole() == UserRole.ADMIN) {
+        if ("ADMIN".equals(roleCode)) {
             return null; // null means all warehouses
         }
 
-        if (user.getRole() == UserRole.STORE_MANAGER) {
+        if ("STORE_MANAGER".equals(roleCode)) {
             List<UUID> storeIds = userStoreRepository.findStoreIdsByUserId(user.getId());
             if (storeIds.isEmpty()) {
                 return List.of();
@@ -133,7 +134,7 @@ public class AuthorizationService {
             return warehouseRepository.findWarehouseIdsByStoreIds(storeIds);
         }
 
-        if (user.getRole() == UserRole.WAREHOUSE_OPERATOR) {
+        if ("WAREHOUSE_OPERATOR".equals(roleCode)) {
             return userWarehouseRepository.findWarehouseIdsByUserId(user.getId());
         }
 
@@ -189,19 +190,20 @@ public class AuthorizationService {
         }
 
         User user = getCurrentUser();
+        String roleCode = user.getRole().getCode();
 
         // ADMIN has all permissions
-        if (user.getRole() == UserRole.ADMIN) {
+        if ("ADMIN".equals(roleCode)) {
             return true;
         }
 
         // STORE_MANAGER has all permissions for warehouses in their stores
-        if (user.getRole() == UserRole.STORE_MANAGER) {
+        if ("STORE_MANAGER".equals(roleCode)) {
             return canAccessWarehouse(warehouseId);
         }
 
         // WAREHOUSE_OPERATOR needs specific permission
-        if (user.getRole() == UserRole.WAREHOUSE_OPERATOR) {
+        if ("WAREHOUSE_OPERATOR".equals(roleCode)) {
             // Check permissions from roles
             List<String> rolePermissions = userWarehouseRoleRepository.findPermissionCodesByUserAndWarehouse(user.getId(), warehouseId);
             if (rolePermissions.contains(permissionCode)) {
