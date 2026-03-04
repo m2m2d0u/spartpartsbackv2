@@ -17,6 +17,8 @@ import sn.symmetry.spareparts.entity.InvoiceItem;
 import sn.symmetry.spareparts.entity.InvoiceTemplate;
 import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.enums.InvoiceDesign;
+import sn.symmetry.spareparts.enums.InvoiceStatus;
+import sn.symmetry.spareparts.enums.InvoiceType;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.repository.InvoiceRepository;
 import sn.symmetry.spareparts.repository.InvoiceTemplateRepository;
@@ -135,14 +137,17 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         leftCell.addElement(companyInfo);
         headerTable.addCell(leftCell);
 
-        // Right side - Invoice type
+        // Right side - Invoice type (only if not STANDARD)
         PdfPCell rightCell = new PdfPCell();
         rightCell.setBorder(Rectangle.NO_BORDER);
         rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        Font invoiceTypeFont = new Font(Font.HELVETICA, 24, Font.BOLD, parseColor(template.getAccentColor()));
-        Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), invoiceTypeFont);
-        invoiceType.setAlignment(Element.ALIGN_RIGHT);
-        rightCell.addElement(invoiceType);
+
+        if (invoice.getInvoiceType() != InvoiceType.STANDARD) {
+            Font invoiceTypeFont = new Font(Font.HELVETICA, 24, Font.BOLD, parseColor(template.getAccentColor()));
+            Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), invoiceTypeFont);
+            invoiceType.setAlignment(Element.ALIGN_RIGHT);
+            rightCell.addElement(invoiceType);
+        }
         headerTable.addCell(rightCell);
 
         document.add(headerTable);
@@ -368,10 +373,13 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         PdfPCell rightCell = new PdfPCell();
         rightCell.setBorder(Rectangle.NO_BORDER);
         rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        Font typeFont = new Font(Font.HELVETICA, 28, Font.BOLD, parseColor(template.getAccentColor()));
-        Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), typeFont);
-        invoiceType.setAlignment(Element.ALIGN_RIGHT);
-        rightCell.addElement(invoiceType);
+
+        if (invoice.getInvoiceType() != InvoiceType.STANDARD) {
+            Font typeFont = new Font(Font.HELVETICA, 28, Font.BOLD, parseColor(template.getAccentColor()));
+            Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), typeFont);
+            invoiceType.setAlignment(Element.ALIGN_RIGHT);
+            rightCell.addElement(invoiceType);
+        }
         headerTable.addCell(rightCell);
 
         document.add(headerTable);
@@ -587,14 +595,16 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         companyDetails.setSpacingAfter(15f);
         document.add(companyDetails);
 
-        // Invoice type with decorative underline
-        Font typeFont = new Font(Font.TIMES_ROMAN, 20, Font.BOLD, parseColor(template.getAccentColor()));
-        Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), typeFont);
-        invoiceType.setAlignment(Element.ALIGN_CENTER);
-        invoiceType.setSpacingAfter(3f);
-        document.add(invoiceType);
+        // Invoice type with decorative underline (only if not STANDARD)
+        if (invoice.getInvoiceType() != InvoiceType.STANDARD) {
+            Font typeFont = new Font(Font.TIMES_ROMAN, 20, Font.BOLD, parseColor(template.getAccentColor()));
+            Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), typeFont);
+            invoiceType.setAlignment(Element.ALIGN_CENTER);
+            invoiceType.setSpacingAfter(3f);
+            document.add(invoiceType);
 
-        addLineSeparator(document, parseColor(template.getAccentColor()), 1.5f);
+            addLineSeparator(document, parseColor(template.getAccentColor()), 1.5f);
+        }
         document.add(new Paragraph(" "));
         document.add(new Paragraph(" "));
     }
@@ -844,7 +854,9 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         Paragraph details = new Paragraph();
         details.setAlignment(Element.ALIGN_RIGHT);
-        details.add(new Chunk(getInvoiceTypeLabel(invoice.getInvoiceType()) + "\n", titleFont));
+        if (invoice.getInvoiceType() != InvoiceType.STANDARD) {
+            details.add(new Chunk(getInvoiceTypeLabel(invoice.getInvoiceType()) + "\n", titleFont));
+        }
         details.add(new Chunk(invoice.getInvoiceNumber() + "\n", smallBoldFont));
         details.add(new Chunk(invoice.getIssuedDate().format(DATE_FORMATTER), smallFont));
 
@@ -1016,15 +1028,17 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         typeCell.setPadding(15f);
         typeCell.setBackgroundColor(new Color(248, 249, 250));
 
-        Font typeFont = new Font(Font.HELVETICA, 22, Font.BOLD, parseColor(template.getAccentColor()));
-        Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), typeFont);
-        invoiceType.setAlignment(Element.ALIGN_CENTER);
-        typeCell.addElement(invoiceType);
+        if (invoice.getInvoiceType() != InvoiceType.STANDARD) {
+            Font typeFont = new Font(Font.HELVETICA, 22, Font.BOLD, parseColor(template.getAccentColor()));
+            Paragraph invoiceType = new Paragraph(getInvoiceTypeLabel(invoice.getInvoiceType()), typeFont);
+            invoiceType.setAlignment(Element.ALIGN_CENTER);
+            typeCell.addElement(invoiceType);
+        }
 
         Paragraph invoiceNumber = new Paragraph(invoice.getInvoiceNumber(),
                 new Font(Font.HELVETICA, 11, Font.BOLD));
         invoiceNumber.setAlignment(Element.ALIGN_CENTER);
-        invoiceNumber.setSpacingBefore(5f);
+        invoiceNumber.setSpacingBefore(invoice.getInvoiceType() != InvoiceType.STANDARD ? 5f : 0f);
         typeCell.addElement(invoiceNumber);
 
         headerTable.addCell(typeCell);
@@ -1598,7 +1612,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         }
     }
 
-    private String getInvoiceTypeLabel(sn.symmetry.spareparts.enums.InvoiceType type) {
+    private String getInvoiceTypeLabel(InvoiceType type) {
         return switch (type) {
             case PROFORMA -> "PROFORMA";
             case STANDARD -> "FACTURE";
@@ -1606,16 +1620,12 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         };
     }
 
-    private String getStatusLabel(sn.symmetry.spareparts.enums.InvoiceStatus status) {
+    private String getStatusLabel(InvoiceStatus status) {
         return switch (status) {
             case DRAFT -> "Brouillon";
-            case SENT -> "Envoyée";
             case PAID -> "Payée";
             case PARTIALLY_PAID -> "Partiellement payée";
             case OVERDUE -> "En retard";
-            case CANCELLED -> "Annulée";
-            case ACCEPTED -> "Acceptée";
-            case EXPIRED -> "Expirée";
         };
     }
 

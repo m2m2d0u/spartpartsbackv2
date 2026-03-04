@@ -14,6 +14,10 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__initial_schema.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V20__add_invoice_template_design.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V21__add_store_stamp_image.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V22__rename_modele_proforma_to_modele_pro.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V23__rename_invoice_status_draft_to_proforma.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V24__rename_invoice_status_proforma_to_draft.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V25__remove_invoice_statuses.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__migrate_ids_to_uuid.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__seed_data_fr.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V4__add_store_entity.sql" dialect="PostgreSQL" />
