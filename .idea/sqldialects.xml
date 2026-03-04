@@ -7,6 +7,8 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V13__translate_roles_to_french.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V14__add_system_level_permissions.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V15__translate_permissions_to_french.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V16__assign_all_permissions_to_admin.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V17__rename_role_codes_and_fix_admin_permissions.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__initial_schema.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__migrate_ids_to_uuid.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__seed_data_fr.sql" dialect="PostgreSQL" />

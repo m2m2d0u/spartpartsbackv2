@@ -10,8 +10,11 @@ import sn.symmetry.spareparts.config.JwtProperties;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -22,11 +25,33 @@ public class JwtService {
     private final JwtProperties jwtProperties;
 
     public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, jwtProperties.getAccessTokenExpiration());
+        Map<String, Object> claims = buildUserClaims(userDetails);
+        return generateToken(claims, userDetails, jwtProperties.getAccessTokenExpiration());
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails, jwtProperties.getRefreshTokenExpiration());
+    }
+
+    private Map<String, Object> buildUserClaims(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        List<String> authorities = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        String role = authorities.stream()
+                .filter(a -> a.startsWith("ROLE_"))
+                .map(a -> a.substring(5))
+                .findFirst()
+                .orElse(null);
+
+        List<String> permissions = authorities.stream()
+                .filter(a -> !a.startsWith("ROLE_"))
+                .toList();
+
+        claims.put("role", role);
+        claims.put("permissions", permissions);
+        return claims;
     }
 
     public String extractEmail(String token) {
