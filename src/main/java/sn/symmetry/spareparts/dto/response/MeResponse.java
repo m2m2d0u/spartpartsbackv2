@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sn.symmetry.spareparts.enums.RoleLevel;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,8 +14,9 @@ import java.util.UUID;
 
 /**
  * Response DTO for the /me endpoint.
- * Contains all necessary information about the current user for the frontend,
- * including accessible resources and permissions.
+ * Contains user identity and role info.
+ * Permissions are carried in the JWT token.
+ * Accessible stores/warehouses are fetched via dedicated endpoints.
  * Implements Serializable for Redis caching.
  */
 @Getter
@@ -25,7 +27,7 @@ import java.util.UUID;
 public class MeResponse implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 7L;
 
     // Basic user information
     private UUID id;
@@ -33,64 +35,12 @@ public class MeResponse implements Serializable {
     private String email;
     private String roleCode;
     private String roleDisplayName;
+    private RoleLevel roleLevel;
     private Boolean superAdmin;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Role-level permission codes (from the user's assigned role)
-    private List<String> permissions;
-
-    // Accessible resources
-    private List<StoreInfo> accessibleStores;
-    private List<WarehouseInfo> accessibleWarehouses;
-
     // Warehouse assignments with permissions (for WAREHOUSE_OPERATOR)
     private List<UserWarehouseAssignmentResponse> warehouseAssignments;
-
-    /**
-     * Simplified store information for the /me response.
-     */
-    @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class StoreInfo implements Serializable {
-
-        @Serial
-        private static final long serialVersionUID = 1L;
-        private UUID id;
-        private String code;
-        private String name;
-        private String street;
-        private String city;
-        private String state;
-        private String postalCode;
-        private String country;
-        private String phone;
-        private String email;
-        private Boolean isActive;
-    }
-
-    /**
-     * Simplified warehouse information for the /me response.
-     */
-    @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class WarehouseInfo implements Serializable {
-
-        @Serial
-        private static final long serialVersionUID = 1L;
-        private UUID id;
-        private String code;
-        private String name;
-        private String location;
-        private UUID storeId;
-        private String storeName;
-        private Boolean isActive;
-    }
 }

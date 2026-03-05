@@ -275,94 +275,12 @@ public class UserServiceImpl implements UserService {
                 .email(currentUser.getEmail())
                 .roleCode(currentUser.getRole().getCode())
                 .roleDisplayName(currentUser.getRole().getDisplayName())
+                .roleLevel(currentUser.getRole().getRoleLevel())
                 .superAdmin(isSuperAdmin)
                 .isActive(currentUser.getIsActive())
                 .createdAt(currentUser.getCreatedAt())
                 .updatedAt(currentUser.getUpdatedAt())
                 .build();
-
-        // Super admin gets all permissions, others get role-level permissions
-        if (isSuperAdmin) {
-            response.setPermissions(permissionRepository.findAllActiveCodes());
-        } else {
-            List<String> rolePermissions = rolePermissionRepository.findPermissionCodesByRoleId(
-                    currentUser.getRole().getId());
-            response.setPermissions(rolePermissions);
-        }
-
-        // Get accessible stores
-        List<UUID> accessibleStoreIds = authorizationService.getAccessibleStoreIds();
-        if (accessibleStoreIds != null && !accessibleStoreIds.isEmpty()) {
-            List<Store> stores = storeRepository.findAllById(accessibleStoreIds);
-            List<MeResponse.StoreInfo> storeInfos = stores.stream()
-                    .map(store -> MeResponse.StoreInfo.builder()
-                            .id(store.getId())
-                            .code(store.getCode())
-                            .name(store.getName())
-                            .street(store.getStreet())
-                            .city(store.getCity())
-                            .state(store.getState())
-                            .postalCode(store.getPostalCode())
-                            .country(store.getCountry())
-                            .phone(store.getPhone())
-                            .email(store.getEmail())
-                            .isActive(store.getIsActive())
-                            .build())
-                    .collect(Collectors.toList());
-            response.setAccessibleStores(storeInfos);
-        } else if (accessibleStoreIds == null) {
-            // ADMIN - get all stores
-            List<Store> allStores = storeRepository.findAll();
-            List<MeResponse.StoreInfo> storeInfos = allStores.stream()
-                    .map(store -> MeResponse.StoreInfo.builder()
-                            .id(store.getId())
-                            .code(store.getCode())
-                            .name(store.getName())
-                            .street(store.getStreet())
-                            .city(store.getCity())
-                            .state(store.getState())
-                            .postalCode(store.getPostalCode())
-                            .country(store.getCountry())
-                            .phone(store.getPhone())
-                            .email(store.getEmail())
-                            .isActive(store.getIsActive())
-                            .build())
-                    .collect(Collectors.toList());
-            response.setAccessibleStores(storeInfos);
-        }
-
-        // Get accessible warehouses
-        List<UUID> accessibleWarehouseIds = authorizationService.getAccessibleWarehouseIds();
-        if (accessibleWarehouseIds != null && !accessibleWarehouseIds.isEmpty()) {
-            List<Warehouse> warehouses = warehouseRepository.findAllById(accessibleWarehouseIds);
-            List<MeResponse.WarehouseInfo> warehouseInfos = warehouses.stream()
-                    .map(warehouse -> MeResponse.WarehouseInfo.builder()
-                            .id(warehouse.getId())
-                            .code(warehouse.getCode())
-                            .name(warehouse.getName())
-                            .location(warehouse.getLocation())
-                            .storeId(warehouse.getStore().getId())
-                            .storeName(warehouse.getStore().getName())
-                            .isActive(warehouse.getIsActive())
-                            .build())
-                    .collect(Collectors.toList());
-            response.setAccessibleWarehouses(warehouseInfos);
-        } else if (accessibleWarehouseIds == null) {
-            // ADMIN - get all warehouses
-            List<Warehouse> allWarehouses = warehouseRepository.findAll();
-            List<MeResponse.WarehouseInfo> warehouseInfos = allWarehouses.stream()
-                    .map(warehouse -> MeResponse.WarehouseInfo.builder()
-                            .id(warehouse.getId())
-                            .code(warehouse.getCode())
-                            .name(warehouse.getName())
-                            .location(warehouse.getLocation())
-                            .storeId(warehouse.getStore().getId())
-                            .storeName(warehouse.getStore().getName())
-                            .isActive(warehouse.getIsActive())
-                            .build())
-                    .collect(Collectors.toList());
-            response.setAccessibleWarehouses(warehouseInfos);
-        }
 
         // Get warehouse assignments with permissions (for WAREHOUSE_OPERATOR)
         response.setWarehouseAssignments(buildWarehouseAssignments(currentUser.getId()));

@@ -107,6 +107,11 @@ public class AuthorizationService {
             return userStoreRepository.findStoreIdsByUserId(user.getId());
         }
 
+        if (RoleLevel.WAREHOUSE.equals(user.getRole().getRoleLevel())) {
+            // Warehouse users can view stores that their assigned warehouses belong to (read-only)
+            return userWarehouseRepository.findStoreIdsByUserId(user.getId());
+        }
+
         return List.of();
     }
 

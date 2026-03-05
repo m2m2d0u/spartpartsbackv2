@@ -73,6 +73,23 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    public List<WarehouseResponse> getMyWarehouses() {
+        List<UUID> accessibleWarehouseIds = authorizationService.getAccessibleWarehouseIds();
+
+        List<Warehouse> warehouses;
+        if (accessibleWarehouseIds == null) {
+            // ADMIN - all warehouses
+            warehouses = warehouseRepository.findAll();
+        } else if (accessibleWarehouseIds.isEmpty()) {
+            warehouses = List.of();
+        } else {
+            warehouses = warehouseRepository.findAllById(accessibleWarehouseIds);
+        }
+
+        return warehouses.stream().map(warehouseMapper::toResponse).collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
     public WarehouseResponse getWarehouseById(UUID id) {
         authorizationService.requireWarehouseAccess(id);
 

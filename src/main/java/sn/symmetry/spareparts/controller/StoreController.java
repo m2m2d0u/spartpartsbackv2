@@ -44,6 +44,13 @@ public class StoreController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<StoreResponse>>> getMyStores() {
+        List<StoreResponse> stores = storeService.getMyStores();
+        return ResponseEntity.ok(ApiResponse.success(stores));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<StoreResponse>> getStoreById(@PathVariable UUID id) {
@@ -158,7 +165,7 @@ public class StoreController {
     }
 
     @GetMapping("/{id}/users")
-    @PreAuthorize("hasAuthority('STORE_UPDATE')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getStoreUsers(@PathVariable UUID id) {
         List<UserResponse> users = storeService.getStoreUsers(id);
         return ResponseEntity.ok(ApiResponse.success(users));

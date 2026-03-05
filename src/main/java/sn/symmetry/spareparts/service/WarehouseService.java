@@ -14,6 +14,8 @@ public interface WarehouseService {
 
     PagedResponse<WarehouseResponse> getAllWarehouses(String name, Boolean isActive, Pageable pageable);
 
+    List<WarehouseResponse> getMyWarehouses();
+
     WarehouseResponse getWarehouseById(UUID id);
 
     WarehouseResponse createWarehouse(CreateWarehouseRequest request);

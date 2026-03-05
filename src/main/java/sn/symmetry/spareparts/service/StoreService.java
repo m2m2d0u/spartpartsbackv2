@@ -12,6 +12,7 @@ import java.util.UUID;
 
 public interface StoreService {
     PagedResponse<StoreResponse> getAllStores(String name, Boolean isActive, Pageable pageable);
+    List<StoreResponse> getMyStores();
     StoreResponse getStoreById(UUID id);
     StoreResponse createStore(CreateStoreRequest request);
     StoreResponse updateStore(UUID id, UpdateStoreRequest request);

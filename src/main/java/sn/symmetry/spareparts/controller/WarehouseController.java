@@ -44,6 +44,13 @@ public class WarehouseController {
         return ResponseEntity.ok(ApiResponse.success(warehouseService.getAllWarehouses(name, isActive, pageable)));
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<WarehouseResponse>>> getMyWarehouses() {
+        List<WarehouseResponse> warehouses = warehouseService.getMyWarehouses();
+        return ResponseEntity.ok(ApiResponse.success(warehouses));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<WarehouseResponse>> getWarehouseById(@PathVariable UUID id) {
@@ -76,7 +83,7 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}/users")
-    @PreAuthorize("hasAuthority('WAREHOUSE_UPDATE')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getWarehouseUsers(@PathVariable UUID id) {
         List<UserResponse> users = warehouseService.getWarehouseUsers(id);
         return ResponseEntity.ok(ApiResponse.success(users));

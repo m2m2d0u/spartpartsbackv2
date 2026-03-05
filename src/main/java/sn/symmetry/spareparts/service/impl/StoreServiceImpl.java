@@ -70,6 +70,23 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
+    public List<StoreResponse> getMyStores() {
+        List<UUID> accessibleStoreIds = authorizationService.getAccessibleStoreIds();
+
+        List<Store> stores;
+        if (accessibleStoreIds == null) {
+            // ADMIN - all stores
+            stores = storeRepository.findAll();
+        } else if (accessibleStoreIds.isEmpty()) {
+            stores = List.of();
+        } else {
+            stores = storeRepository.findAllById(accessibleStoreIds);
+        }
+
+        return stores.stream().map(storeMapper::toResponse).collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
     public StoreResponse getStoreById(UUID id) {
         authorizationService.requireStoreAccess(id);
 
