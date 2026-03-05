@@ -1,10 +1,14 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static sn.symmetry.spareparts.config.CacheConfig.CATEGORIES_CACHE;
 import sn.symmetry.spareparts.dto.request.CreateCategoryRequest;
 import sn.symmetry.spareparts.dto.request.UpdateCategoryRequest;
 import sn.symmetry.spareparts.dto.response.CategoryResponse;
@@ -33,6 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = CATEGORIES_CACHE, key = "#id")
     public CategoryResponse getCategoryById(UUID id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
@@ -41,6 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CATEGORIES_CACHE, allEntries = true)
     public CategoryResponse createCategory(CreateCategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new DuplicateResourceException("Category", "name", request.getName());
@@ -53,6 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CATEGORIES_CACHE, allEntries = true)
     public CategoryResponse updateCategory(UUID id, UpdateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
@@ -68,6 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CATEGORIES_CACHE, allEntries = true)
     public void deleteCategory(UUID id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));

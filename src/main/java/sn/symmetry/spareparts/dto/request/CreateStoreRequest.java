@@ -82,4 +82,12 @@ public class CreateStoreRequest {
     private UUID defaultWarehouseId;
 
     private UUID portalWarehouseId;
+
+    @Size(max = 10)
+    private String currencySymbol;
+
+    @Size(max = 10)
+    private String currencyPosition;
+
+    private Integer currencyDecimals;
 }

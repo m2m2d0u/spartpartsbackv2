@@ -150,6 +150,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setValidityDate(request.getValidityDate());
         invoice.setNotes(request.getNotes());
         invoice.setInternalNotes(request.getInternalNotes());
+        invoice.setInvoiceType(request.getInvoiceType());
 
         if (request.getOrderId() != null) {
             ClientOrder order = clientOrderRepository.findById(request.getOrderId())
@@ -208,6 +209,14 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "id", id));
 
         invoice.setStatus(request.getStatus());
+
+        // Auto-convert PROFORMA to STANDARD when status moves to a payment-related state
+        if (invoice.getInvoiceType() == InvoiceType.PROFORMA &&
+                (request.getStatus() == InvoiceStatus.PAID ||
+                 request.getStatus() == InvoiceStatus.PARTIALLY_PAID ||
+                 request.getStatus() == InvoiceStatus.OVERDUE)) {
+            invoice.setInvoiceType(InvoiceType.STANDARD);
+        }
 
         if (request.getStatus() == InvoiceStatus.PAID) {
             invoice.setPaidDate(LocalDate.now());

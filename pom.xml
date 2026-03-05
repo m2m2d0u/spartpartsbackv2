@@ -112,6 +112,17 @@
 			<artifactId>openpdf</artifactId>
 			<version>2.0.4</version>
 		</dependency>
+		<!-- Thymeleaf for HTML template rendering -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<!-- Flying Saucer: renders XHTML+CSS to PDF -->
+		<dependency>
+			<groupId>org.xhtmlrenderer</groupId>
+			<artifactId>flying-saucer-pdf</artifactId>
+			<version>9.4.0</version>
+		</dependency>
 		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>

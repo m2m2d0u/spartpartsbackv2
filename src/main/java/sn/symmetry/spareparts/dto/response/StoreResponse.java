@@ -37,6 +37,9 @@ public class StoreResponse {
     private String defaultInvoiceNotes;
     private UUID defaultWarehouseId;
     private UUID portalWarehouseId;
+    private String currencySymbol;
+    private String currencyPosition;
+    private Integer currencyDecimals;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

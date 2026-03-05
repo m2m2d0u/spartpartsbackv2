@@ -95,6 +95,15 @@ public class Store {
     @Column(name = "portal_warehouse_id")
     private UUID portalWarehouseId;
 
+    @Column(name = "currency_symbol", length = 10)
+    private String currencySymbol;
+
+    @Column(name = "currency_position", length = 10)
+    private String currencyPosition;
+
+    @Column(name = "currency_decimals")
+    private Integer currencyDecimals;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 

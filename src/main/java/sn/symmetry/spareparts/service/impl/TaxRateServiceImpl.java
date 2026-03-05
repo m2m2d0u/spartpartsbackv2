@@ -1,10 +1,14 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static sn.symmetry.spareparts.config.CacheConfig.TAX_RATES_CACHE;
 import sn.symmetry.spareparts.dto.request.CreateTaxRateRequest;
 import sn.symmetry.spareparts.dto.request.UpdateTaxRateRequest;
 import sn.symmetry.spareparts.dto.response.TaxRateResponse;
@@ -32,6 +36,7 @@ public class TaxRateServiceImpl implements TaxRateService {
     }
 
     @Override
+    @Cacheable(value = TAX_RATES_CACHE, key = "#id")
     public TaxRateResponse getTaxRateById(UUID id) {
         TaxRate taxRate = taxRateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", id));
@@ -40,6 +45,7 @@ public class TaxRateServiceImpl implements TaxRateService {
 
     @Override
     @Transactional
+    @CacheEvict(value = TAX_RATES_CACHE, allEntries = true)
     public TaxRateResponse createTaxRate(CreateTaxRateRequest request) {
         TaxRate taxRate = taxRateMapper.toEntity(request);
         TaxRate saved = taxRateRepository.save(taxRate);
@@ -48,6 +54,7 @@ public class TaxRateServiceImpl implements TaxRateService {
 
     @Override
     @Transactional
+    @CacheEvict(value = TAX_RATES_CACHE, allEntries = true)
     public TaxRateResponse updateTaxRate(UUID id, UpdateTaxRateRequest request) {
         TaxRate taxRate = taxRateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", id));
@@ -59,6 +66,7 @@ public class TaxRateServiceImpl implements TaxRateService {
 
     @Override
     @Transactional
+    @CacheEvict(value = TAX_RATES_CACHE, allEntries = true)
     public void deleteTaxRate(UUID id) {
         TaxRate taxRate = taxRateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", id));

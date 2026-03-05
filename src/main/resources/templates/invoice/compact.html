@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4;
+            margin: 36pt;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 7pt;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header-table {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .header-table td {
+            vertical-align: top;
+            padding: 2px;
+        }
+        .logo {
+            max-width: 80px;
+            max-height: 40px;
+        }
+        .company-name {
+            font-size: 9pt;
+            font-weight: bold;
+        }
+        .invoice-type-label {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        .small-bold {
+            font-size: 7pt;
+            font-weight: bold;
+        }
+        .separator {
+            width: 100%;
+            border: none;
+            height: 0.5px;
+            background-color: #ccc;
+            margin-bottom: 8px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        .items-table th {
+            font-size: 7pt;
+            font-weight: bold;
+            padding: 3px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        .items-table td {
+            padding: 2px;
+            font-size: 7pt;
+            border: none;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-left {
+            text-align: left;
+        }
+        .totals-wrapper {
+            width: 100%;
+        }
+        .totals-table {
+            width: 40%;
+            margin-left: auto;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .totals-table td {
+            padding: 2px;
+            font-size: 7pt;
+        }
+        .total-row td {
+            border-top: 1px solid #333;
+            padding-top: 4px;
+            font-size: 10pt;
+            font-weight: bold;
+        }
+        .amount-words {
+            text-align: right;
+            font-size: 7pt;
+            font-style: italic;
+            color: #555;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .notes-section {
+            margin-top: 10px;
+            font-size: 7pt;
+            font-style: italic;
+            color: #555;
+        }
+        .stamp {
+            max-width: 80px;
+            max-height: 80px;
+        }
+        .stamp-container {
+            text-align: right;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .footer-notes {
+            text-align: center;
+            font-size: 6pt;
+            font-style: italic;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER: Company | Customer | Invoice Details (3 columns) -->
+    <table class="header-table">
+        <tr>
+            <td style="width: 30%;">
+                <img th:if="${logoBase64}" th:src="'data:image/png;base64,' + ${logoBase64}" class="logo" alt="Logo"/><br th:if="${logoBase64}"/>
+                <div class="company-name" th:text="${companySettings.companyName} ?: 'Company'">Company</div>
+                <div th:if="${companySettings.phone}" th:text="${companySettings.phone}"></div>
+                <div th:if="${companySettings.email}" th:text="${companySettings.email}"></div>
+            </td>
+            <td style="width: 40%;">
+                <span class="small-bold">FACTURER A: </span>
+                <span th:text="${invoice.customer.name}"></span><br/>
+                <span th:if="${invoice.customer.city}" th:text="${invoice.customer.city}"></span>
+            </td>
+            <td style="width: 30%; text-align: right;">
+                <div th:if="${invoice.invoiceType.name() != 'STANDARD'}" class="invoice-type-label"
+                     th:style="'color:' + ${template.accentColor}" th:text="${invoiceTypeLabel}"></div>
+                <div class="small-bold" th:text="${invoice.invoiceNumber}"></div>
+                <div th:text="${issuedDate}"></div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="separator"></div>
+
+    <!-- ITEMS TABLE (simplified for compact) -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th class="text-left">Article</th>
+                <th>Qte</th>
+                <th>Prix</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item, stat : ${invoice.items}">
+                <td class="text-left" th:text="${item.part.name}"></td>
+                <td class="text-center" th:text="${item.quantity}"></td>
+                <td class="text-right" th:text="${itemUnitPrices[stat.index]}"></td>
+                <td class="text-right" th:text="${itemTotalPrices[stat.index]}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="separator"></div>
+
+    <!-- TOTALS -->
+    <div class="totals-wrapper">
+        <table class="totals-table">
+            <tr>
+                <td class="text-right">Sous-total:</td>
+                <td class="text-right" style="font-weight: bold;" th:text="${formattedSubtotal}"></td>
+            </tr>
+            <tr>
+                <td class="text-right">TVA:</td>
+                <td class="text-right" style="font-weight: bold;" th:text="${formattedTax}"></td>
+            </tr>
+            <tr class="total-row">
+                <td class="text-right" th:style="'color:' + ${template.accentColor}">TOTAL:</td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor}" th:text="${formattedTotal}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="amount-words">
+        Arrete a: <span th:text="${amountInWords}"></span>
+    </div>
+
+    <!-- NOTES -->
+    <div th:if="${invoice.notes != null and !invoice.notes.isEmpty()}" class="notes-section"
+         th:text="${invoice.notes}"></div>
+
+    <!-- STAMP -->
+    <div th:if="${stampBase64}" class="stamp-container">
+        <img th:src="'data:image/png;base64,' + ${stampBase64}" class="stamp" alt="Stamp"/>
+    </div>
+
+    <!-- FOOTER -->
+    <div th:if="${template.defaultNotes != null and !template.defaultNotes.isEmpty()}" class="footer-notes"
+         th:text="${template.defaultNotes}"></div>
+</body>
+</html>

@@ -1,10 +1,14 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static sn.symmetry.spareparts.config.CacheConfig.INVOICE_TEMPLATES_CACHE;
 import sn.symmetry.spareparts.dto.request.CreateInvoiceTemplateRequest;
 import sn.symmetry.spareparts.dto.request.UpdateInvoiceTemplateRequest;
 import sn.symmetry.spareparts.dto.response.InvoiceTemplateResponse;
@@ -32,6 +36,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
     }
 
     @Override
+    @Cacheable(value = INVOICE_TEMPLATES_CACHE, key = "#id")
     public InvoiceTemplateResponse getInvoiceTemplateById(UUID id) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
@@ -40,6 +45,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
 
     @Override
     @Transactional
+    @CacheEvict(value = INVOICE_TEMPLATES_CACHE, allEntries = true)
     public InvoiceTemplateResponse createInvoiceTemplate(CreateInvoiceTemplateRequest request) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateMapper.toEntity(request);
         InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
@@ -48,6 +54,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
 
     @Override
     @Transactional
+    @CacheEvict(value = INVOICE_TEMPLATES_CACHE, allEntries = true)
     public InvoiceTemplateResponse updateInvoiceTemplate(UUID id, UpdateInvoiceTemplateRequest request) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
@@ -59,6 +66,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
 
     @Override
     @Transactional
+    @CacheEvict(value = INVOICE_TEMPLATES_CACHE, allEntries = true)
     public void deleteInvoiceTemplate(UUID id) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));

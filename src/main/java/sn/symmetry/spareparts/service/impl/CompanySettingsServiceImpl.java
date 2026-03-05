@@ -1,8 +1,12 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static sn.symmetry.spareparts.config.CacheConfig.COMPANY_SETTINGS_CACHE;
 import sn.symmetry.spareparts.dto.request.UpdateCompanySettingsRequest;
 import sn.symmetry.spareparts.dto.response.CompanySettingsResponse;
 import sn.symmetry.spareparts.entity.CompanySettings;
@@ -26,6 +30,7 @@ public class CompanySettingsServiceImpl implements CompanySettingsService {
     private final CompanySettingsMapper companySettingsMapper;
 
     @Override
+    @Cacheable(value = COMPANY_SETTINGS_CACHE, key = "'singleton'")
     public CompanySettingsResponse getSettings() {
         CompanySettings settings = companySettingsRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "id", "default"));
@@ -34,6 +39,7 @@ public class CompanySettingsServiceImpl implements CompanySettingsService {
 
     @Override
     @Transactional
+    @CacheEvict(value = COMPANY_SETTINGS_CACHE, allEntries = true)
     public CompanySettingsResponse updateSettings(UpdateCompanySettingsRequest request) {
         CompanySettings settings = companySettingsRepository.findFirstBy()
                 .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "id", "default"));

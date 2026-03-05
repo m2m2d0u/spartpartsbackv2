@@ -37,6 +37,16 @@ public class CacheConfig {
     public static final String USER_ME_CACHE = "user:me";
     public static final String USER_WAREHOUSE_PERMISSIONS_CACHE = "user:warehouse:permissions";
 
+    // Company settings - singleton, read very frequently, rarely updated
+    public static final String COMPANY_SETTINGS_CACHE = "company-settings";
+
+    // Reference data caches - read often, updated infrequently
+    public static final String CATEGORIES_CACHE = "categories";
+    public static final String SUPPLIERS_CACHE = "suppliers";
+    public static final String CUSTOMERS_CACHE = "customers";
+    public static final String INVOICE_TEMPLATES_CACHE = "invoice-templates";
+    public static final String TAX_RATES_CACHE = "tax-rates";
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         GenericJacksonJsonRedisSerializer jsonSerializer = GenericJacksonJsonRedisSerializer.builder()
@@ -63,6 +73,15 @@ public class CacheConfig {
         // User warehouse permissions - medium TTL (30 minutes)
         RedisCacheConfiguration userWarehousePermConfig = defaultConfig.entryTtl(Duration.ofMinutes(30));
 
+        // Company settings - long TTL (6 hours) as it's a singleton that rarely changes
+        RedisCacheConfiguration companySettingsConfig = defaultConfig.entryTtl(Duration.ofHours(6));
+
+        // Reference data - medium-long TTL (2 hours)
+        RedisCacheConfiguration referenceDataConfig = defaultConfig.entryTtl(Duration.ofHours(2));
+
+        // Customer cache - shorter TTL (1 hour) as customers are updated more frequently
+        RedisCacheConfiguration customerConfig = defaultConfig.entryTtl(Duration.ofHours(1));
+
         // Configure specific caches with different TTLs
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
@@ -81,6 +100,18 @@ public class CacheConfig {
         // User caches
         cacheConfigurations.put(USER_ME_CACHE, userMeConfig);
         cacheConfigurations.put(USER_WAREHOUSE_PERMISSIONS_CACHE, userWarehousePermConfig);
+
+        // Company settings
+        cacheConfigurations.put(COMPANY_SETTINGS_CACHE, companySettingsConfig);
+
+        // Reference data
+        cacheConfigurations.put(CATEGORIES_CACHE, referenceDataConfig);
+        cacheConfigurations.put(SUPPLIERS_CACHE, referenceDataConfig);
+        cacheConfigurations.put(INVOICE_TEMPLATES_CACHE, referenceDataConfig);
+        cacheConfigurations.put(TAX_RATES_CACHE, referenceDataConfig);
+
+        // Customers
+        cacheConfigurations.put(CUSTOMERS_CACHE, customerConfig);
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

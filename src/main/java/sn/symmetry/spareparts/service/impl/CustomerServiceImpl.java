@@ -1,10 +1,14 @@
 package sn.symmetry.spareparts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static sn.symmetry.spareparts.config.CacheConfig.CUSTOMERS_CACHE;
 import sn.symmetry.spareparts.dto.request.CreateCustomerRequest;
 import sn.symmetry.spareparts.dto.request.UpdateCustomerRequest;
 import sn.symmetry.spareparts.dto.response.CustomerResponse;
@@ -33,6 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Cacheable(value = CUSTOMERS_CACHE, key = "#id")
     public CustomerResponse getCustomerById(UUID id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
@@ -41,6 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CUSTOMERS_CACHE, allEntries = true)
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
         if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("Customer", "email", request.getEmail());
@@ -53,6 +59,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CUSTOMERS_CACHE, allEntries = true)
     public CustomerResponse updateCustomer(UUID id, UpdateCustomerRequest request) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "id", id));
@@ -68,6 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CUSTOMERS_CACHE, allEntries = true)
     public void deleteCustomer(UUID id) {
         if (!customerRepository.existsById(id)) {
             throw new ResourceNotFoundException("Customer", "id", id);
