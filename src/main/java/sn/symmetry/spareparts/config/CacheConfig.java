@@ -46,6 +46,7 @@ public class CacheConfig {
     public static final String CUSTOMERS_CACHE = "customers";
     public static final String INVOICE_TEMPLATES_CACHE = "invoice-templates";
     public static final String TAX_RATES_CACHE = "tax-rates";
+    public static final String TAX_RATES_ALL_CACHE = "tax-rates:all";
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
@@ -109,6 +110,7 @@ public class CacheConfig {
         cacheConfigurations.put(SUPPLIERS_CACHE, referenceDataConfig);
         cacheConfigurations.put(INVOICE_TEMPLATES_CACHE, referenceDataConfig);
         cacheConfigurations.put(TAX_RATES_CACHE, referenceDataConfig);
+        cacheConfigurations.put(TAX_RATES_ALL_CACHE, referenceDataConfig);
 
         // Customers
         cacheConfigurations.put(CUSTOMERS_CACHE, customerConfig);

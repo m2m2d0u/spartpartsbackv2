@@ -245,7 +245,7 @@
                 <td class="text-right">Remise</td>
                 <td class="text-right label" th:text="'- ' + ${formattedDiscount}"></td>
             </tr>
-            <tr>
+            <tr th:if="${showTax}">
                 <td class="text-right">TVA</td>
                 <td class="text-right label" th:text="${formattedTax}"></td>
             </tr>

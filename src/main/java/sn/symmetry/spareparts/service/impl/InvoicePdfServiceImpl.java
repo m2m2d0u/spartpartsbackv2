@@ -15,12 +15,14 @@ import sn.symmetry.spareparts.entity.InvoiceItem;
 import sn.symmetry.spareparts.entity.InvoiceTemplate;
 import sn.symmetry.spareparts.entity.Part;
 import sn.symmetry.spareparts.entity.Store;
+import sn.symmetry.spareparts.entity.TaxRate;
 import sn.symmetry.spareparts.enums.InvoiceDesign;
 import sn.symmetry.spareparts.enums.InvoiceStatus;
 import sn.symmetry.spareparts.enums.InvoiceType;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.repository.InvoiceRepository;
 import sn.symmetry.spareparts.repository.InvoiceTemplateRepository;
+import sn.symmetry.spareparts.repository.TaxRateRepository;
 import sn.symmetry.spareparts.service.CompanySettingsService;
 import sn.symmetry.spareparts.service.FileStorageService;
 import sn.symmetry.spareparts.service.InvoicePdfService;
@@ -53,6 +55,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
     private final InvoiceRepository invoiceRepository;
     private final CompanySettingsService companySettingsService;
     private final InvoiceTemplateRepository invoiceTemplateRepository;
+    private final TaxRateRepository taxRateRepository;
     private final FileStorageService fileStorageService;
     private final TemplateEngine templateEngine;
 
@@ -106,7 +109,7 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         template.setDesign(design);
 
         // Build a fake invoice (not persisted)
-        Invoice invoice = buildSampleInvoice(companySettings);
+        Invoice invoice = buildSampleInvoice(template);
 
         String templateName = "invoice/" + design.name().toLowerCase();
 
@@ -168,11 +171,16 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         if (request.getShowCustomerTaxId() != null) template.setShowCustomerTaxId(request.getShowCustomerTaxId());
         if (request.getShowPaymentTerms() != null) template.setShowPaymentTerms(request.getShowPaymentTerms());
         if (request.getShowDiscountColumn() != null) template.setShowDiscountColumn(request.getShowDiscountColumn());
+        if (request.getTaxRateId() != null) {
+            TaxRate taxRate = taxRateRepository.findById(request.getTaxRateId())
+                    .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", request.getTaxRateId()));
+            template.setTaxRate(taxRate);
+        }
         if (request.getDefaultNotes() != null) template.setDefaultNotes(request.getDefaultNotes());
         return template;
     }
 
-    private Invoice buildSampleInvoice(CompanySettingsResponse companySettings) {
+    private Invoice buildSampleInvoice(InvoiceTemplate template) {
         Invoice invoice = new Invoice();
         invoice.setInvoiceNumber("FAC-2025-XXXXX");
         invoice.setInvoiceType(InvoiceType.STANDARD);
@@ -235,10 +243,10 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
 
         invoice.setItems(items);
 
-        // Compute totals
+        // Compute totals using template's tax rate (null = no tax)
         BigDecimal subtotal = new BigDecimal("65725");
         BigDecimal discountAmount = new BigDecimal("1275");
-        BigDecimal taxRate = companySettings.getDefaultTaxRate() != null ? companySettings.getDefaultTaxRate() : BigDecimal.ZERO;
+        BigDecimal taxRate = (template.getTaxRate() != null) ? template.getTaxRate().getRate() : BigDecimal.ZERO;
         BigDecimal taxableAmount = subtotal.subtract(discountAmount);
         BigDecimal taxAmount = taxableAmount.multiply(taxRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
@@ -277,6 +285,11 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         int decimals = companySettings.getCurrencyDecimals() != null ? companySettings.getCurrencyDecimals() : 0;
         String thousandsSep = companySettings.getThousandsSeparator() != null ? companySettings.getThousandsSeparator() : " ";
 
+        // Determine tax: template.taxRate takes priority; if null, no TVA
+        boolean showTax = template.getTaxRate() != null;
+        BigDecimal taxRate = showTax ? template.getTaxRate().getRate() : BigDecimal.ZERO;
+        context.setVariable("showTax", showTax);
+
         // Formatted totals
         context.setVariable("formattedSubtotal", formatCurrency(invoice.getSubtotal(), symbol, position, decimals, thousandsSep));
         context.setVariable("formattedDiscount", formatCurrency(invoice.getDiscountAmount(), symbol, position, decimals, thousandsSep));
@@ -285,7 +298,6 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         context.setVariable("formattedTotal", formatCurrency(invoice.getTotalAmount(), symbol, position, decimals, thousandsSep));
 
         // Per-item formatted amounts
-        BigDecimal taxRate = companySettings.getDefaultTaxRate();
         List<String> itemTaxes = new ArrayList<>();
         List<String> itemUnitPrices = new ArrayList<>();
         List<String> itemTotalPrices = new ArrayList<>();

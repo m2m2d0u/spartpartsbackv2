@@ -39,6 +39,8 @@ public class InvoiceTemplateResponse {
     private Boolean showCustomerTaxId;
     private Boolean showPaymentTerms;
     private Boolean showDiscountColumn;
+    private UUID taxRateId;
+    private String taxRateLabel;
     private String defaultNotes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import sn.symmetry.spareparts.enums.InvoiceDesign;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -62,6 +64,8 @@ public class CreateInvoiceTemplateRequest {
     private Boolean showCustomerTaxId;
     private Boolean showPaymentTerms;
     private Boolean showDiscountColumn;
+
+    private UUID taxRateId;
 
     private String defaultNotes;
 }

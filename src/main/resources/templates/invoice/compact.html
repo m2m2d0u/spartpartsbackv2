@@ -175,7 +175,7 @@
                 <td class="text-right">Sous-total:</td>
                 <td class="text-right" style="font-weight: bold;" th:text="${formattedSubtotal}"></td>
             </tr>
-            <tr>
+            <tr th:if="${showTax}">
                 <td class="text-right">TVA:</td>
                 <td class="text-right" style="font-weight: bold;" th:text="${formattedTax}"></td>
             </tr>

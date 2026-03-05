@@ -15,12 +15,16 @@ public interface InvoiceTemplateMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "taxRate", ignore = true)
     InvoiceTemplate toEntity(CreateInvoiceTemplateRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "taxRate", ignore = true)
     void updateEntity(UpdateInvoiceTemplateRequest request, @MappingTarget InvoiceTemplate invoiceTemplate);
 
+    @Mapping(source = "taxRate.id", target = "taxRateId")
+    @Mapping(source = "taxRate.label", target = "taxRateLabel")
     InvoiceTemplateResponse toResponse(InvoiceTemplate invoiceTemplate);
 }

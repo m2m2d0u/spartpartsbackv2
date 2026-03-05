@@ -6,11 +6,14 @@ import sn.symmetry.spareparts.dto.request.UpdateTaxRateRequest;
 import sn.symmetry.spareparts.dto.response.TaxRateResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface TaxRateService {
 
     PagedResponse<TaxRateResponse> getAllTaxRates(Pageable pageable);
+
+    List<TaxRateResponse> getAllTaxRatesList();
 
     TaxRateResponse getTaxRateById(UUID id);
 

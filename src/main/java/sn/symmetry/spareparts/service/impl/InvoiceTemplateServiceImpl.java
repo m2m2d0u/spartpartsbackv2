@@ -14,9 +14,11 @@ import sn.symmetry.spareparts.dto.request.UpdateInvoiceTemplateRequest;
 import sn.symmetry.spareparts.dto.response.InvoiceTemplateResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.entity.InvoiceTemplate;
+import sn.symmetry.spareparts.entity.TaxRate;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.InvoiceTemplateMapper;
 import sn.symmetry.spareparts.repository.InvoiceTemplateRepository;
+import sn.symmetry.spareparts.repository.TaxRateRepository;
 import sn.symmetry.spareparts.service.InvoiceTemplateService;
 
 import java.util.UUID;
@@ -27,6 +29,7 @@ import java.util.UUID;
 public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
 
     private final InvoiceTemplateRepository invoiceTemplateRepository;
+    private final TaxRateRepository taxRateRepository;
     private final InvoiceTemplateMapper invoiceTemplateMapper;
 
     @Override
@@ -48,6 +51,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
     @CacheEvict(value = INVOICE_TEMPLATES_CACHE, allEntries = true)
     public InvoiceTemplateResponse createInvoiceTemplate(CreateInvoiceTemplateRequest request) {
         InvoiceTemplate invoiceTemplate = invoiceTemplateMapper.toEntity(request);
+        resolveTaxRate(request.getTaxRateId(), invoiceTemplate);
         InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
         return invoiceTemplateMapper.toResponse(saved);
     }
@@ -60,6 +64,7 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
 
         invoiceTemplateMapper.updateEntity(request, invoiceTemplate);
+        resolveTaxRate(request.getTaxRateId(), invoiceTemplate);
         InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
         return invoiceTemplateMapper.toResponse(saved);
     }
@@ -71,5 +76,15 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
         InvoiceTemplate invoiceTemplate = invoiceTemplateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("InvoiceTemplate", "id", id));
         invoiceTemplateRepository.delete(invoiceTemplate);
+    }
+
+    private void resolveTaxRate(UUID taxRateId, InvoiceTemplate invoiceTemplate) {
+        if (taxRateId != null) {
+            TaxRate taxRate = taxRateRepository.findById(taxRateId)
+                    .orElseThrow(() -> new ResourceNotFoundException("TaxRate", "id", taxRateId));
+            invoiceTemplate.setTaxRate(taxRate);
+        } else {
+            invoiceTemplate.setTaxRate(null);
+        }
     }
 }

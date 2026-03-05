@@ -22,6 +22,7 @@ import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.TaxRateService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +36,11 @@ public class TaxRateController {
     public ResponseEntity<ApiResponse<PagedResponse<TaxRateResponse>>> getAllTaxRates(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(taxRateService.getAllTaxRates(pageable)));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<TaxRateResponse>>> getAllTaxRatesList() {
+        return ResponseEntity.ok(ApiResponse.success(taxRateService.getAllTaxRatesList()));
     }
 
     @GetMapping("/{id}")

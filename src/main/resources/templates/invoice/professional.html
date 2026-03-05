@@ -247,7 +247,7 @@
                 <th th:style="'background-color:' + ${template.primaryColor}">Qte</th>
                 <th th:style="'background-color:' + ${template.primaryColor}">Prix Unit.</th>
                 <th th:if="${template.showDiscountColumn}" th:style="'background-color:' + ${template.primaryColor}">Remise</th>
-                <th th:style="'background-color:' + ${template.primaryColor}">TVA</th>
+                <th th:if="${showTax}" th:style="'background-color:' + ${template.primaryColor}">TVA</th>
                 <th th:style="'background-color:' + ${template.primaryColor}">Total HT</th>
             </tr>
         </thead>
@@ -258,7 +258,7 @@
                 <td class="text-right" th:text="${itemUnitPrices[stat.index]}"></td>
                 <td th:if="${template.showDiscountColumn}" class="text-center"
                     th:text="${item.discountPercent.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${item.discountPercent} + '%' : '-'"></td>
-                <td class="text-right" th:text="${itemTaxes[stat.index]}"></td>
+                <td th:if="${showTax}" class="text-right" th:text="${itemTaxes[stat.index]}"></td>
                 <td class="text-right" th:text="${itemTotalPrices[stat.index]}"></td>
             </tr>
         </tbody>
@@ -283,7 +283,7 @@
                         <td class="text-right">Remise</td>
                         <td class="text-right" style="font-weight: bold;" th:text="'- ' + ${formattedDiscount}"></td>
                     </tr>
-                    <tr>
+                    <tr th:if="${showTax}">
                         <td class="text-right">TVA</td>
                         <td class="text-right" style="font-weight: bold;" th:text="${formattedTax}"></td>
                     </tr>
