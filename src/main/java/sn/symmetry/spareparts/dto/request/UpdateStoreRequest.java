@@ -91,6 +91,9 @@ public class UpdateStoreRequest {
 
     private Integer currencyDecimals;
 
+    @Size(max = 5)
+    private String thousandsSeparator;
+
     @NotNull
     private Boolean isActive;
 }

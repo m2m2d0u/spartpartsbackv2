@@ -47,6 +47,7 @@ public class CompanySettingsResponse {
     private String currencySymbol;
     private String currencyPosition;
     private Integer currencyDecimals;
+    private String thousandsSeparator;
     private UUID defaultWarehouseId;
     private UUID portalWarehouseId;
     private Boolean portalEnabled;

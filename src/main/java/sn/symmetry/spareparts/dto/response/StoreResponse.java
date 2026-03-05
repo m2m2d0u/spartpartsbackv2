@@ -40,6 +40,7 @@ public class StoreResponse {
     private String currencySymbol;
     private String currencyPosition;
     private Integer currencyDecimals;
+    private String thousandsSeparator;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

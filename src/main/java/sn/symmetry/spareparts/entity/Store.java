@@ -104,6 +104,9 @@ public class Store {
     @Column(name = "currency_decimals")
     private Integer currencyDecimals;
 
+    @Column(name = "thousands_separator", length = 5)
+    private String thousandsSeparator;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 

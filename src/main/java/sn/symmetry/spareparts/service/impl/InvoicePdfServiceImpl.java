@@ -116,13 +116,14 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         String symbol = companySettings.getCurrencySymbol() != null ? companySettings.getCurrencySymbol() : "XOF";
         String position = companySettings.getCurrencyPosition() != null ? companySettings.getCurrencyPosition() : "AFTER";
         int decimals = companySettings.getCurrencyDecimals() != null ? companySettings.getCurrencyDecimals() : 0;
+        String thousandsSep = companySettings.getThousandsSeparator() != null ? companySettings.getThousandsSeparator() : " ";
 
         // Formatted totals
-        context.setVariable("formattedSubtotal", formatCurrency(invoice.getSubtotal(), symbol, position, decimals));
-        context.setVariable("formattedDiscount", formatCurrency(invoice.getDiscountAmount(), symbol, position, decimals));
-        context.setVariable("formattedTax", formatCurrency(invoice.getTaxAmount(), symbol, position, decimals));
-        context.setVariable("formattedDeposit", formatCurrency(invoice.getDepositDeduction(), symbol, position, decimals));
-        context.setVariable("formattedTotal", formatCurrency(invoice.getTotalAmount(), symbol, position, decimals));
+        context.setVariable("formattedSubtotal", formatCurrency(invoice.getSubtotal(), symbol, position, decimals, thousandsSep));
+        context.setVariable("formattedDiscount", formatCurrency(invoice.getDiscountAmount(), symbol, position, decimals, thousandsSep));
+        context.setVariable("formattedTax", formatCurrency(invoice.getTaxAmount(), symbol, position, decimals, thousandsSep));
+        context.setVariable("formattedDeposit", formatCurrency(invoice.getDepositDeduction(), symbol, position, decimals, thousandsSep));
+        context.setVariable("formattedTotal", formatCurrency(invoice.getTotalAmount(), symbol, position, decimals, thousandsSep));
 
         // Per-item formatted amounts
         BigDecimal taxRate = companySettings.getDefaultTaxRate();
@@ -131,9 +132,9 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         List<String> itemTotalPrices = new ArrayList<>();
         for (InvoiceItem item : invoice.getItems()) {
             BigDecimal taxAmount = calculateItemTax(item, taxRate);
-            itemTaxes.add(formatCurrency(taxAmount, symbol, position, decimals));
-            itemUnitPrices.add(formatCurrency(item.getUnitPrice(), symbol, position, decimals));
-            itemTotalPrices.add(formatCurrency(item.getTotalPrice(), symbol, position, decimals));
+            itemTaxes.add(formatCurrency(taxAmount, symbol, position, decimals, thousandsSep));
+            itemUnitPrices.add(formatCurrency(item.getUnitPrice(), symbol, position, decimals, thousandsSep));
+            itemTotalPrices.add(formatCurrency(item.getTotalPrice(), symbol, position, decimals, thousandsSep));
         }
         context.setVariable("itemTaxes", itemTaxes);
         context.setVariable("itemUnitPrices", itemUnitPrices);
@@ -300,9 +301,10 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         return item.getTotalPrice().multiply(taxRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
-    private String formatCurrency(BigDecimal amount, String symbol, String position, int decimals) {
+    private String formatCurrency(BigDecimal amount, String symbol, String position, int decimals, String thousandsSeparator) {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.FRANCE);
-        symbols.setGroupingSeparator(' ');
+        char sep = (thousandsSeparator != null && !thousandsSeparator.isEmpty()) ? thousandsSeparator.charAt(0) : ' ';
+        symbols.setGroupingSeparator(sep);
         symbols.setDecimalSeparator(',');
 
         DecimalFormat numberFormat = new DecimalFormat();

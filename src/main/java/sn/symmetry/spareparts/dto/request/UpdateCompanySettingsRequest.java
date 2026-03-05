@@ -102,6 +102,9 @@ public class UpdateCompanySettingsRequest {
 
     private Integer currencyDecimals;
 
+    @Size(max = 5, message = "Thousands separator must not exceed 5 characters")
+    private String thousandsSeparator;
+
     private UUID defaultWarehouseId;
 
     private UUID portalWarehouseId;

@@ -90,4 +90,7 @@ public class CreateStoreRequest {
     private String currencyPosition;
 
     private Integer currencyDecimals;
+
+    @Size(max = 5)
+    private String thousandsSeparator;
 }

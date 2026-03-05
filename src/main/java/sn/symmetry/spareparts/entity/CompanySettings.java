@@ -119,6 +119,9 @@ public class CompanySettings {
     @Column(name = "currency_decimals", nullable = false)
     private Integer currencyDecimals = 2;
 
+    @Column(name = "thousands_separator", nullable = false, length = 5)
+    private String thousandsSeparator = " ";
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "default_warehouse_id")
     private Warehouse defaultWarehouse;
