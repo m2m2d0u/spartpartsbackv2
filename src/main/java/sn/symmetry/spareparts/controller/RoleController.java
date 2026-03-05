@@ -44,7 +44,6 @@ public class RoleController {
      * Get all active roles (for dropdown selection).
      */
     @GetMapping("/active")
-    @PreAuthorize("hasAuthority('ROLE_VIEW')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllActiveRoles() {
         return ResponseEntity.ok(ApiResponse.success(roleService.getAllActiveRoles()));
     }

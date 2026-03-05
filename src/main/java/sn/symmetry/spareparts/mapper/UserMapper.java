@@ -31,5 +31,7 @@ public interface UserMapper {
     @Mapping(target = "warehouseAssignments", ignore = true)
     @Mapping(source = "role.code", target = "roleCode")
     @Mapping(source = "role.displayName", target = "roleDisplayName")
+    @Mapping(source = "role.roleLevel", target = "roleLevel")
+    @Mapping(source = "role.isSuperAdmin", target = "isSuperAdmin")
     UserResponse toResponse(User user);
 }

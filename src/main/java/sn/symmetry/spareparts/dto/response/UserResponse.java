@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sn.symmetry.spareparts.enums.RoleLevel;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -23,13 +24,15 @@ import java.util.UUID;
 public class UserResponse implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private UUID id;
     private String name;
     private String email;
     private String roleCode;
     private String roleDisplayName;
+    private RoleLevel roleLevel;
+    private Boolean isSuperAdmin;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
