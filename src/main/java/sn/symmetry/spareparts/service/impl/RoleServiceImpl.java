@@ -17,6 +17,7 @@ import sn.symmetry.spareparts.dto.response.RoleResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.entity.Permission;
 import sn.symmetry.spareparts.entity.Role;
+import sn.symmetry.spareparts.enums.RoleLevel;
 import sn.symmetry.spareparts.entity.RolePermission;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.config.CacheConfig;
@@ -88,6 +89,7 @@ public class RoleServiceImpl implements RoleService {
         role.setDescription(request.getDescription());
         role.setIsSystem(false);
         role.setIsActive(true);
+        role.setRoleLevel(request.getRoleLevel() != null ? request.getRoleLevel() : RoleLevel.WAREHOUSE);
 
         Role saved = roleRepository.save(role);
 
@@ -211,6 +213,8 @@ public class RoleServiceImpl implements RoleService {
                 .displayName(role.getDisplayName())
                 .description(role.getDescription())
                 .isSystem(role.getIsSystem())
+                .isSuperAdmin(role.getIsSuperAdmin())
+                .roleLevel(role.getRoleLevel())
                 .isActive(role.getIsActive())
                 .createdAt(role.getCreatedAt())
                 .updatedAt(role.getUpdatedAt())
@@ -229,6 +233,8 @@ public class RoleServiceImpl implements RoleService {
                 .displayName(role.getDisplayName())
                 .description(role.getDescription())
                 .isSystem(role.getIsSystem())
+                .isSuperAdmin(role.getIsSuperAdmin())
+                .roleLevel(role.getRoleLevel())
                 .isActive(role.getIsActive())
                 .createdAt(role.getCreatedAt())
                 .updatedAt(role.getUpdatedAt())

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sn.symmetry.spareparts.enums.RoleLevel;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,8 @@ public class CreateRoleRequest {
     private String displayName;
 
     private String description;
+
+    private RoleLevel roleLevel;
 
     private List<UUID> permissionIds;
 }

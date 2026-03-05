@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sn.symmetry.spareparts.config.CacheConfig;
 import sn.symmetry.spareparts.entity.User;
+import sn.symmetry.spareparts.enums.RoleLevel;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.UnauthorizedException;
 import sn.symmetry.spareparts.repository.UserRepository;
@@ -66,7 +67,7 @@ public class AuthorizationService {
      * @return true if user is ADMIN, false otherwise
      */
     public boolean isAdmin() {
-        return "ADMINISTRATEUR".equals(getCurrentUserRoleCode());
+        return Boolean.TRUE.equals(getCurrentUser().getRole().getIsSuperAdmin());
     }
 
     /**
@@ -75,7 +76,7 @@ public class AuthorizationService {
      * @return true if user is STORE_MANAGER, false otherwise
      */
     public boolean isStoreManager() {
-        return "RESPONSABLE_MAGASIN".equals(getCurrentUserRoleCode());
+        return RoleLevel.STORE.equals(getCurrentUser().getRole().getRoleLevel());
     }
 
     /**
@@ -84,7 +85,7 @@ public class AuthorizationService {
      * @return true if user is WAREHOUSE_OPERATOR, false otherwise
      */
     public boolean isWarehouseOperator() {
-        return "OPERATEUR_ENTREPOT".equals(getCurrentUserRoleCode());
+        return RoleLevel.WAREHOUSE.equals(getCurrentUser().getRole().getRoleLevel());
     }
 
     /**
@@ -97,17 +98,16 @@ public class AuthorizationService {
      */
     public List<UUID> getAccessibleStoreIds() {
         User user = getCurrentUser();
-        String roleCode = user.getRole().getCode();
 
-        if ("ADMINISTRATEUR".equals(roleCode)) {
+        if (Boolean.TRUE.equals(user.getRole().getIsSuperAdmin())) {
             return null; // null means all stores
         }
 
-        if ("RESPONSABLE_MAGASIN".equals(roleCode)) {
+        if (RoleLevel.STORE.equals(user.getRole().getRoleLevel())) {
             return userStoreRepository.findStoreIdsByUserId(user.getId());
         }
 
-        return List.of(); // WAREHOUSE_OPERATOR has no store access
+        return List.of();
     }
 
     /**
@@ -120,13 +120,13 @@ public class AuthorizationService {
      */
     public List<UUID> getAccessibleWarehouseIds() {
         User user = getCurrentUser();
-        String roleCode = user.getRole().getCode();
+        RoleLevel roleLevel = user.getRole().getRoleLevel();
 
-        if ("ADMINISTRATEUR".equals(roleCode)) {
+        if (Boolean.TRUE.equals(user.getRole().getIsSuperAdmin())) {
             return null; // null means all warehouses
         }
 
-        if ("RESPONSABLE_MAGASIN".equals(roleCode)) {
+        if (RoleLevel.STORE.equals(roleLevel)) {
             List<UUID> storeIds = userStoreRepository.findStoreIdsByUserId(user.getId());
             if (storeIds.isEmpty()) {
                 return List.of();
@@ -134,11 +134,8 @@ public class AuthorizationService {
             return warehouseRepository.findWarehouseIdsByStoreIds(storeIds);
         }
 
-        if ("OPERATEUR_ENTREPOT".equals(roleCode)) {
-            return userWarehouseRepository.findWarehouseIdsByUserId(user.getId());
-        }
-
-        return List.of();
+        // Default: check direct warehouse assignments
+        return userWarehouseRepository.findWarehouseIdsByUserId(user.getId());
     }
 
     /**
@@ -190,32 +187,24 @@ public class AuthorizationService {
         }
 
         User user = getCurrentUser();
-        String roleCode = user.getRole().getCode();
 
-        // ADMIN has all permissions
-        if ("ADMINISTRATEUR".equals(roleCode)) {
+        // Super admin has all permissions
+        if (Boolean.TRUE.equals(user.getRole().getIsSuperAdmin())) {
             return true;
         }
 
-        // STORE_MANAGER has all permissions for warehouses in their stores
-        if ("RESPONSABLE_MAGASIN".equals(roleCode)) {
+        // STORE-level roles have all permissions for warehouses in their stores
+        if (RoleLevel.STORE.equals(user.getRole().getRoleLevel())) {
             return canAccessWarehouse(warehouseId);
         }
 
-        // WAREHOUSE_OPERATOR needs specific permission
-        if ("OPERATEUR_ENTREPOT".equals(roleCode)) {
-            // Check permissions from roles
-            List<String> rolePermissions = userWarehouseRoleRepository.findPermissionCodesByUserAndWarehouse(user.getId(), warehouseId);
-            if (rolePermissions.contains(permissionCode)) {
-                return true;
-            }
-
-            // Check individual permission overrides (existing VARCHAR-based permissions)
-            // This supports backward compatibility with existing user_warehouse_permission records
-            return userWarehouseRepository.hasPermission(user.getId(), warehouseId, WarehousePermission.valueOf(permissionCode));
+        // Other roles need specific permission via warehouse role assignments
+        List<String> rolePermissions = userWarehouseRoleRepository.findPermissionCodesByUserAndWarehouse(user.getId(), warehouseId);
+        if (rolePermissions.contains(permissionCode)) {
+            return true;
         }
 
-        return false;
+        return userWarehouseRepository.hasPermission(user.getId(), warehouseId, WarehousePermission.valueOf(permissionCode));
     }
 
     /**

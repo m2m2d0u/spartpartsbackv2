@@ -39,4 +39,7 @@ public interface PermissionRepository extends JpaRepository<Permission, UUID> {
 
     @Query("SELECT DISTINCT p.level FROM Permission p WHERE p.isActive = true ORDER BY p.level")
     List<String> findAllActiveLevels();
+
+    @Query("SELECT p.code FROM Permission p WHERE p.isActive = true")
+    List<String> findAllActiveCodes();
 }

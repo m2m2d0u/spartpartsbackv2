@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sn.symmetry.spareparts.enums.RoleLevel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -29,6 +30,8 @@ public class RoleResponse implements Serializable {
     private String displayName;
     private String description;
     private Boolean isSystem;
+    private Boolean isSuperAdmin;
+    private RoleLevel roleLevel;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

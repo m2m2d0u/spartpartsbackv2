@@ -28,10 +28,12 @@ import sn.symmetry.spareparts.entity.UserWarehouse;
 import sn.symmetry.spareparts.entity.UserWarehousePermission;
 import sn.symmetry.spareparts.entity.UserWarehouseRole;
 import sn.symmetry.spareparts.entity.Warehouse;
+import sn.symmetry.spareparts.enums.RoleLevel;
 import sn.symmetry.spareparts.enums.WarehousePermission;
 import sn.symmetry.spareparts.exception.DuplicateResourceException;
 import sn.symmetry.spareparts.exception.ResourceNotFoundException;
 import sn.symmetry.spareparts.mapper.UserMapper;
+import sn.symmetry.spareparts.repository.PermissionRepository;
 import sn.symmetry.spareparts.repository.RolePermissionRepository;
 import sn.symmetry.spareparts.repository.RoleRepository;
 import sn.symmetry.spareparts.repository.StoreRepository;
@@ -59,6 +61,7 @@ public class UserServiceImpl implements UserService {
     private final UserWarehouseRoleRepository userWarehouseRoleRepository;
     private final UserStoreRepository userStoreRepository;
     private final RolePermissionRepository rolePermissionRepository;
+    private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
     private final WarehouseRepository warehouseRepository;
     private final StoreRepository storeRepository;
@@ -215,9 +218,9 @@ public class UserServiceImpl implements UserService {
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
-        // Only ADMIN or STORE_MANAGER can assign stores
+        // Only ADMIN or STORE-level roles can assign stores
         if (authorizationService.isWarehouseOperator()) {
-            throw new AccessDeniedException("OPERATEUR_ENTREPOT cannot assign stores");
+            throw new AccessDeniedException("WAREHOUSE-level roles cannot assign stores");
         }
 
         // STORE_MANAGER can only assign their own stores
@@ -263,6 +266,8 @@ public class UserServiceImpl implements UserService {
     public MeResponse getCurrentUserInfo() {
         User currentUser = authorizationService.getCurrentUser();
 
+        boolean isSuperAdmin = Boolean.TRUE.equals(currentUser.getRole().getIsSuperAdmin());
+
         // Build basic user info
         MeResponse response = MeResponse.builder()
                 .id(currentUser.getId())
@@ -270,15 +275,20 @@ public class UserServiceImpl implements UserService {
                 .email(currentUser.getEmail())
                 .roleCode(currentUser.getRole().getCode())
                 .roleDisplayName(currentUser.getRole().getDisplayName())
+                .superAdmin(isSuperAdmin)
                 .isActive(currentUser.getIsActive())
                 .createdAt(currentUser.getCreatedAt())
                 .updatedAt(currentUser.getUpdatedAt())
                 .build();
 
-        // Get role-level permissions
-        List<String> rolePermissions = rolePermissionRepository.findPermissionCodesByRoleId(
-                currentUser.getRole().getId());
-        response.setPermissions(rolePermissions);
+        // Super admin gets all permissions, others get role-level permissions
+        if (isSuperAdmin) {
+            response.setPermissions(permissionRepository.findAllActiveCodes());
+        } else {
+            List<String> rolePermissions = rolePermissionRepository.findPermissionCodesByRoleId(
+                    currentUser.getRole().getId());
+            response.setPermissions(rolePermissions);
+        }
 
         // Get accessible stores
         List<UUID> accessibleStoreIds = authorizationService.getAccessibleStoreIds();

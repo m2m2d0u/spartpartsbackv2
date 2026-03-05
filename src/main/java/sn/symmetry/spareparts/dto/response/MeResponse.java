@@ -25,7 +25,7 @@ import java.util.UUID;
 public class MeResponse implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     // Basic user information
     private UUID id;
@@ -33,6 +33,7 @@ public class MeResponse implements Serializable {
     private String email;
     private String roleCode;
     private String roleDisplayName;
+    private Boolean superAdmin;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
