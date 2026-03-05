@@ -24,6 +24,9 @@ public class UpdatePartRequest {
     @Size(max = 50, message = "Part number must not exceed 50 characters")
     private String partNumber;
 
+    @Size(max = 100, message = "Reference must not exceed 100 characters")
+    private String reference;
+
     @NotBlank(message = "Name is required")
     @Size(max = 200, message = "Name must not exceed 200 characters")
     private String name;

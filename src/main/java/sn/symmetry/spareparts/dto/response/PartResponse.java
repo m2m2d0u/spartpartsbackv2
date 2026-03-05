@@ -20,6 +20,7 @@ public class PartResponse {
 
     private UUID id;
     private String partNumber;
+    private String reference;
     private String name;
     private String description;
     private String shortDescription;

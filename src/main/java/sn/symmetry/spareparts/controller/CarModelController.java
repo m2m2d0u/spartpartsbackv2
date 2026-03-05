@@ -36,7 +36,7 @@ public class CarModelController {
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<CarModelResponse>>> getAllCarModels(
             @RequestParam(required = false) UUID brandId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(carModelService.getAllCarModels(brandId, pageable)));
     }
 

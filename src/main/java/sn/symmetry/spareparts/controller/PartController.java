@@ -47,7 +47,7 @@ public class PartController {
             @RequestParam(required = false) Boolean published,
             @RequestParam(required = false) UUID carBrandId,
             @RequestParam(required = false) UUID carModelId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(partService.getAllParts(categoryId, published, carBrandId, carModelId, pageable)));
     }
 

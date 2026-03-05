@@ -33,7 +33,7 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<CategoryResponse>>> getAllCategories(
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(categoryService.getAllCategories(pageable)));
     }
 

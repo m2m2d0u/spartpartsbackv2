@@ -170,6 +170,7 @@ public class PartImportServiceImpl implements PartImportService {
                 request.setPurchasePrice(getBigDecimalValue(record, "purchasePrice"));
                 request.setMinStockLevel(getIntegerValue(record, "minStockLevel"));
                 request.setPublished(getBooleanValue(record, "published"));
+                request.setReference(getStringValue(record, "reference"));
                 request.setNotes(getStringValue(record, "notes"));
                 request.setTags(getStringValue(record, "tags"));
 
@@ -216,6 +217,7 @@ public class PartImportServiceImpl implements PartImportService {
                 request.setPurchasePrice(getCellBigDecimalValue(row, columnMap, "purchaseprice"));
                 request.setMinStockLevel(getCellIntegerValue(row, columnMap, "minstocklevel"));
                 request.setPublished(getCellBooleanValue(row, columnMap, "published"));
+                request.setReference(getCellStringValue(row, columnMap, "reference"));
                 request.setNotes(getCellStringValue(row, columnMap, "notes"));
                 request.setTags(getCellStringValue(row, columnMap, "tags"));
 
@@ -295,6 +297,14 @@ public class PartImportServiceImpl implements PartImportService {
                     .build());
         }
 
+        if (request.getReference() != null && request.getReference().length() > 100) {
+            fieldErrors.add(PartImportErrorResponse.FieldError.builder()
+                    .field("reference")
+                    .errorMessage("Reference must not exceed 100 characters")
+                    .rejectedValue(request.getReference())
+                    .build());
+        }
+
         if (request.getMinStockLevel() != null && request.getMinStockLevel() < 0) {
             fieldErrors.add(PartImportErrorResponse.FieldError.builder()
                     .field("minStockLevel")
@@ -303,27 +313,7 @@ public class PartImportServiceImpl implements PartImportService {
                     .build());
         }
 
-        // Validate foreign keys
-        if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
-            if (categoryRepository.findByNameIgnoreCase(request.getCategoryName()).isEmpty()) {
-                fieldErrors.add(PartImportErrorResponse.FieldError.builder()
-                        .field("categoryName")
-                        .errorMessage("Category with name '" + request.getCategoryName() + "' not found")
-                        .rejectedValue(request.getCategoryName())
-                        .build());
-            }
-        }
-
-        if (request.getCarBrandName() != null && !request.getCarBrandName().trim().isEmpty()) {
-            if (carBrandRepository.findByNameIgnoreCase(request.getCarBrandName()).isEmpty()) {
-                fieldErrors.add(PartImportErrorResponse.FieldError.builder()
-                        .field("carBrandName")
-                        .errorMessage("Car brand with name '" + request.getCarBrandName() + "' not found")
-                        .rejectedValue(request.getCarBrandName())
-                        .build());
-            }
-        }
-
+        // Validate car model requires car brand
         if (request.getCarModelName() != null && !request.getCarModelName().trim().isEmpty()) {
             if (request.getCarBrandName() == null || request.getCarBrandName().trim().isEmpty()) {
                 fieldErrors.add(PartImportErrorResponse.FieldError.builder()
@@ -331,32 +321,6 @@ public class PartImportServiceImpl implements PartImportService {
                         .errorMessage("Car brand name is required when car model name is provided")
                         .rejectedValue(request.getCarModelName())
                         .build());
-            } else {
-                CarBrand brand = carBrandRepository.findByNameIgnoreCase(request.getCarBrandName()).orElse(null);
-                if (brand != null) {
-                    if (carModelRepository.findByNameIgnoreCaseAndBrand(request.getCarModelName(), brand).isEmpty()) {
-                        fieldErrors.add(PartImportErrorResponse.FieldError.builder()
-                                .field("carModelName")
-                                .errorMessage("Car model with name '" + request.getCarModelName() + "' not found for brand '" + request.getCarBrandName() + "'")
-                                .rejectedValue(request.getCarModelName())
-                                .build());
-                    }
-                }
-            }
-        }
-
-        // Validate tags
-        if (request.getTags() != null && !request.getTags().trim().isEmpty()) {
-            String[] tagNames = request.getTags().split(",");
-            for (String tagName : tagNames) {
-                String trimmedTagName = tagName.trim();
-                if (!trimmedTagName.isEmpty() && tagRepository.findByNameIgnoreCase(trimmedTagName).isEmpty()) {
-                    fieldErrors.add(PartImportErrorResponse.FieldError.builder()
-                            .field("tags")
-                            .errorMessage("Tag with name '" + trimmedTagName + "' not found")
-                            .rejectedValue(trimmedTagName)
-                            .build());
-                }
             }
         }
 
@@ -377,34 +341,57 @@ public class PartImportServiceImpl implements PartImportService {
         part.setPurchasePrice(request.getPurchasePrice());
         part.setMinStockLevel(request.getMinStockLevel() != null ? request.getMinStockLevel() : 0);
         part.setPublished(request.getPublished() != null ? request.getPublished() : false);
+        part.setReference(request.getReference());
         part.setNotes(request.getNotes());
 
-        // Resolve category
+        // Resolve or create category
         if (request.getCategoryName() != null && !request.getCategoryName().trim().isEmpty()) {
-            Category category = categoryRepository.findByNameIgnoreCase(request.getCategoryName()).orElse(null);
+            Category category = categoryRepository.findByNameIgnoreCase(request.getCategoryName())
+                    .orElseGet(() -> {
+                        Category newCategory = new Category();
+                        newCategory.setName(request.getCategoryName().trim());
+                        return categoryRepository.save(newCategory);
+                    });
             part.setCategory(category);
         }
 
-        // Resolve car brand
+        // Resolve or create car brand
         if (request.getCarBrandName() != null && !request.getCarBrandName().trim().isEmpty()) {
-            CarBrand carBrand = carBrandRepository.findByNameIgnoreCase(request.getCarBrandName()).orElse(null);
+            CarBrand carBrand = carBrandRepository.findByNameIgnoreCase(request.getCarBrandName())
+                    .orElseGet(() -> {
+                        CarBrand newBrand = new CarBrand();
+                        newBrand.setName(request.getCarBrandName().trim());
+                        return carBrandRepository.save(newBrand);
+                    });
             part.setCarBrand(carBrand);
 
-            // Resolve car model
-            if (request.getCarModelName() != null && !request.getCarModelName().trim().isEmpty() && carBrand != null) {
-                CarModel carModel = carModelRepository.findByNameIgnoreCaseAndBrand(request.getCarModelName(), carBrand).orElse(null);
+            // Resolve or create car model
+            if (request.getCarModelName() != null && !request.getCarModelName().trim().isEmpty()) {
+                CarModel carModel = carModelRepository.findByNameIgnoreCaseAndBrand(request.getCarModelName(), carBrand)
+                        .orElseGet(() -> {
+                            CarModel newModel = new CarModel();
+                            newModel.setName(request.getCarModelName().trim());
+                            newModel.setBrand(carBrand);
+                            return carModelRepository.save(newModel);
+                        });
                 part.setCarModel(carModel);
             }
         }
 
-        // Resolve tags
+        // Resolve or create tags
         if (request.getTags() != null && !request.getTags().trim().isEmpty()) {
             String[] tagNames = request.getTags().split(",");
             List<Tag> tags = new ArrayList<>();
             for (String tagName : tagNames) {
                 String trimmedTagName = tagName.trim();
                 if (!trimmedTagName.isEmpty()) {
-                    tagRepository.findByNameIgnoreCase(trimmedTagName).ifPresent(tags::add);
+                    Tag tag = tagRepository.findByNameIgnoreCase(trimmedTagName)
+                            .orElseGet(() -> {
+                                Tag newTag = new Tag();
+                                newTag.setName(trimmedTagName);
+                                return tagRepository.save(newTag);
+                            });
+                    tags.add(tag);
                 }
             }
             part.setTags(tags);
@@ -549,7 +536,7 @@ public class PartImportServiceImpl implements PartImportService {
             // Create header row
             Row headerRow = sheet.createRow(0);
             String[] headers = {
-                    "partNumber", "name", "sellingPrice", "purchasePrice",
+                    "partNumber", "name", "reference", "sellingPrice", "purchasePrice",
                     "description", "shortDescription", "categoryName",
                     "carBrandName", "carModelName", "minStockLevel",
                     "published", "notes", "tags"
@@ -563,15 +550,15 @@ public class PartImportServiceImpl implements PartImportService {
             }
 
             // Add sample data rows
-            addSampleRow(sheet, 1, "BRK-001", "Front Brake Pads", "89.99", "45.50",
+            addSampleRow(sheet, 1, "BRK-001", "Front Brake Pads", "REF-BRK-2025", "89.99", "45.50",
                     "High-quality ceramic brake pads", "Ceramic brake pads for front axle",
                     "Brakes", "Toyota", "Camry", "10", "true", "Premium quality", "Premium,Popular");
 
-            addSampleRow(sheet, 2, "FLT-002", "Oil Filter", "12.99", "6.25",
+            addSampleRow(sheet, 2, "FLT-002", "Oil Filter", "REF-FLT-4410", "12.99", "6.25",
                     "Standard oil filter for engine", "Engine oil filter",
                     "Filters", "Honda", "Accord", "20", "true", "OEM replacement", "Standard,OEM");
 
-            addSampleRow(sheet, 3, "SPK-003", "Spark Plugs Set", "45.00", "22.50",
+            addSampleRow(sheet, 3, "SPK-003", "Spark Plugs Set", "REF-SPK-7890", "45.00", "22.50",
                     "Set of 4 iridium spark plugs", "Iridium spark plugs",
                     "Ignition", "Ford", "F-150", "5", "false", "High performance", "Performance");
 
@@ -581,23 +568,24 @@ public class PartImportServiceImpl implements PartImportService {
     }
 
     private void addSampleRow(Sheet sheet, int rowNum, String partNumber, String name,
-                              String sellingPrice, String purchasePrice, String description,
-                              String shortDescription, String categoryName, String carBrandName,
-                              String carModelName, String minStockLevel, String published,
-                              String notes, String tags) {
+                              String reference, String sellingPrice, String purchasePrice,
+                              String description, String shortDescription, String categoryName,
+                              String carBrandName, String carModelName, String minStockLevel,
+                              String published, String notes, String tags) {
         Row row = sheet.createRow(rowNum);
         row.createCell(0).setCellValue(partNumber);
         row.createCell(1).setCellValue(name);
-        row.createCell(2).setCellValue(sellingPrice);
-        row.createCell(3).setCellValue(purchasePrice);
-        row.createCell(4).setCellValue(description);
-        row.createCell(5).setCellValue(shortDescription);
-        row.createCell(6).setCellValue(categoryName);
-        row.createCell(7).setCellValue(carBrandName);
-        row.createCell(8).setCellValue(carModelName);
-        row.createCell(9).setCellValue(minStockLevel);
-        row.createCell(10).setCellValue(published);
-        row.createCell(11).setCellValue(notes);
-        row.createCell(12).setCellValue(tags);
+        row.createCell(2).setCellValue(reference);
+        row.createCell(3).setCellValue(sellingPrice);
+        row.createCell(4).setCellValue(purchasePrice);
+        row.createCell(5).setCellValue(description);
+        row.createCell(6).setCellValue(shortDescription);
+        row.createCell(7).setCellValue(categoryName);
+        row.createCell(8).setCellValue(carBrandName);
+        row.createCell(9).setCellValue(carModelName);
+        row.createCell(10).setCellValue(minStockLevel);
+        row.createCell(11).setCellValue(published);
+        row.createCell(12).setCellValue(notes);
+        row.createCell(13).setCellValue(tags);
     }
 }

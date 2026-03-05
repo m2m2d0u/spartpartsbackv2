@@ -25,6 +25,7 @@ public class BulkImportPartRequest {
     private BigDecimal purchasePrice;
     private Integer minStockLevel;
     private Boolean published;
+    private String reference;
     private String notes;
     private String tags; // Comma-separated tag names
 }

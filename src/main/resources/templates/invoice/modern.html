@@ -211,7 +211,10 @@
         </thead>
         <tbody>
             <tr th:each="item, stat : ${invoice.items}">
-                <td class="text-left" th:text="${item.part.name}"></td>
+                <td class="text-left">
+                    <span th:text="${item.part.name}"></span>
+                    <br th:if="${item.part.reference != null}"/><span th:if="${item.part.reference != null}" style="font-size: 7pt; color: #999;" th:text="'Ref: ' + ${item.part.reference}"></span>
+                </td>
                 <td class="text-center" th:text="${item.quantity}"></td>
                 <td class="text-right" th:text="${itemUnitPrices[stat.index]}"></td>
                 <td th:if="${template.showDiscountColumn}" class="text-center"

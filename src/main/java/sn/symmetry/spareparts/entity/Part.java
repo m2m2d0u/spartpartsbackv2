@@ -47,6 +47,9 @@ public class Part {
     @Column(name = "part_number", nullable = false, unique = true, length = 50)
     private String partNumber;
 
+    @Column(name = "reference", length = 100)
+    private String reference;
+
     @Column(nullable = false, length = 200)
     private String name;
 
