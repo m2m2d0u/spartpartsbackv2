@@ -75,7 +75,6 @@
             font-weight: bold;
             padding: 6px;
             text-align: center;
-            border-bottom: 2px solid #333;
         }
         .items-table td {
             padding: 5px;
@@ -105,8 +104,6 @@
             font-size: 10pt;
         }
         .total-row td {
-            border-top-width: 2px;
-            border-top-style: solid;
             font-size: 16pt;
             font-weight: bold;
         }
@@ -205,11 +202,11 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th class="text-left" th:style="'color:' + ${template.primaryColor}">Article</th>
-                <th th:style="'color:' + ${template.primaryColor}">Qte</th>
-                <th th:style="'color:' + ${template.primaryColor}">Prix</th>
-                <th th:if="${template.showDiscountColumn}" th:style="'color:' + ${template.primaryColor}">Remise</th>
-                <th th:style="'color:' + ${template.primaryColor}">Total</th>
+                <th class="text-left" th:style="'color:' + ${template.primaryColor} + '; border-bottom: 2px solid ' + ${template.primaryColor}">Article</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; border-bottom: 2px solid ' + ${template.primaryColor}">Qte</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; border-bottom: 2px solid ' + ${template.primaryColor}">Prix</th>
+                <th th:if="${template.showDiscountColumn}" th:style="'color:' + ${template.primaryColor} + '; border-bottom: 2px solid ' + ${template.primaryColor}">Remise</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; border-bottom: 2px solid ' + ${template.primaryColor}">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -228,8 +225,8 @@
     <div class="totals-wrapper">
         <table class="totals-table">
             <tr class="total-row">
-                <td class="text-right" style="font-size: 10pt;">TOTAL</td>
-                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top-color:' + ${template.accentColor}"
+                <td class="text-right" th:style="'font-size: 10pt; border-top: 2px solid ' + ${template.accentColor}">TOTAL</td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 2px solid ' + ${template.accentColor}"
                     th:text="${formattedTotal}"></td>
             </tr>
         </table>

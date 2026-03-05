@@ -16,7 +16,6 @@
         }
         .top-border {
             width: 100%;
-            border-bottom: 2px solid #b4b4b4;
             height: 5px;
             margin-bottom: 10px;
         }
@@ -80,7 +79,6 @@
             margin-bottom: 15px;
         }
         .items-table th {
-            background-color: #f0f0f5;
             font-size: 10pt;
             font-weight: bold;
             padding: 8px;
@@ -115,7 +113,6 @@
             font-size: 9pt;
         }
         .total-row td {
-            border-top: 2px solid #4F46E5;
             font-size: 12pt;
             font-weight: bold;
         }
@@ -163,7 +160,7 @@
 </head>
 <body>
     <!-- DECORATIVE TOP BORDER -->
-    <div class="top-border"></div>
+    <div class="top-border" th:style="'border-bottom: 2px solid ' + ${template.accentColor}"></div>
 
     <!-- CENTERED HEADER -->
     <div class="header">
@@ -218,11 +215,11 @@
     <table class="items-table">
         <thead>
             <tr>
-                <th th:style="'color:' + ${template.primaryColor}" class="text-left">Description</th>
-                <th th:style="'color:' + ${template.primaryColor}">Quantite</th>
-                <th th:style="'color:' + ${template.primaryColor}">Prix unitaire</th>
-                <th th:if="${template.showDiscountColumn}" th:style="'color:' + ${template.primaryColor}">Remise</th>
-                <th th:style="'color:' + ${template.primaryColor}">Montant</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; background-color:' + ${template.accentColor} + '1a'" class="text-left">Description</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; background-color:' + ${template.accentColor} + '1a'">Quantite</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; background-color:' + ${template.accentColor} + '1a'">Prix unitaire</th>
+                <th th:if="${template.showDiscountColumn}" th:style="'color:' + ${template.primaryColor} + '; background-color:' + ${template.accentColor} + '1a'">Remise</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; background-color:' + ${template.accentColor} + '1a'">Montant</th>
             </tr>
         </thead>
         <tbody>
@@ -257,8 +254,8 @@
                 <td class="text-right label" th:text="'- ' + ${formattedDeposit}"></td>
             </tr>
             <tr class="total-row">
-                <td class="text-right" th:style="'color:' + ${template.accentColor}">MONTANT TOTAL</td>
-                <td class="text-right" th:style="'color:' + ${template.accentColor}" th:text="${formattedTotal}"></td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 2px solid ' + ${template.accentColor}">MONTANT TOTAL</td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 2px solid ' + ${template.accentColor}" th:text="${formattedTotal}"></td>
             </tr>
         </table>
     </div>

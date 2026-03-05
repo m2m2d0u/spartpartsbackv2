@@ -7,10 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import sn.symmetry.spareparts.dto.request.CreateInvoiceTemplateRequest;
 import sn.symmetry.spareparts.dto.response.CompanySettingsResponse;
+import sn.symmetry.spareparts.entity.Customer;
 import sn.symmetry.spareparts.entity.Invoice;
 import sn.symmetry.spareparts.entity.InvoiceItem;
 import sn.symmetry.spareparts.entity.InvoiceTemplate;
+import sn.symmetry.spareparts.entity.Part;
 import sn.symmetry.spareparts.entity.Store;
 import sn.symmetry.spareparts.enums.InvoiceDesign;
 import sn.symmetry.spareparts.enums.InvoiceStatus;
@@ -33,10 +36,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -90,6 +95,160 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
             log.error("Error generating PDF for invoice: {}", invoiceId, e);
             throw new RuntimeException("Failed to generate PDF", e);
         }
+    }
+
+    @Override
+    public ByteArrayOutputStream generateDesignPreviewPdf(InvoiceDesign design, CreateInvoiceTemplateRequest request, Map<String, byte[]> uploadedImages) {
+        CompanySettingsResponse companySettings = companySettingsService.getSettings();
+
+        // Build template from the user-provided configuration
+        InvoiceTemplate template = mapRequestToTemplate(request);
+        template.setDesign(design);
+
+        // Build a fake invoice (not persisted)
+        Invoice invoice = buildSampleInvoice(companySettings);
+
+        String templateName = "invoice/" + design.name().toLowerCase();
+
+        log.info("Generating design preview PDF for design: {}", design);
+
+        Context context = buildThymeleafContext(invoice, companySettings, template);
+
+        // Override images with uploaded multipart files (takes priority over URLs)
+        overrideImagesFromUpload(context, uploadedImages);
+
+        String html = templateEngine.process(templateName, context);
+
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(html);
+            renderer.layout();
+            renderer.createPDF(outputStream);
+            renderer.finishPDF();
+
+            log.info("Design preview PDF generated successfully for design: {}", design);
+            return outputStream;
+        } catch (Exception e) {
+            log.error("Error generating design preview PDF for design: {}", design, e);
+            throw new RuntimeException("Failed to generate design preview PDF", e);
+        }
+    }
+
+    private void overrideImagesFromUpload(Context context, Map<String, byte[]> uploadedImages) {
+        if (uploadedImages == null || uploadedImages.isEmpty()) return;
+
+        if (uploadedImages.containsKey("logo")) {
+            byte[] scaled = scaleImage(uploadedImages.get("logo"), 120, 60);
+            context.setVariable("logoBase64", java.util.Base64.getEncoder().encodeToString(scaled));
+        }
+        if (uploadedImages.containsKey("stamp")) {
+            byte[] scaled = scaleImage(uploadedImages.get("stamp"), 100, 100);
+            context.setVariable("stampBase64", java.util.Base64.getEncoder().encodeToString(scaled));
+        }
+    }
+
+    private InvoiceTemplate mapRequestToTemplate(CreateInvoiceTemplateRequest request) {
+        InvoiceTemplate template = createDefaultTemplate();
+        if (request.getPrimaryColor() != null) template.setPrimaryColor(request.getPrimaryColor());
+        if (request.getAccentColor() != null) template.setAccentColor(request.getAccentColor());
+        if (request.getFontFamily() != null) template.setFontFamily(request.getFontFamily());
+        if (request.getDesign() != null) template.setDesign(request.getDesign());
+        if (request.getHeaderLayout() != null) template.setHeaderLayout(request.getHeaderLayout());
+        if (request.getLogoUrl() != null) template.setLogoUrl(request.getLogoUrl());
+        if (request.getHeaderImageUrl() != null) template.setHeaderImageUrl(request.getHeaderImageUrl());
+        if (request.getFooterImageUrl() != null) template.setFooterImageUrl(request.getFooterImageUrl());
+        if (request.getStampImageUrl() != null) template.setStampImageUrl(request.getStampImageUrl());
+        if (request.getSignatureImageUrl() != null) template.setSignatureImageUrl(request.getSignatureImageUrl());
+        if (request.getWatermarkImageUrl() != null) template.setWatermarkImageUrl(request.getWatermarkImageUrl());
+        if (request.getShowNinea() != null) template.setShowNinea(request.getShowNinea());
+        if (request.getShowRccm() != null) template.setShowRccm(request.getShowRccm());
+        if (request.getShowTaxId() != null) template.setShowTaxId(request.getShowTaxId());
+        if (request.getShowWarehouseAddress() != null) template.setShowWarehouseAddress(request.getShowWarehouseAddress());
+        if (request.getShowCustomerTaxId() != null) template.setShowCustomerTaxId(request.getShowCustomerTaxId());
+        if (request.getShowPaymentTerms() != null) template.setShowPaymentTerms(request.getShowPaymentTerms());
+        if (request.getShowDiscountColumn() != null) template.setShowDiscountColumn(request.getShowDiscountColumn());
+        if (request.getDefaultNotes() != null) template.setDefaultNotes(request.getDefaultNotes());
+        return template;
+    }
+
+    private Invoice buildSampleInvoice(CompanySettingsResponse companySettings) {
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceNumber("FAC-2025-XXXXX");
+        invoice.setInvoiceType(InvoiceType.STANDARD);
+        invoice.setStatus(InvoiceStatus.DRAFT);
+        invoice.setIssuedDate(LocalDate.now());
+        invoice.setDueDate(LocalDate.now().plusDays(30));
+
+        // Fake customer
+        Customer customer = new Customer();
+        customer.setName("Jean Dupont");
+        customer.setCompany("Auto Pièces Dakar SARL");
+        customer.setPhone("+221 77 123 45 67");
+        customer.setEmail("jean.dupont@example.com");
+        customer.setStreet("123 Avenue Cheikh Anta Diop");
+        customer.setCity("Dakar");
+        customer.setCountry("Sénégal");
+        invoice.setCustomer(customer);
+
+        // Sample items
+        List<InvoiceItem> items = new ArrayList<>();
+
+        InvoiceItem item1 = new InvoiceItem();
+        Part part1 = new Part();
+        part1.setName("Filtre à huile - Toyota Corolla");
+        part1.setPartNumber("FH-TOY-001");
+        item1.setPart(part1);
+        item1.setQuantity(3);
+        item1.setUnitPrice(new BigDecimal("4500"));
+        item1.setDiscountPercent(BigDecimal.ZERO);
+        item1.setDiscountAmount(BigDecimal.ZERO);
+        item1.setTotalPrice(new BigDecimal("13500"));
+        item1.setInvoice(invoice);
+        items.add(item1);
+
+        InvoiceItem item2 = new InvoiceItem();
+        Part part2 = new Part();
+        part2.setName("Plaquettes de frein avant - Peugeot 308");
+        part2.setPartNumber("PF-PEU-042");
+        item2.setPart(part2);
+        item2.setQuantity(2);
+        item2.setUnitPrice(new BigDecimal("12750"));
+        item2.setDiscountPercent(new BigDecimal("5"));
+        item2.setDiscountAmount(new BigDecimal("1275"));
+        item2.setTotalPrice(new BigDecimal("24225"));
+        item2.setInvoice(invoice);
+        items.add(item2);
+
+        InvoiceItem item3 = new InvoiceItem();
+        Part part3 = new Part();
+        part3.setName("Courroie de distribution - Renault Clio");
+        part3.setPartNumber("CD-REN-015");
+        item3.setPart(part3);
+        item3.setQuantity(1);
+        item3.setUnitPrice(new BigDecimal("28000"));
+        item3.setDiscountPercent(BigDecimal.ZERO);
+        item3.setDiscountAmount(BigDecimal.ZERO);
+        item3.setTotalPrice(new BigDecimal("28000"));
+        item3.setInvoice(invoice);
+        items.add(item3);
+
+        invoice.setItems(items);
+
+        // Compute totals
+        BigDecimal subtotal = new BigDecimal("65725");
+        BigDecimal discountAmount = new BigDecimal("1275");
+        BigDecimal taxRate = companySettings.getDefaultTaxRate() != null ? companySettings.getDefaultTaxRate() : BigDecimal.ZERO;
+        BigDecimal taxableAmount = subtotal.subtract(discountAmount);
+        BigDecimal taxAmount = taxableAmount.multiply(taxRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        invoice.setSubtotal(subtotal);
+        invoice.setDiscountAmount(discountAmount);
+        invoice.setTaxAmount(taxAmount);
+        invoice.setDepositDeduction(BigDecimal.ZERO);
+        invoice.setTotalAmount(taxableAmount.add(taxAmount));
+
+        return invoice;
     }
 
     private Context buildThymeleafContext(Invoice invoice, CompanySettingsResponse companySettings,

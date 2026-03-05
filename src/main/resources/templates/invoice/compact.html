@@ -42,7 +42,6 @@
             width: 100%;
             border: none;
             height: 0.5px;
-            background-color: #ccc;
             margin-bottom: 8px;
         }
         .items-table {
@@ -56,7 +55,6 @@
             font-weight: bold;
             padding: 3px;
             text-align: center;
-            border-bottom: 1px solid #333;
         }
         .items-table td {
             padding: 2px;
@@ -86,7 +84,6 @@
             font-size: 7pt;
         }
         .total-row td {
-            border-top: 1px solid #333;
             padding-top: 4px;
             font-size: 10pt;
             font-weight: bold;
@@ -129,7 +126,7 @@
         <tr>
             <td style="width: 30%;">
                 <img th:if="${logoBase64}" th:src="'data:image/png;base64,' + ${logoBase64}" class="logo" alt="Logo"/><br th:if="${logoBase64}"/>
-                <div class="company-name" th:text="${companySettings.companyName} ?: 'Company'">Company</div>
+                <div class="company-name" th:style="'color:' + ${template.primaryColor}" th:text="${companySettings.companyName} ?: 'Company'">Company</div>
                 <div th:if="${companySettings.phone}" th:text="${companySettings.phone}"></div>
                 <div th:if="${companySettings.email}" th:text="${companySettings.email}"></div>
             </td>
@@ -147,16 +144,16 @@
         </tr>
     </table>
 
-    <div class="separator"></div>
+    <div class="separator" th:style="'background-color:' + ${template.accentColor}"></div>
 
     <!-- ITEMS TABLE (simplified for compact) -->
     <table class="items-table">
         <thead>
             <tr>
-                <th class="text-left">Article</th>
-                <th>Qte</th>
-                <th>Prix</th>
-                <th>Total</th>
+                <th class="text-left" th:style="'color:' + ${template.primaryColor} + '; border-bottom: 1px solid ' + ${template.primaryColor}">Article</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; border-bottom: 1px solid ' + ${template.primaryColor}">Qte</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; border-bottom: 1px solid ' + ${template.primaryColor}">Prix</th>
+                <th th:style="'color:' + ${template.primaryColor} + '; border-bottom: 1px solid ' + ${template.primaryColor}">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -169,7 +166,7 @@
         </tbody>
     </table>
 
-    <div class="separator"></div>
+    <div class="separator" th:style="'background-color:' + ${template.accentColor}"></div>
 
     <!-- TOTALS -->
     <div class="totals-wrapper">
@@ -183,8 +180,8 @@
                 <td class="text-right" style="font-weight: bold;" th:text="${formattedTax}"></td>
             </tr>
             <tr class="total-row">
-                <td class="text-right" th:style="'color:' + ${template.accentColor}">TOTAL:</td>
-                <td class="text-right" th:style="'color:' + ${template.accentColor}" th:text="${formattedTotal}"></td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 1px solid ' + ${template.accentColor}">TOTAL:</td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 1px solid ' + ${template.accentColor}" th:text="${formattedTotal}"></td>
             </tr>
         </table>
     </div>

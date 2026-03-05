@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.multipart.MultipartFile;
 import sn.symmetry.spareparts.dto.request.CreateInvoiceTemplateRequest;
 import sn.symmetry.spareparts.dto.request.UpdateInvoiceTemplateRequest;
@@ -24,10 +25,15 @@ import sn.symmetry.spareparts.dto.response.ImageResponse;
 import sn.symmetry.spareparts.dto.response.InvoiceTemplateResponse;
 import sn.symmetry.spareparts.dto.response.common.ApiResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
+import sn.symmetry.spareparts.enums.InvoiceDesign;
 import sn.symmetry.spareparts.service.FileStorageService;
+import sn.symmetry.spareparts.service.InvoicePdfService;
 import sn.symmetry.spareparts.service.InvoiceTemplateService;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -36,6 +42,7 @@ import java.util.UUID;
 public class InvoiceTemplateController {
 
     private final InvoiceTemplateService invoiceTemplateService;
+    private final InvoicePdfService invoicePdfService;
     private final FileStorageService fileStorageService;
     private final ObjectMapper objectMapper;
 
@@ -48,6 +55,37 @@ public class InvoiceTemplateController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<InvoiceTemplateResponse>> getInvoiceTemplateById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(invoiceTemplateService.getInvoiceTemplateById(id)));
+    }
+
+    @PostMapping(value = "/designs/{design}/preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ByteArrayResource> previewDesign(
+            @PathVariable InvoiceDesign design,
+            @RequestPart("template") String templateJson,
+            @RequestPart(value = "logo", required = false) MultipartFile logo,
+            @RequestPart(value = "stamp", required = false) MultipartFile stamp) {
+        try {
+            CreateInvoiceTemplateRequest request = objectMapper.readValue(templateJson, CreateInvoiceTemplateRequest.class);
+
+            Map<String, byte[]> uploadedImages = new HashMap<>();
+            if (logo != null && !logo.isEmpty()) {
+                uploadedImages.put("logo", logo.getBytes());
+            }
+            if (stamp != null && !stamp.isEmpty()) {
+                uploadedImages.put("stamp", stamp.getBytes());
+            }
+
+            ByteArrayOutputStream pdfStream = invoicePdfService.generateDesignPreviewPdf(design, request, uploadedImages);
+            byte[] pdfBytes = pdfStream.toByteArray();
+            ByteArrayResource resource = new ByteArrayResource(pdfBytes);
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "inline; filename=\"preview-" + design.name().toLowerCase() + ".pdf\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(pdfBytes.length)
+                    .body(resource);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate design preview: " + e.getMessage(), e);
+        }
     }
 
     @PostMapping

@@ -107,7 +107,6 @@
             font-size: 9pt;
         }
         .totals-table .total-row td {
-            border-top: 2px solid #333;
             padding-top: 10px;
             font-size: 11pt;
             font-weight: bold;
@@ -250,8 +249,8 @@
                 <td class="text-right label" th:text="'- ' + ${formattedDeposit}"></td>
             </tr>
             <tr class="total-row">
-                <td class="text-right" th:style="'color:' + ${template.accentColor}">TOTAL:</td>
-                <td class="text-right" th:style="'color:' + ${template.accentColor}" th:text="${formattedTotal}"></td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 2px solid ' + ${template.accentColor}">TOTAL:</td>
+                <td class="text-right" th:style="'color:' + ${template.accentColor} + '; border-top: 2px solid ' + ${template.accentColor}" th:text="${formattedTotal}"></td>
             </tr>
         </table>
     </div>
