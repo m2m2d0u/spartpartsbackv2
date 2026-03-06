@@ -46,21 +46,8 @@ public class PartServiceImpl implements PartService {
     private final PartMapper partMapper;
 
     @Override
-    public PagedResponse<PartResponse> getAllParts(UUID categoryId, Boolean published, UUID carBrandId, UUID carModelId, Pageable pageable) {
-        Page<Part> page;
-        if (carBrandId != null) {
-            page = partRepository.findByCarBrandId(carBrandId, pageable);
-        } else if (carModelId != null) {
-            page = partRepository.findByCarModelId(carModelId, pageable);
-        } else if (categoryId != null && published != null) {
-            page = partRepository.findByCategoryIdAndPublished(categoryId, published, pageable);
-        } else if (categoryId != null) {
-            page = partRepository.findByCategoryId(categoryId, pageable);
-        } else if (published != null) {
-            page = partRepository.findByPublished(published, pageable);
-        } else {
-            page = partRepository.findAll(pageable);
-        }
+    public PagedResponse<PartResponse> getAllParts(String name, UUID categoryId, Boolean published, UUID carBrandId, UUID carModelId, Pageable pageable) {
+        Page<Part> page = partRepository.searchParts(name, categoryId, published, carBrandId, carModelId, pageable);
         return PagedResponse.of(page.map(partMapper::toListResponse));
     }
 

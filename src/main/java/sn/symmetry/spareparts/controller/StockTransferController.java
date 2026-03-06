@@ -67,4 +67,22 @@ public class StockTransferController {
         stockTransferService.deleteStockTransfer(id);
         return ResponseEntity.ok(ApiResponse.success("Stock transfer deleted successfully", null));
     }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<ApiResponse<StockTransferResponse>> approveTransfer(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success("Stock transfer approved successfully",
+                stockTransferService.approveTransfer(id)));
+    }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<ApiResponse<StockTransferResponse>> completeTransfer(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success("Stock transfer completed successfully",
+                stockTransferService.completeTransfer(id)));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<StockTransferResponse>> cancelTransfer(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success("Stock transfer cancelled successfully",
+                stockTransferService.cancelTransfer(id)));
+    }
 }

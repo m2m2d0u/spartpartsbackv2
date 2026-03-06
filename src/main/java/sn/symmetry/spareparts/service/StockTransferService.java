@@ -20,4 +20,10 @@ public interface StockTransferService {
     StockTransferResponse updateStockTransfer(UUID id, UpdateStockTransferRequest request);
 
     void deleteStockTransfer(UUID id);
+
+    StockTransferResponse approveTransfer(UUID id);
+
+    StockTransferResponse completeTransfer(UUID id);
+
+    StockTransferResponse cancelTransfer(UUID id);
 }

@@ -119,6 +119,9 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 
         int quantityChange = request.getQuantity();
         int newBalance = warehouseStock.getQuantity() + quantityChange;
+        if (newBalance < 0) {
+            throw new IllegalArgumentException("Insufficient stock. Current: " + warehouseStock.getQuantity() + ", requested change: " + quantityChange);
+        }
         warehouseStock.setQuantity(newBalance);
 
         WarehouseStock saved = warehouseStockRepository.save(warehouseStock);
