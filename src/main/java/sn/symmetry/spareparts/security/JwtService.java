@@ -12,10 +12,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -38,7 +35,7 @@ public class JwtService {
 
         String roleAuthority = "ROLE_" + roleCode;
         List<String> permissions = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+                .map(GrantedAuthority::getAuthority).filter(Objects::nonNull)
                 .filter(a -> !a.equals(roleAuthority))
                 .toList();
 

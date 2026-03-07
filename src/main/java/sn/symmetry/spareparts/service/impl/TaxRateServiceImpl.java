@@ -22,6 +22,7 @@ import sn.symmetry.spareparts.service.TaxRateService;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class TaxRateServiceImpl implements TaxRateService {
     public List<TaxRateResponse> getAllTaxRatesList() {
         return taxRateRepository.findAll().stream()
                 .map(taxRateMapper::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
