@@ -24,6 +24,14 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, UU
 
     Page<StockMovement> findByType(StockMovementType type, Pageable pageable);
 
+    // Scoped queries — filtered by accessible warehouse IDs
+
+    Page<StockMovement> findByWarehouseIdIn(List<UUID> warehouseIds, Pageable pageable);
+
+    Page<StockMovement> findByWarehouseIdInAndPartId(List<UUID> warehouseIds, UUID partId, Pageable pageable);
+
+    Page<StockMovement> findByWarehouseIdInAndType(List<UUID> warehouseIds, StockMovementType type, Pageable pageable);
+
     // Dashboard — unfiltered
 
     @Query("SELECT COUNT(sm) FROM StockMovement sm WHERE sm.createdAt >= :since")
