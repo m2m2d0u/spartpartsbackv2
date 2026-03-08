@@ -1,8 +1,10 @@
 package sn.symmetry.spareparts.mapper;
 
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 import sn.symmetry.spareparts.config.MapStructConfig;
 import sn.symmetry.spareparts.dto.request.CreatePartRequest;
 import sn.symmetry.spareparts.dto.request.UpdatePartRequest;
@@ -12,11 +14,15 @@ import sn.symmetry.spareparts.dto.response.TagResponse;
 import sn.symmetry.spareparts.entity.Part;
 import sn.symmetry.spareparts.entity.PartImage;
 import sn.symmetry.spareparts.entity.Tag;
+import sn.symmetry.spareparts.service.FileStorageService;
 
 import java.util.List;
 
 @Mapper(config = MapStructConfig.class)
-public interface PartMapper {
+public abstract class PartMapper {
+
+    @Autowired
+    protected FileStorageService fileStorageService;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
@@ -26,7 +32,7 @@ public interface PartMapper {
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Part toEntity(CreatePartRequest request);
+    public abstract Part toEntity(CreatePartRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
@@ -36,7 +42,7 @@ public interface PartMapper {
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    void updateEntity(UpdatePartRequest request, @MappingTarget Part part);
+    public abstract void updateEntity(UpdatePartRequest request, @MappingTarget Part part);
 
     @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "category.name", target = "categoryName")
@@ -46,7 +52,7 @@ public interface PartMapper {
     @Mapping(source = "carModel.name", target = "carModelName")
     @Mapping(source = "images", target = "images")
     @Mapping(source = "tags", target = "tags")
-    PartResponse toResponse(Part part);
+    public abstract PartResponse toResponse(Part part);
 
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "tags", ignore = true)
@@ -56,13 +62,21 @@ public interface PartMapper {
     @Mapping(source = "carBrand.name", target = "carBrandName")
     @Mapping(source = "carModel.id", target = "carModelId")
     @Mapping(source = "carModel.name", target = "carModelName")
-    PartResponse toListResponse(Part part);
+    public abstract PartResponse toListResponse(Part part);
 
-    PartImageResponse toPartImageResponse(PartImage partImage);
+    @Mapping(source = "reference", target = "url")
+    public abstract PartImageResponse toPartImageResponse(PartImage partImage);
 
-    List<PartImageResponse> toPartImageResponseList(List<PartImage> partImages);
+    @AfterMapping
+    protected void mapReferenceToUrl(PartImage partImage, @MappingTarget PartImageResponse response) {
+        if (partImage.getReference() != null) {
+            response.setUrl(fileStorageService.getPublicUrl(partImage.getReference()));
+        }
+    }
 
-    TagResponse toTagResponse(Tag tag);
+    public abstract List<PartImageResponse> toPartImageResponseList(List<PartImage> partImages);
 
-    List<TagResponse> toTagResponseList(List<Tag> tags);
+    public abstract TagResponse toTagResponse(Tag tag);
+
+    public abstract List<TagResponse> toTagResponseList(List<Tag> tags);
 }

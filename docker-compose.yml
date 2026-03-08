@@ -28,18 +28,29 @@ services:
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   minio-init:
     image: minio/mc
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      until mc alias set local http://minio:9000 minioadmin minioadmin; do
-        sleep 1;
+      echo 'Waiting for MinIO to be ready...';
+      until mc alias set myminio http://minio:9000 minioadmin minioadmin; do
+        echo 'MinIO not ready, retrying in 2 seconds...';
+        sleep 2;
       done;
-      mc mb --ignore-existing local/spareparts;
-      mc anonymous set download local/spareparts/public;
+      echo 'MinIO is ready. Creating bucket...';
+      mc mb --ignore-existing myminio/spareparts;
+      echo 'Setting public download policy for parts/images only...';
+      mc anonymous set download myminio/spareparts/parts/images;
+      echo 'MinIO initialization complete!';
       exit 0;
       "
 

@@ -35,7 +35,7 @@ public class PartImage {
     private Part part;
 
     @Column(nullable = false, length = 500)
-    private String url;
+    private String reference;
 
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;

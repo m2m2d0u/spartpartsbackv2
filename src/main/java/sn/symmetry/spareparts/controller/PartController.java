@@ -31,6 +31,7 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.service.PartImportService;
 import sn.symmetry.spareparts.service.PartService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -160,5 +161,38 @@ public class PartController {
             @PathVariable UUID imageId) {
         partService.removeImageFromPart(partId, imageId);
         return ResponseEntity.ok(ApiResponse.success("Image removed successfully", null));
+    }
+
+    @PostMapping(value = "/{partId}/upload-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<List<PartImageResponse>>> uploadImages(
+            @PathVariable UUID partId,
+            @RequestPart("files") MultipartFile[] files) {
+        try {
+            List<PartImageResponse> responses = partService.uploadImages(partId, files);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Images uploaded successfully", responses));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("Failed to upload images: " + e.getMessage()));
+        }
+    }
+
+    @PutMapping(value = "/{partId}/replace-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<List<PartImageResponse>>> replaceAllImages(
+            @PathVariable UUID partId,
+            @RequestPart("files") MultipartFile[] files) {
+        try {
+            List<PartImageResponse> responses = partService.replaceAllImages(partId, files);
+            return ResponseEntity.ok(ApiResponse.success("Images replaced successfully", responses));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("Failed to replace images: " + e.getMessage()));
+        }
     }
 }

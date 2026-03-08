@@ -65,6 +65,42 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
+    public String uploadFileReturnReference(MultipartFile file, String folder) {
+        try {
+            // Ensure bucket exists
+            ensureBucketExists();
+
+            // Generate unique filename
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = UUID.randomUUID() + extension;
+            String objectName = folder + "/" + filename;
+
+            // Upload file
+            try (InputStream inputStream = file.getInputStream()) {
+                minioClient.putObject(
+                    PutObjectArgs.builder()
+                        .bucket(minioProperties.getBucket())
+                        .object(objectName)
+                        .stream(inputStream, file.getSize(), -1)
+                        .contentType(file.getContentType())
+                        .build()
+                );
+            }
+
+            log.info("File uploaded successfully: {}", objectName);
+            return objectName;
+
+        } catch (Exception e) {
+            log.error("Error uploading file to MinIO", e);
+            throw new RuntimeException("Failed to upload file: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void deleteFile(String fileUrl) {
         try {
             // Extract object name from URL
@@ -85,6 +121,29 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         } catch (Exception e) {
             log.error("Error deleting file from MinIO: {}", fileUrl, e);
+            throw new RuntimeException("Failed to delete file: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteFileByReference(String objectReference) {
+        try {
+            if (objectReference == null || objectReference.isEmpty()) {
+                log.warn("Object reference is null or empty");
+                return;
+            }
+
+            minioClient.removeObject(
+                RemoveObjectArgs.builder()
+                    .bucket(minioProperties.getBucket())
+                    .object(objectReference)
+                    .build()
+            );
+
+            log.info("File deleted successfully: {}", objectReference);
+
+        } catch (Exception e) {
+            log.error("Error deleting file from MinIO: {}", objectReference, e);
             throw new RuntimeException("Failed to delete file: " + e.getMessage(), e);
         }
     }
@@ -211,5 +270,39 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public String getPresignedUrl(String fileUrl) {
         return getPresignedUrl(fileUrl, null);
+    }
+
+    @Override
+    public String getPresignedUrlFromReference(String objectReference, Integer expiryInSeconds) {
+        try {
+            if (objectReference == null || objectReference.isEmpty()) {
+                return null;
+            }
+
+            // Default to 7 days (604800 seconds) if not specified
+            int expiry = (expiryInSeconds != null && expiryInSeconds > 0) ? expiryInSeconds : 604800;
+
+            String presignedUrl = minioClient.getPresignedObjectUrl(
+                GetPresignedObjectUrlArgs.builder()
+                    .method(Method.GET)
+                    .bucket(minioProperties.getBucket())
+                    .object(objectReference)
+                    .expiry(expiry)
+                    .build()
+            );
+
+            log.debug("Generated presigned URL for reference: {}, expires in: {}s", objectReference, expiry);
+            return presignedUrl;
+
+        } catch (Exception e) {
+            log.error("Error generating presigned URL for reference: {}", objectReference, e);
+            // Fallback to public URL if presigned URL generation fails
+            return getPublicUrl(objectReference);
+        }
+    }
+
+    @Override
+    public String getPresignedUrlFromReference(String objectReference) {
+        return getPresignedUrlFromReference(objectReference, null);
     }
 }

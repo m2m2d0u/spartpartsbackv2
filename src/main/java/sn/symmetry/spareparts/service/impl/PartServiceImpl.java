@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import sn.symmetry.spareparts.dto.request.CreatePartImageRequest;
 import sn.symmetry.spareparts.dto.request.CreatePartRequest;
 import sn.symmetry.spareparts.dto.request.UpdatePartRequest;
@@ -26,11 +27,14 @@ import sn.symmetry.spareparts.repository.CategoryRepository;
 import sn.symmetry.spareparts.repository.PartImageRepository;
 import sn.symmetry.spareparts.repository.PartRepository;
 import sn.symmetry.spareparts.repository.TagRepository;
+import sn.symmetry.spareparts.service.FileStorageService;
 import sn.symmetry.spareparts.service.PartService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +48,13 @@ public class PartServiceImpl implements PartService {
     private final CarModelRepository carModelRepository;
     private final TagRepository tagRepository;
     private final PartMapper partMapper;
+    private final FileStorageService fileStorageService;
+
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final int MAX_FILES_PER_UPLOAD = 10;
+    private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
+            "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"
+    );
 
     @Override
     public PagedResponse<PartResponse> getAllParts(String name, UUID categoryId, Boolean published, UUID carBrandId, UUID carModelId, Pageable pageable) {
@@ -135,7 +146,7 @@ public class PartServiceImpl implements PartService {
 
         PartImage partImage = new PartImage();
         partImage.setPart(part);
-        partImage.setUrl(request.getUrl());
+        partImage.setReference(request.getUrl());
         partImage.setSortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0);
 
         part.getImages().add(partImage);
@@ -157,6 +168,101 @@ public class PartServiceImpl implements PartService {
 
         part.getImages().remove(partImage);
         partRepository.save(part);
+    }
+
+    @Override
+    @Transactional
+    public List<PartImageResponse> uploadImages(UUID partId, MultipartFile[] files) {
+        Part part = partRepository.findById(partId)
+                .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
+
+        validateFiles(files);
+
+        List<PartImageResponse> uploadedImages = new ArrayList<>();
+        int currentMaxSortOrder = part.getImages().stream()
+                .mapToInt(PartImage::getSortOrder)
+                .max()
+                .orElse(-1);
+
+        for (int i = 0; i < files.length; i++) {
+            MultipartFile file = files[i];
+
+            String imageReference = fileStorageService.uploadFileReturnReference(file, "parts/images");
+
+            PartImage partImage = new PartImage();
+            partImage.setPart(part);
+            partImage.setReference(imageReference);
+            partImage.setSortOrder(currentMaxSortOrder + i + 1);
+
+            part.getImages().add(partImage);
+            uploadedImages.add(partMapper.toPartImageResponse(partImage));
+        }
+
+        partRepository.save(part);
+
+        return uploadedImages;
+    }
+
+    @Override
+    @Transactional
+    public List<PartImageResponse> replaceAllImages(UUID partId, MultipartFile[] files) {
+        Part part = partRepository.findById(partId)
+                .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
+
+        validateFiles(files);
+
+        List<PartImage> existingImages = new ArrayList<>(part.getImages());
+        for (PartImage image : existingImages) {
+            try {
+                fileStorageService.deleteFileByReference(image.getReference());
+            } catch (Exception e) {
+            }
+        }
+        part.getImages().clear();
+
+        List<PartImageResponse> uploadedImages = new ArrayList<>();
+        for (int i = 0; i < files.length; i++) {
+            MultipartFile file = files[i];
+
+            String imageReference = fileStorageService.uploadFileReturnReference(file, "parts/images");
+
+            PartImage partImage = new PartImage();
+            partImage.setPart(part);
+            partImage.setReference(imageReference);
+            partImage.setSortOrder(i);
+
+            part.getImages().add(partImage);
+            uploadedImages.add(partMapper.toPartImageResponse(partImage));
+        }
+
+        partRepository.save(part);
+
+        return uploadedImages;
+    }
+
+    private void validateFiles(MultipartFile[] files) {
+        if (files == null || files.length == 0) {
+            throw new IllegalArgumentException("At least one file is required");
+        }
+
+        if (files.length > MAX_FILES_PER_UPLOAD) {
+            throw new IllegalArgumentException("Maximum " + MAX_FILES_PER_UPLOAD + " files allowed per upload");
+        }
+
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("Empty files are not allowed");
+            }
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new IllegalArgumentException("File size must not exceed " + (MAX_FILE_SIZE / 1024 / 1024) + "MB");
+            }
+
+            String contentType = file.getContentType();
+            if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+                throw new IllegalArgumentException("Invalid file type. Allowed types: " + String.join(", ", ALLOWED_CONTENT_TYPES));
+            }
+        }
     }
 
     private void resolveCarBrandAndModel(Part part, UUID carBrandId, UUID carModelId) {

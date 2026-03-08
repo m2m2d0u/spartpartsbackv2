@@ -1,6 +1,7 @@
 package sn.symmetry.spareparts.service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import sn.symmetry.spareparts.dto.request.CreatePartImageRequest;
 import sn.symmetry.spareparts.dto.request.CreatePartRequest;
 import sn.symmetry.spareparts.dto.request.UpdatePartRequest;
@@ -8,6 +9,7 @@ import sn.symmetry.spareparts.dto.response.PartImageResponse;
 import sn.symmetry.spareparts.dto.response.PartResponse;
 import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface PartService {
@@ -29,4 +31,8 @@ public interface PartService {
     PartImageResponse addImageToPart(UUID partId, CreatePartImageRequest request);
 
     void removeImageFromPart(UUID partId, UUID imageId);
+
+    List<PartImageResponse> uploadImages(UUID partId, MultipartFile[] files);
+
+    List<PartImageResponse> replaceAllImages(UUID partId, MultipartFile[] files);
 }

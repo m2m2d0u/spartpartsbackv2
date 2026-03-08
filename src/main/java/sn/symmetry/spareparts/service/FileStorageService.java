@@ -13,10 +13,24 @@ public interface FileStorageService {
     String uploadFile(MultipartFile file, String folder);
 
     /**
+     * Upload a file to MinIO storage and return the object reference
+     * @param file The file to upload
+     * @param folder The folder/path within the bucket
+     * @return The object reference (e.g., folder/filename.ext)
+     */
+    String uploadFileReturnReference(MultipartFile file, String folder);
+
+    /**
      * Delete a file from MinIO storage
      * @param fileUrl The URL of the file to delete
      */
     void deleteFile(String fileUrl);
+
+    /**
+     * Delete a file from MinIO storage by reference
+     * @param objectReference The object reference (e.g., folder/filename.ext)
+     */
+    void deleteFileByReference(String objectReference);
 
     /**
      * Get the public URL for a file
@@ -53,4 +67,19 @@ public interface FileStorageService {
      * @return Presigned URL
      */
     String getPresignedUrl(String fileUrl);
+
+    /**
+     * Generate a presigned URL directly from an object reference
+     * @param objectReference The object reference (e.g., folder/filename.ext)
+     * @param expiryInSeconds Expiry time in seconds (default 7 days if not specified)
+     * @return Presigned URL
+     */
+    String getPresignedUrlFromReference(String objectReference, Integer expiryInSeconds);
+
+    /**
+     * Generate a presigned URL directly from an object reference with default expiry (7 days)
+     * @param objectReference The object reference (e.g., folder/filename.ext)
+     * @return Presigned URL
+     */
+    String getPresignedUrlFromReference(String objectReference);
 }
