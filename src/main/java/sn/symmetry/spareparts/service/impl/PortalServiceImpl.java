@@ -13,6 +13,7 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalCarBrandResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalCarModelResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalCategoryResponse;
+import sn.symmetry.spareparts.dto.response.portal.PortalCompanySettingsResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalOrderConfirmationResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalPartDetailResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalPartResponse;
@@ -20,6 +21,7 @@ import sn.symmetry.spareparts.dto.response.portal.PortalStoreConfigResponse;
 import sn.symmetry.spareparts.entity.CarBrand;
 import sn.symmetry.spareparts.entity.CarModel;
 import sn.symmetry.spareparts.entity.ClientOrder;
+import sn.symmetry.spareparts.entity.CompanySettings;
 import sn.symmetry.spareparts.entity.Customer;
 import sn.symmetry.spareparts.entity.OrderItem;
 import sn.symmetry.spareparts.entity.Part;
@@ -31,6 +33,7 @@ import sn.symmetry.spareparts.repository.CarBrandRepository;
 import sn.symmetry.spareparts.repository.CarModelRepository;
 import sn.symmetry.spareparts.repository.CategoryRepository;
 import sn.symmetry.spareparts.repository.ClientOrderRepository;
+import sn.symmetry.spareparts.repository.CompanySettingsRepository;
 import sn.symmetry.spareparts.repository.CustomerRepository;
 import sn.symmetry.spareparts.repository.PartRepository;
 import sn.symmetry.spareparts.repository.StoreRepository;
@@ -57,6 +60,7 @@ public class PortalServiceImpl implements PortalService {
     private final CarBrandRepository carBrandRepository;
     private final CarModelRepository carModelRepository;
     private final StoreRepository storeRepository;
+    private final CompanySettingsRepository companySettingsRepository;
     private final CustomerRepository customerRepository;
     private final ClientOrderRepository clientOrderRepository;
     private final FileStorageService fileStorageService;
@@ -150,6 +154,35 @@ public class PortalServiceImpl implements PortalService {
     }
 
     @Override
+    @Cacheable(CacheConfig.PORTAL_COMPANY_SETTINGS_CACHE)
+    public PortalCompanySettingsResponse getCompanySettings() {
+        CompanySettings settings = companySettingsRepository.findFirstBy()
+                .orElseThrow(() -> new ResourceNotFoundException("CompanySettings", "record", "first"));
+
+        return PortalCompanySettingsResponse.builder()
+                .companyName(settings.getCompanyName())
+                .logoUrl(settings.getLogoUrl())
+                .street(settings.getStreet())
+                .city(settings.getCity())
+                .state(settings.getState())
+                .postalCode(settings.getPostalCode())
+                .country(settings.getCountry())
+                .phone(settings.getPhone())
+                .email(settings.getEmail())
+                .currencySymbol(settings.getCurrencySymbol())
+                .currencyPosition(settings.getCurrencyPosition())
+                .currencyDecimals(settings.getCurrencyDecimals())
+                .thousandsSeparator(settings.getThousandsSeparator())
+                .defaultTaxRate(settings.getDefaultTaxRate())
+                .portalEnabled(settings.getPortalEnabled())
+                .portalMinOrderAmount(settings.getPortalMinOrderAmount())
+                .portalShippingFlatRate(settings.getPortalShippingFlatRate())
+                .portalFreeShippingAbove(settings.getPortalFreeShippingAbove())
+                .portalTermsText(settings.getPortalTermsText())
+                .build();
+    }
+
+    @Override
     @Transactional
     public PortalOrderConfirmationResponse createOrder(PortalCreateOrderRequest request) {
         // Find or create customer by email
@@ -222,6 +255,8 @@ public class PortalServiceImpl implements PortalService {
 
     private PortalPartResponse toPortalPartResponse(Part part, int availableStock) {
         String mainImageUrl = null;
+        List<PortalPartResponse.PortalImageResponse> images = List.of();
+
         if (part.getImages() != null && !part.getImages().isEmpty()) {
             PartImage mainImage = part.getImages().stream()
                     .filter(img -> Boolean.TRUE.equals(img.getIsMain()))
@@ -230,6 +265,15 @@ public class PortalServiceImpl implements PortalService {
             if (mainImage.getReference() != null) {
                 mainImageUrl = fileStorageService.getPublicUrl(mainImage.getReference());
             }
+
+            images = part.getImages().stream()
+                    .map(img -> PortalPartResponse.PortalImageResponse.builder()
+                            .id(img.getId().toString())
+                            .url(img.getReference() != null ? fileStorageService.getPublicUrl(img.getReference()) : null)
+                            .sortOrder(img.getSortOrder())
+                            .isMain(img.getIsMain())
+                            .build())
+                    .toList();
         }
 
         return PortalPartResponse.builder()
@@ -242,6 +286,7 @@ public class PortalServiceImpl implements PortalService {
                 .carBrandName(part.getCarBrand() != null ? part.getCarBrand().getName() : null)
                 .carModelName(part.getCarModel() != null ? part.getCarModel().getName() : null)
                 .mainImageUrl(mainImageUrl)
+                .images(images)
                 .availableStock(availableStock)
                 .build();
     }

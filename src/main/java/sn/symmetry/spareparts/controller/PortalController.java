@@ -20,6 +20,7 @@ import sn.symmetry.spareparts.dto.response.common.PagedResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalCarBrandResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalCarModelResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalCategoryResponse;
+import sn.symmetry.spareparts.dto.response.portal.PortalCompanySettingsResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalOrderConfirmationResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalPartDetailResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalPartResponse;
@@ -71,6 +72,11 @@ public class PortalController {
     @GetMapping("/store-config")
     public ResponseEntity<ApiResponse<PortalStoreConfigResponse>> getStoreConfig() {
         return ResponseEntity.ok(ApiResponse.success(portalService.getStoreConfig()));
+    }
+
+    @GetMapping("/company-settings")
+    public ResponseEntity<ApiResponse<PortalCompanySettingsResponse>> getCompanySettings() {
+        return ResponseEntity.ok(ApiResponse.success(portalService.getCompanySettings()));
     }
 
     @PostMapping("/orders")

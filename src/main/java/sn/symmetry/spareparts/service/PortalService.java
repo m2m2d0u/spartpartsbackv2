@@ -9,6 +9,7 @@ import sn.symmetry.spareparts.dto.response.portal.PortalCategoryResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalOrderConfirmationResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalPartDetailResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalPartResponse;
+import sn.symmetry.spareparts.dto.response.portal.PortalCompanySettingsResponse;
 import sn.symmetry.spareparts.dto.response.portal.PortalStoreConfigResponse;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public interface PortalService {
     List<PortalCarModelResponse> getCarModels(UUID brandId);
 
     PortalStoreConfigResponse getStoreConfig();
+
+    PortalCompanySettingsResponse getCompanySettings();
 
     PortalOrderConfirmationResponse createOrder(PortalCreateOrderRequest request);
 

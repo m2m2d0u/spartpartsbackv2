@@ -53,6 +53,7 @@ public class CacheConfig {
     public static final String PORTAL_CAR_BRANDS_CACHE = "portal:car-brands";
     public static final String PORTAL_CAR_MODELS_CACHE = "portal:car-models";
     public static final String PORTAL_STORE_CONFIG_CACHE = "portal:store-config";
+    public static final String PORTAL_COMPANY_SETTINGS_CACHE = "portal:company-settings";
     public static final String PORTAL_PARTS_CACHE = "portal:parts";
     public static final String PORTAL_PARTS_SEARCH_CACHE = "portal:parts:search";
 
@@ -96,6 +97,7 @@ public class CacheConfig {
         RedisCacheConfiguration portalCarBrandsConfig = defaultConfig.entryTtl(Duration.ofHours(12));
         RedisCacheConfiguration portalCarModelsConfig = defaultConfig.entryTtl(Duration.ofHours(12));
         RedisCacheConfiguration portalStoreConfig = defaultConfig.entryTtl(Duration.ofHours(6));
+        RedisCacheConfiguration portalCompanySettingsConfig = defaultConfig.entryTtl(Duration.ofHours(6));
         RedisCacheConfiguration portalPartsConfig = defaultConfig.entryTtl(Duration.ofMinutes(30));
         RedisCacheConfiguration portalSearchConfig = defaultConfig.entryTtl(Duration.ofMinutes(5));
 
@@ -136,6 +138,7 @@ public class CacheConfig {
         cacheConfigurations.put(PORTAL_CAR_BRANDS_CACHE, portalCarBrandsConfig);
         cacheConfigurations.put(PORTAL_CAR_MODELS_CACHE, portalCarModelsConfig);
         cacheConfigurations.put(PORTAL_STORE_CONFIG_CACHE, portalStoreConfig);
+        cacheConfigurations.put(PORTAL_COMPANY_SETTINGS_CACHE, portalCompanySettingsConfig);
         cacheConfigurations.put(PORTAL_PARTS_CACHE, portalPartsConfig);
         cacheConfigurations.put(PORTAL_PARTS_SEARCH_CACHE, portalSearchConfig);
 
