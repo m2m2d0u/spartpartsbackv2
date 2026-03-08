@@ -22,6 +22,22 @@ public interface WarehouseStockRepository extends JpaRepository<WarehouseStock, 
 
     Optional<WarehouseStock> findByWarehouseIdAndPartId(UUID warehouseId, UUID partId);
 
+    // Portal — aggregate total stock per part across all warehouses
+
+    @Query("SELECT COALESCE(SUM(ws.quantity), 0) FROM WarehouseStock ws WHERE ws.part.id = :partId")
+    int getTotalStockByPartId(@Param("partId") UUID partId);
+
+    @Query("SELECT ws.part.id, COALESCE(SUM(ws.quantity), 0) FROM WarehouseStock ws WHERE ws.part.id IN :partIds GROUP BY ws.part.id")
+    List<Object[]> getTotalStockByPartIds(@Param("partIds") List<UUID> partIds);
+
+    // Portal — stock from specific warehouse only
+
+    @Query("SELECT COALESCE(ws.quantity, 0) FROM WarehouseStock ws WHERE ws.part.id = :partId AND ws.warehouse.id = :warehouseId")
+    int getStockByPartIdAndWarehouseId(@Param("partId") UUID partId, @Param("warehouseId") UUID warehouseId);
+
+    @Query("SELECT ws.part.id, COALESCE(ws.quantity, 0) FROM WarehouseStock ws WHERE ws.part.id IN :partIds AND ws.warehouse.id = :warehouseId")
+    List<Object[]> getStockByPartIdsAndWarehouseId(@Param("partIds") List<UUID> partIds, @Param("warehouseId") UUID warehouseId);
+
     // Dashboard — unfiltered (admin)
 
     @Query("SELECT COUNT(DISTINCT ws.part.id) FROM WarehouseStock ws WHERE ws.quantity > 0")

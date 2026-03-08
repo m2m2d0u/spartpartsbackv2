@@ -48,6 +48,14 @@ public class CacheConfig {
     public static final String TAX_RATES_CACHE = "tax-rates";
     public static final String TAX_RATES_ALL_CACHE = "tax-rates:all";
 
+    // Portal caches - public-facing data, read very frequently
+    public static final String PORTAL_CATEGORIES_CACHE = "portal:categories";
+    public static final String PORTAL_CAR_BRANDS_CACHE = "portal:car-brands";
+    public static final String PORTAL_CAR_MODELS_CACHE = "portal:car-models";
+    public static final String PORTAL_STORE_CONFIG_CACHE = "portal:store-config";
+    public static final String PORTAL_PARTS_CACHE = "portal:parts";
+    public static final String PORTAL_PARTS_SEARCH_CACHE = "portal:parts:search";
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         GenericJacksonJsonRedisSerializer jsonSerializer = GenericJacksonJsonRedisSerializer.builder()
@@ -83,6 +91,14 @@ public class CacheConfig {
         // Customer cache - shorter TTL (1 hour) as customers are updated more frequently
         RedisCacheConfiguration customerConfig = defaultConfig.entryTtl(Duration.ofHours(1));
 
+        // Portal caches - optimized for high-traffic public access
+        RedisCacheConfiguration portalCategoriesConfig = defaultConfig.entryTtl(Duration.ofHours(6));
+        RedisCacheConfiguration portalCarBrandsConfig = defaultConfig.entryTtl(Duration.ofHours(12));
+        RedisCacheConfiguration portalCarModelsConfig = defaultConfig.entryTtl(Duration.ofHours(12));
+        RedisCacheConfiguration portalStoreConfig = defaultConfig.entryTtl(Duration.ofHours(6));
+        RedisCacheConfiguration portalPartsConfig = defaultConfig.entryTtl(Duration.ofMinutes(30));
+        RedisCacheConfiguration portalSearchConfig = defaultConfig.entryTtl(Duration.ofMinutes(5));
+
         // Configure specific caches with different TTLs
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
@@ -114,6 +130,14 @@ public class CacheConfig {
 
         // Customers
         cacheConfigurations.put(CUSTOMERS_CACHE, customerConfig);
+
+        // Portal caches
+        cacheConfigurations.put(PORTAL_CATEGORIES_CACHE, portalCategoriesConfig);
+        cacheConfigurations.put(PORTAL_CAR_BRANDS_CACHE, portalCarBrandsConfig);
+        cacheConfigurations.put(PORTAL_CAR_MODELS_CACHE, portalCarModelsConfig);
+        cacheConfigurations.put(PORTAL_STORE_CONFIG_CACHE, portalStoreConfig);
+        cacheConfigurations.put(PORTAL_PARTS_CACHE, portalPartsConfig);
+        cacheConfigurations.put(PORTAL_PARTS_SEARCH_CACHE, portalSearchConfig);
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

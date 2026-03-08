@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import sn.symmetry.spareparts.entity.Store;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -14,6 +15,8 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
     boolean existsByCode(String code);
     boolean existsByCodeAndIdNot(String code, UUID id);
     Page<Store> findByIsActive(Boolean isActive, Pageable pageable);
+
+    Optional<Store> findFirstByIsActiveTrue();
 
     /**
      * Find stores by list of IDs (for filtering by accessible stores).

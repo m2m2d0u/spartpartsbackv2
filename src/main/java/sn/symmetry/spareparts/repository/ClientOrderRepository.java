@@ -12,12 +12,15 @@ import sn.symmetry.spareparts.enums.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ClientOrderRepository extends JpaRepository<ClientOrder, UUID> {
 
     boolean existsByOrderNumber(String orderNumber);
+
+    Optional<ClientOrder> findByOrderNumber(String orderNumber);
 
     Page<ClientOrder> findByCustomerId(UUID customerId, Pageable pageable);
 

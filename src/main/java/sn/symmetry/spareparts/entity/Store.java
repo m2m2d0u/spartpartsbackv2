@@ -89,12 +89,6 @@ public class Store {
     @Column(name = "default_invoice_notes", columnDefinition = "TEXT")
     private String defaultInvoiceNotes;
 
-    @Column(name = "default_warehouse_id")
-    private UUID defaultWarehouseId;
-
-    @Column(name = "portal_warehouse_id")
-    private UUID portalWarehouseId;
-
     @Column(name = "currency_symbol", length = 10)
     private String currencySymbol;
 
