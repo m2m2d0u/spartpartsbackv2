@@ -40,6 +40,9 @@ public class PartImage {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 
+    @Column(name = "is_main", nullable = false)
+    private Boolean isMain = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

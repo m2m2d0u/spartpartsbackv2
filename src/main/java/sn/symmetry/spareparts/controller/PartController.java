@@ -195,4 +195,12 @@ public class PartController {
                     .body(ApiResponse.error("Failed to replace images: " + e.getMessage()));
         }
     }
+
+    @PutMapping("/{partId}/images/{imageId}/set-main")
+    public ResponseEntity<ApiResponse<PartImageResponse>> setMainImage(
+            @PathVariable UUID partId,
+            @PathVariable UUID imageId) {
+        PartImageResponse response = partService.setMainImage(partId, imageId);
+        return ResponseEntity.ok(ApiResponse.success("Main image updated successfully", response));
+    }
 }

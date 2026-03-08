@@ -18,4 +18,5 @@ public class PartImageResponse {
     private UUID id;
     private String url;
     private Integer sortOrder;
+    private Boolean isMain;
 }

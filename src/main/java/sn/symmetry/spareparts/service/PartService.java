@@ -35,4 +35,6 @@ public interface PartService {
     List<PartImageResponse> uploadImages(UUID partId, MultipartFile[] files);
 
     List<PartImageResponse> replaceAllImages(UUID partId, MultipartFile[] files);
+
+    PartImageResponse setMainImage(UUID partId, UUID imageId);
 }

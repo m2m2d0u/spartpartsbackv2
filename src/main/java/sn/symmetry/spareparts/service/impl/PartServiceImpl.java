@@ -184,6 +184,8 @@ public class PartServiceImpl implements PartService {
                 .max()
                 .orElse(-1);
 
+        boolean hasMainImage = part.getImages().stream().anyMatch(PartImage::getIsMain);
+
         for (int i = 0; i < files.length; i++) {
             MultipartFile file = files[i];
 
@@ -193,6 +195,7 @@ public class PartServiceImpl implements PartService {
             partImage.setPart(part);
             partImage.setReference(imageReference);
             partImage.setSortOrder(currentMaxSortOrder + i + 1);
+            partImage.setIsMain(!hasMainImage && i == 0);
 
             part.getImages().add(partImage);
             uploadedImages.add(partMapper.toPartImageResponse(partImage));
@@ -230,6 +233,7 @@ public class PartServiceImpl implements PartService {
             partImage.setPart(part);
             partImage.setReference(imageReference);
             partImage.setSortOrder(i);
+            partImage.setIsMain(i == 0);
 
             part.getImages().add(partImage);
             uploadedImages.add(partMapper.toPartImageResponse(partImage));
@@ -238,6 +242,26 @@ public class PartServiceImpl implements PartService {
         partRepository.save(part);
 
         return uploadedImages;
+    }
+
+    @Override
+    @Transactional
+    public PartImageResponse setMainImage(UUID partId, UUID imageId) {
+        Part part = partRepository.findById(partId)
+                .orElseThrow(() -> new ResourceNotFoundException("Part", "id", partId));
+
+        PartImage targetImage = part.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("PartImage", "id", imageId));
+
+        for (PartImage image : part.getImages()) {
+            image.setIsMain(image.getId().equals(imageId));
+        }
+
+        partRepository.save(part);
+
+        return partMapper.toPartImageResponse(targetImage);
     }
 
     private void validateFiles(MultipartFile[] files) {
