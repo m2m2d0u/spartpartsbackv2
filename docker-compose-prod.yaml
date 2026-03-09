@@ -6,13 +6,13 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME:-spareparts}
       POSTGRES_USER: ${DB_USERNAME:-spareparts}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-spareparts}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-spareparts} -d ${DB_NAME:-spareparts}"]
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USERNAME:-spareparts} -d $${DB_NAME:-spareparts}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,7 +38,7 @@ services:
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
     volumes:
       - minio_data:/data
     ports:
@@ -67,21 +67,21 @@ services:
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-spareparts}
       DB_USERNAME: ${DB_USERNAME:-spareparts}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD:-spareparts}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
       MINIO_BUCKET: ${MINIO_BUCKET:-spareparts}
-      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL}
-      MAIL_HOST: ${MAIL_HOST}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://storage-spare.symmetry.sn}
+      MAIL_HOST: ${MAIL_HOST:-localhost}
       MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      MAIL_USERNAME: ${MAIL_USERNAME:-no-reply@symmetry.sn}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-changeme}
+      JWT_SECRET: ${JWT_SECRET:-default-dev-secret-key-that-is-at-least-256-bits-long-for-hs256}
       PASSWORD_RESET_TOKEN_EXPIRATION: ${PASSWORD_RESET_TOKEN_EXPIRATION:-1800000}
-      PASSWORD_RESET_BASE_URL: ${PASSWORD_RESET_BASE_URL}
+      PASSWORD_RESET_BASE_URL: ${PASSWORD_RESET_BASE_URL:-https://spare.symmetry.sn/reset-password}
     ports:
       - "127.0.0.1:8080:8080"
     networks:
