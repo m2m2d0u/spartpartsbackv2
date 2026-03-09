@@ -38,7 +38,7 @@ services:
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadminpassword123}
     volumes:
       - minio_data:/data
     ports:
@@ -72,7 +72,7 @@ services:
       REDIS_PORT: 6379
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadminpassword123}
       MINIO_BUCKET: ${MINIO_BUCKET:-spareparts}
       MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://storage-spare.symmetry.sn}
       MAIL_HOST: ${MAIL_HOST:-localhost}
