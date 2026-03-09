@@ -71,8 +71,7 @@ write_http_conf() {
   local conf_file="${NGINX_CONF_DIR}/${domain}.conf"
 
   if [[ -f "$conf_file" ]]; then
-    warn "Config already exists: ${conf_file} — skipping HTTP phase write."
-    return
+    warn "Config already exists: ${conf_file} — replacing."
   fi
 
   info "Writing HTTP config for ${domain}..."
