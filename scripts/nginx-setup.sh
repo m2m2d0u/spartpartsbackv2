@@ -62,6 +62,36 @@ nginx_reload() {
   systemctl reload nginx
 }
 
+# Create the SSL options file that certbot --nginx normally provides
+ensure_ssl_options() {
+  local ssl_options="/etc/letsencrypt/options-ssl-nginx.conf"
+  local dhparam="/etc/letsencrypt/ssl-dhparams.pem"
+
+  mkdir -p /etc/letsencrypt
+
+  if [[ ! -f "$ssl_options" ]]; then
+    info "Creating ${ssl_options}..."
+    cat > "$ssl_options" <<'EOF'
+ssl_session_cache    shared:le_nginx_SSL:10m;
+ssl_session_timeout  1440m;
+ssl_session_tickets  off;
+
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+EOF
+  else
+    info "${ssl_options} already exists — skipping."
+  fi
+
+  if [[ ! -f "$dhparam" ]]; then
+    info "Generating DH parameters (2048-bit) — this may take a moment..."
+    openssl dhparam -out "$dhparam" 2048 2>/dev/null
+  else
+    info "${dhparam} already exists — skipping."
+  fi
+}
+
 # ---------------------------------------------------------------------------
 # Phase 1 — HTTP-only configs (needed for ACME challenge)
 # ---------------------------------------------------------------------------
@@ -282,7 +312,8 @@ for domain in "$FRONTEND_DOMAIN" "$API_DOMAIN" "$MINIO_DOMAIN"; do
   obtain_cert "$domain"
 done
 
-# Phase 3 — overwrite configs with full HTTPS versions
+# Phase 3 — ensure SSL options file and dhparam exist, then write HTTPS configs
+ensure_ssl_options
 write_https_conf_frontend
 write_https_conf_api
 write_https_conf_minio
