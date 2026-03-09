@@ -42,6 +42,15 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 app:
   password-reset:
     token-expiration: ${PASSWORD_RESET_TOKEN_EXPIRATION:1800000}

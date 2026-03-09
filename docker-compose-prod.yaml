@@ -52,7 +52,7 @@ services:
       retries: 5
 
   backend:
-    image: m2m2d0u/spareparts-back:latest
+    image: reg.m2m2d0u.store/spareparts/spareparts-back:latest
     container_name: spareparts-backend
     restart: unless-stopped
     depends_on:
@@ -88,14 +88,14 @@ services:
       - internal
       - proxy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
 
   frontend:
-    image: m2m2d0u/spareparts-front:latest
+    image: reg.m2m2d0u.store/spareparts/spareparts-front:latest
     container_name: spareparts-frontend
     restart: unless-stopped
     depends_on:
