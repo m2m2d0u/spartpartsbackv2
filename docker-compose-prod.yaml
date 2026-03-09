@@ -77,8 +77,8 @@ services:
       MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://storage-spare.symmetry.sn}
       MAIL_HOST: ${MAIL_HOST:-localhost}
       MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME:-no-reply@symmetry.sn}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-changeme}
+      MAIL_USERNAME: ${MAIL_USERNAME:-diallom.abass@gmail.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-lspb gejr avdn vadq}
       JWT_SECRET: ${JWT_SECRET:-default-dev-secret-key-that-is-at-least-256-bits-long-for-hs256}
       PASSWORD_RESET_TOKEN_EXPIRATION: ${PASSWORD_RESET_TOKEN_EXPIRATION:-1800000}
       PASSWORD_RESET_BASE_URL: ${PASSWORD_RESET_BASE_URL:-https://spare.symmetry.sn/reset-password}
