@@ -75,7 +75,7 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadminpassword123}
       MINIO_BUCKET: ${MINIO_BUCKET:-spareparts}
       MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://storage-spare.symmetry.sn}
-      MAIL_HOST: ${MAIL_HOST:-localhost}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-diallom.abass@gmail.com}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-lspb gejr avdn vadq}
