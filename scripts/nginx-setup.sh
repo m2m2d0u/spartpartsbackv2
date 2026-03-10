@@ -18,7 +18,8 @@ MINIO_DOMAIN="storage-spare.symmetry.sn"
 
 FRONTEND_PORT=3000
 BACKEND_PORT=8080
-MINIO_PORT=9001
+MINIO_PORT=9000
+MINIO_CONSOLE_PORT=9001
 
 NGINX_CONF_DIR="/etc/nginx/conf.d"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-admin@symmetry.sn}"
@@ -222,6 +223,7 @@ EOF
 write_https_conf_minio() {
   local domain="$MINIO_DOMAIN"
   local port="$MINIO_PORT"
+  local console_port="$MINIO_CONSOLE_PORT"
   info "Writing HTTPS config for ${domain} (MinIO)..."
   cat > "${NGINX_CONF_DIR}/${domain}.conf" <<EOF
 server {
@@ -253,9 +255,9 @@ server {
 
     ignore_invalid_headers off;
 
-    # WebSocket endpoint for MinIO console
+    # WebSocket endpoint for MinIO console (port ${console_port})
     location /ws/ {
-        proxy_pass              http://127.0.0.1:${port};
+        proxy_pass              http://127.0.0.1:${console_port};
         proxy_http_version      1.1;
         proxy_set_header        Host              \$http_host;
         proxy_set_header        X-Real-IP         \$remote_addr;
@@ -266,6 +268,7 @@ server {
         proxy_read_timeout      86400s;
     }
 
+    # Object storage API (port ${port})
     location / {
         proxy_pass              http://127.0.0.1:${port};
         proxy_http_version      1.1;
