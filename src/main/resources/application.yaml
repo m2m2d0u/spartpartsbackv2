@@ -58,6 +58,7 @@ app:
   cors:
     allowed-origins:
       - http://localhost:3000
+      - https://spare.symmetry.sn
   security:
     jwt:
       secret: ${JWT_SECRET:default-dev-secret-key-that-is-at-least-256-bits-long-for-hs256}

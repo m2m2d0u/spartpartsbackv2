@@ -4,7 +4,7 @@
 # Domains:
 #   spare.symmetry.sn        → frontend  (localhost:3000)
 #   spare-api.symmetry.sn    → backend   (localhost:8080)
-#   storage-spare.symmetry.sn→ minio API (localhost:9000)
+#   storage-spare.symmetry.sn→ minio API (localhost:9001)
 # =============================================================================
 
 set -euo pipefail
@@ -253,18 +253,31 @@ server {
 
     ignore_invalid_headers off;
 
+    # WebSocket endpoint for MinIO console
+    location /ws/ {
+        proxy_pass              http://127.0.0.1:${port};
+        proxy_http_version      1.1;
+        proxy_set_header        Host              \$http_host;
+        proxy_set_header        X-Real-IP         \$remote_addr;
+        proxy_set_header        X-Forwarded-For   \$proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto \$scheme;
+        proxy_set_header        Upgrade           \$http_upgrade;
+        proxy_set_header        Connection        "upgrade";
+        proxy_read_timeout      86400s;
+    }
+
     location / {
-        proxy_pass             http://127.0.0.1:${port};
-        proxy_http_version     1.1;
-        proxy_set_header       Host              \$http_host;
-        proxy_set_header       X-Real-IP         \$remote_addr;
-        proxy_set_header       X-Forwarded-For   \$proxy_add_x_forwarded_for;
-        proxy_set_header       X-Forwarded-Proto \$scheme;
-        proxy_set_header       Connection        "";
-        proxy_connect_timeout  300s;
-        proxy_send_timeout     300s;
-        proxy_read_timeout     300s;
-        proxy_buffering        off;
+        proxy_pass              http://127.0.0.1:${port};
+        proxy_http_version      1.1;
+        proxy_set_header        Host              \$http_host;
+        proxy_set_header        X-Real-IP         \$remote_addr;
+        proxy_set_header        X-Forwarded-For   \$proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto \$scheme;
+        proxy_set_header        Connection        "";
+        proxy_connect_timeout   300s;
+        proxy_send_timeout      300s;
+        proxy_read_timeout      300s;
+        proxy_buffering         off;
         proxy_request_buffering off;
         chunked_transfer_encoding on;
     }
