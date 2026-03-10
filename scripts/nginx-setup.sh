@@ -18,7 +18,7 @@ MINIO_DOMAIN="storage-spare.symmetry.sn"
 
 FRONTEND_PORT=3000
 BACKEND_PORT=8080
-MINIO_PORT=9000
+MINIO_PORT=9001
 
 NGINX_CONF_DIR="/etc/nginx/conf.d"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-admin@symmetry.sn}"
