@@ -105,7 +105,7 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD:-lspb gejr avdn vadq}
       JWT_SECRET: ${JWT_SECRET:-default-dev-secret-key-that-is-at-least-256-bits-long-for-hs256}
       PASSWORD_RESET_TOKEN_EXPIRATION: ${PASSWORD_RESET_TOKEN_EXPIRATION:-1800000}
-      PASSWORD_RESET_BASE_URL: ${PASSWORD_RESET_BASE_URL:-https://spare.symmetry.sn/reset-password}
+      PASSWORD_RESET_BASE_URL: ${PASSWORD_RESET_BASE_URL:-https://spare.symmetry.sn/auth/reset-password}
     ports:
       - "127.0.0.1:8080:8080"
     networks:
