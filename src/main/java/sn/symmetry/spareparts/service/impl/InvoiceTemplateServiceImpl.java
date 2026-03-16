@@ -53,6 +53,9 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
         InvoiceTemplate invoiceTemplate = invoiceTemplateMapper.toEntity(request);
         resolveTaxRate(request.getTaxRateId(), invoiceTemplate);
         InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
+        if (Boolean.TRUE.equals(saved.getIsDefault())) {
+            invoiceTemplateRepository.clearDefaultExcluding(saved.getId());
+        }
         return invoiceTemplateMapper.toResponse(saved);
     }
 
@@ -66,6 +69,9 @@ public class InvoiceTemplateServiceImpl implements InvoiceTemplateService {
         invoiceTemplateMapper.updateEntity(request, invoiceTemplate);
         resolveTaxRate(request.getTaxRateId(), invoiceTemplate);
         InvoiceTemplate saved = invoiceTemplateRepository.save(invoiceTemplate);
+        if (Boolean.TRUE.equals(saved.getIsDefault())) {
+            invoiceTemplateRepository.clearDefaultExcluding(saved.getId());
+        }
         return invoiceTemplateMapper.toResponse(saved);
     }
 

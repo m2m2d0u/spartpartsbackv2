@@ -124,38 +124,32 @@ public class InvoiceTemplateController {
 
             // Upload logo if provided
             if (logo != null && !logo.isEmpty()) {
-                String logoUrl = fileStorageService.uploadFile(logo, "templates/logos");
-                request.setLogoUrl(logoUrl);
+                request.setLogoUrl(fileStorageService.uploadFileReturnReference(logo, "templates/logos"));
             }
 
             // Upload stamp if provided
             if (stamp != null && !stamp.isEmpty()) {
-                String stampUrl = fileStorageService.uploadFile(stamp, "templates/stamps");
-                request.setStampImageUrl(stampUrl);
+                request.setStampImageUrl(fileStorageService.uploadFileReturnReference(stamp, "templates/stamps"));
             }
 
             // Upload header image if provided
             if (headerImage != null && !headerImage.isEmpty()) {
-                String headerImageUrl = fileStorageService.uploadFile(headerImage, "templates/headers");
-                request.setHeaderImageUrl(headerImageUrl);
+                request.setHeaderImageUrl(fileStorageService.uploadFileReturnReference(headerImage, "templates/headers"));
             }
 
             // Upload footer image if provided
             if (footerImage != null && !footerImage.isEmpty()) {
-                String footerImageUrl = fileStorageService.uploadFile(footerImage, "templates/footers");
-                request.setFooterImageUrl(footerImageUrl);
+                request.setFooterImageUrl(fileStorageService.uploadFileReturnReference(footerImage, "templates/footers"));
             }
 
             // Upload signature if provided
             if (signature != null && !signature.isEmpty()) {
-                String signatureUrl = fileStorageService.uploadFile(signature, "templates/signatures");
-                request.setSignatureImageUrl(signatureUrl);
+                request.setSignatureImageUrl(fileStorageService.uploadFileReturnReference(signature, "templates/signatures"));
             }
 
             // Upload watermark if provided
             if (watermark != null && !watermark.isEmpty()) {
-                String watermarkUrl = fileStorageService.uploadFile(watermark, "templates/watermarks");
-                request.setWatermarkImageUrl(watermarkUrl);
+                request.setWatermarkImageUrl(fileStorageService.uploadFileReturnReference(watermark, "templates/watermarks"));
             }
 
             InvoiceTemplateResponse response = invoiceTemplateService.createInvoiceTemplate(request);
@@ -188,78 +182,60 @@ public class InvoiceTemplateController {
             if (logo != null && !logo.isEmpty()) {
                 if (currentTemplate.getLogoUrl() != null) {
                     try {
-                        fileStorageService.deleteFile(currentTemplate.getLogoUrl());
-                    } catch (Exception e) {
-                        // Log but don't fail if delete fails
-                    }
+                        fileStorageService.deleteFileByReference(extractReference(currentTemplate.getLogoUrl()));
+                    } catch (Exception ignored) {}
                 }
-                String logoUrl = fileStorageService.uploadFile(logo, "templates/logos");
-                request.setLogoUrl(logoUrl);
+                request.setLogoUrl(fileStorageService.uploadFileReturnReference(logo, "templates/logos"));
             }
 
             // Upload new stamp if provided
             if (stamp != null && !stamp.isEmpty()) {
                 if (currentTemplate.getStampImageUrl() != null) {
                     try {
-                        fileStorageService.deleteFile(currentTemplate.getStampImageUrl());
-                    } catch (Exception e) {
-                        // Log but don't fail if delete fails
-                    }
+                        fileStorageService.deleteFileByReference(extractReference(currentTemplate.getStampImageUrl()));
+                    } catch (Exception ignored) {}
                 }
-                String stampUrl = fileStorageService.uploadFile(stamp, "templates/stamps");
-                request.setStampImageUrl(stampUrl);
+                request.setStampImageUrl(fileStorageService.uploadFileReturnReference(stamp, "templates/stamps"));
             }
 
             // Upload new header image if provided
             if (headerImage != null && !headerImage.isEmpty()) {
                 if (currentTemplate.getHeaderImageUrl() != null) {
                     try {
-                        fileStorageService.deleteFile(currentTemplate.getHeaderImageUrl());
-                    } catch (Exception e) {
-                        // Log but don't fail if delete fails
-                    }
+                        fileStorageService.deleteFileByReference(extractReference(currentTemplate.getHeaderImageUrl()));
+                    } catch (Exception ignored) {}
                 }
-                String headerImageUrl = fileStorageService.uploadFile(headerImage, "templates/headers");
-                request.setHeaderImageUrl(headerImageUrl);
+                request.setHeaderImageUrl(fileStorageService.uploadFileReturnReference(headerImage, "templates/headers"));
             }
 
             // Upload new footer image if provided
             if (footerImage != null && !footerImage.isEmpty()) {
                 if (currentTemplate.getFooterImageUrl() != null) {
                     try {
-                        fileStorageService.deleteFile(currentTemplate.getFooterImageUrl());
-                    } catch (Exception e) {
-                        // Log but don't fail if delete fails
-                    }
+                        fileStorageService.deleteFileByReference(extractReference(currentTemplate.getFooterImageUrl()));
+                    } catch (Exception ignored) {}
                 }
-                String footerImageUrl = fileStorageService.uploadFile(footerImage, "templates/footers");
-                request.setFooterImageUrl(footerImageUrl);
+                request.setFooterImageUrl(fileStorageService.uploadFileReturnReference(footerImage, "templates/footers"));
             }
 
             // Upload new signature if provided
             if (signature != null && !signature.isEmpty()) {
                 if (currentTemplate.getSignatureImageUrl() != null) {
                     try {
-                        fileStorageService.deleteFile(currentTemplate.getSignatureImageUrl());
-                    } catch (Exception e) {
-                        // Log but don't fail if delete fails
-                    }
+                        fileStorageService.deleteFileByReference(extractReference(currentTemplate.getSignatureImageUrl()));
+                    } catch (Exception ignored) {}
                 }
-                String signatureUrl = fileStorageService.uploadFile(signature, "templates/signatures");
-                request.setSignatureImageUrl(signatureUrl);
+                request.setSignatureImageUrl(fileStorageService.uploadFileReturnReference(signature, "templates/signatures"));
             }
 
             // Upload new watermark if provided
             if (watermark != null && !watermark.isEmpty()) {
                 if (currentTemplate.getWatermarkImageUrl() != null) {
                     try {
-                        fileStorageService.deleteFile(currentTemplate.getWatermarkImageUrl());
-                    } catch (Exception e) {
-                        // Log but don't fail if delete fails
-                    }
+                        fileStorageService.deleteFileByReference(extractReference(currentTemplate.getWatermarkImageUrl()));
+                    } catch (Exception ignored) {}
                 }
-                String watermarkUrl = fileStorageService.uploadFile(watermark, "templates/watermarks");
-                request.setWatermarkImageUrl(watermarkUrl);
+                request.setWatermarkImageUrl(fileStorageService.uploadFileReturnReference(watermark, "templates/watermarks"));
             }
 
             InvoiceTemplateResponse response = invoiceTemplateService.updateInvoiceTemplate(id, request);
@@ -365,5 +341,20 @@ public class InvoiceTemplateController {
                 .build();
 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * Extracts the MinIO object reference from a value that may be either a full URL
+     * (legacy: http://host/bucket/ref) or already a plain object reference.
+     */
+    private String extractReference(String urlOrReference) {
+        if (urlOrReference == null || !urlOrReference.startsWith("http")) {
+            return urlOrReference;
+        }
+        int idx = urlOrReference.indexOf("/spareparts/");
+        if (idx != -1) {
+            return urlOrReference.substring(idx + "/spareparts/".length());
+        }
+        return urlOrReference;
     }
 }

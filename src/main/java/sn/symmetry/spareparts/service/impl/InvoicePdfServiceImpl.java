@@ -149,6 +149,22 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
             byte[] scaled = scaleImage(uploadedImages.get("stamp"), 100, 100);
             context.setVariable("stampBase64", java.util.Base64.getEncoder().encodeToString(scaled));
         }
+        if (uploadedImages.containsKey("headerImage")) {
+            byte[] scaled = scaleImage(uploadedImages.get("headerImage"), 595, 150);
+            context.setVariable("headerImageBase64", java.util.Base64.getEncoder().encodeToString(scaled));
+        }
+        if (uploadedImages.containsKey("footerImage")) {
+            byte[] scaled = scaleImage(uploadedImages.get("footerImage"), 595, 150);
+            context.setVariable("footerImageBase64", java.util.Base64.getEncoder().encodeToString(scaled));
+        }
+        if (uploadedImages.containsKey("signatureImage")) {
+            byte[] scaled = scaleImage(uploadedImages.get("signatureImage"), 150, 80);
+            context.setVariable("signatureImageBase64", java.util.Base64.getEncoder().encodeToString(scaled));
+        }
+        if (uploadedImages.containsKey("watermarkImage")) {
+            byte[] scaled = scaleImage(uploadedImages.get("watermarkImage"), 400, 400);
+            context.setVariable("watermarkImageBase64", java.util.Base64.getEncoder().encodeToString(scaled));
+        }
     }
 
     private InvoiceTemplate mapRequestToTemplate(CreateInvoiceTemplateRequest request) {
@@ -350,6 +366,10 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
                         invoice.getSourceWarehouse().getStore().getStampImageUrl() : null,
                 100, 100
         ));
+        context.setVariable("headerImageBase64", loadImageAsBase64(template.getHeaderImageUrl(), null, 595, 150));
+        context.setVariable("footerImageBase64", loadImageAsBase64(template.getFooterImageUrl(), null, 595, 150));
+        context.setVariable("signatureImageBase64", loadImageAsBase64(template.getSignatureImageUrl(), null, 150, 80));
+        context.setVariable("watermarkImageBase64", loadImageAsBase64(template.getWatermarkImageUrl(), null, 400, 400));
 
         return context;
     }
@@ -496,6 +516,11 @@ public class InvoicePdfServiceImpl implements InvoicePdfService {
         if (fileUrl == null || fileUrl.isEmpty()) {
             return null;
         }
+        // Plain object reference (new format): return as-is
+        if (!fileUrl.startsWith("http")) {
+            return fileUrl;
+        }
+        // Legacy full URL: extract object name after bucket prefix
         int lastSlashIndex = fileUrl.lastIndexOf("/spareparts/");
         if (lastSlashIndex != -1) {
             return fileUrl.substring(lastSlashIndex + "/spareparts/".length());
