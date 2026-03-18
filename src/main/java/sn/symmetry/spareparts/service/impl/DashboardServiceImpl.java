@@ -112,9 +112,16 @@ public class DashboardServiceImpl implements DashboardService {
         builder.pendingOrdersCount(isAll
                 ? clientOrderRepository.countByStatusInAll(PENDING_STATUSES)
                 : clientOrderRepository.countByStatusInByWarehouses(PENDING_STATUSES, warehouseIds));
-        builder.monthlyRevenue(isAll
+
+        // Calculate monthly revenue from both orders and paid invoices
+        BigDecimal orderRevenue = isAll
                 ? clientOrderRepository.sumRevenueSinceAll(REVENUE_STATUSES, monthStart)
-                : clientOrderRepository.sumRevenueSinceByWarehouses(REVENUE_STATUSES, monthStart, warehouseIds));
+                : clientOrderRepository.sumRevenueSinceByWarehouses(REVENUE_STATUSES, monthStart, warehouseIds);
+        BigDecimal invoiceRevenue = isAll
+                ? invoiceRepository.sumPaidInvoicesSinceAll(InvoiceStatus.PAID, monthStart)
+                : invoiceRepository.sumPaidInvoicesSinceByWarehouses(InvoiceStatus.PAID, monthStart, warehouseIds);
+        builder.monthlyRevenue(orderRevenue.add(invoiceRevenue));
+
         builder.overdueInvoicesCount(isAll
                 ? invoiceRepository.countByInvoiceStatusAll(InvoiceStatus.OVERDUE)
                 : invoiceRepository.countByInvoiceStatusByWarehouses(InvoiceStatus.OVERDUE, warehouseIds));
@@ -135,9 +142,16 @@ public class DashboardServiceImpl implements DashboardService {
         builder.pendingOrdersCount(isAll
                 ? clientOrderRepository.countByStatusInAll(PENDING_STATUSES)
                 : clientOrderRepository.countByStatusInByWarehouses(PENDING_STATUSES, warehouseIds));
-        builder.monthlyRevenue(isAll
+
+        // Calculate monthly revenue from both orders and paid invoices
+        BigDecimal orderRevenue = isAll
                 ? clientOrderRepository.sumRevenueSinceAll(REVENUE_STATUSES, monthStart)
-                : clientOrderRepository.sumRevenueSinceByWarehouses(REVENUE_STATUSES, monthStart, warehouseIds));
+                : clientOrderRepository.sumRevenueSinceByWarehouses(REVENUE_STATUSES, monthStart, warehouseIds);
+        BigDecimal invoiceRevenue = isAll
+                ? invoiceRepository.sumPaidInvoicesSinceAll(InvoiceStatus.PAID, monthStart)
+                : invoiceRepository.sumPaidInvoicesSinceByWarehouses(InvoiceStatus.PAID, monthStart, warehouseIds);
+        builder.monthlyRevenue(orderRevenue.add(invoiceRevenue));
+
         builder.overdueInvoicesCount(isAll
                 ? invoiceRepository.countByInvoiceStatusAll(InvoiceStatus.OVERDUE)
                 : invoiceRepository.countByInvoiceStatusByWarehouses(InvoiceStatus.OVERDUE, warehouseIds));
@@ -178,13 +192,32 @@ public class DashboardServiceImpl implements DashboardService {
     // ── Chart builders ────────────────────────────────────────
 
     private List<DashboardResponse.TimeSeriesPoint> buildRevenueChart(LocalDateTime since, List<UUID> warehouseIds, boolean isAll) {
-        List<Object[]> rows = isAll
+        // Get order revenue by date
+        List<Object[]> orderRows = isAll
                 ? clientOrderRepository.dailyRevenueSinceAll(REVENUE_STATUSES, since)
                 : clientOrderRepository.dailyRevenueSinceByWarehouses(REVENUE_STATUSES, since, warehouseIds);
-        return rows.stream().map(r -> DashboardResponse.TimeSeriesPoint.builder()
-                .date((LocalDate) r[0])
-                .value((BigDecimal) r[1])
-                .build()).toList();
+        Map<LocalDate, BigDecimal> revenueMap = new LinkedHashMap<>();
+        for (Object[] r : orderRows) {
+            revenueMap.put((LocalDate) r[0], (BigDecimal) r[1]);
+        }
+
+        // Get paid invoice revenue by date and add to the map
+        List<Object[]> invoiceRows = isAll
+                ? invoiceRepository.dailyPaidInvoicesSinceAll(InvoiceStatus.PAID, since)
+                : invoiceRepository.dailyPaidInvoicesSinceByWarehouses(InvoiceStatus.PAID, since, warehouseIds);
+        for (Object[] r : invoiceRows) {
+            LocalDate date = (LocalDate) r[0];
+            BigDecimal invoiceAmount = (BigDecimal) r[1];
+            revenueMap.merge(date, invoiceAmount, BigDecimal::add);
+        }
+
+        // Convert map to list of TimeSeriesPoints
+        return revenueMap.entrySet().stream()
+                .map(e -> DashboardResponse.TimeSeriesPoint.builder()
+                        .date(e.getKey())
+                        .value(e.getValue())
+                        .build())
+                .toList();
     }
 
     private List<DashboardResponse.TimeSeriesPoint> buildMovementsChart(LocalDateTime since, List<UUID> warehouseIds, boolean isAll) {

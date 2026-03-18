@@ -10,6 +10,8 @@ import sn.symmetry.spareparts.entity.Invoice;
 import sn.symmetry.spareparts.enums.InvoiceStatus;
 import sn.symmetry.spareparts.enums.InvoiceType;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,4 +35,16 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     @Query("SELECT COUNT(i) FROM Invoice i WHERE i.status = :status AND i.sourceWarehouse.id IN :warehouseIds")
     long countByInvoiceStatusByWarehouses(@Param("status") InvoiceStatus status, @Param("warehouseIds") List<UUID> warehouseIds);
+
+    @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.status = :status AND i.paidDate >= CAST(:since AS LocalDate)")
+    BigDecimal sumPaidInvoicesSinceAll(@Param("status") InvoiceStatus status, @Param("since") LocalDateTime since);
+
+    @Query("SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.status = :status AND i.paidDate >= CAST(:since AS LocalDate) AND i.sourceWarehouse.id IN :warehouseIds")
+    BigDecimal sumPaidInvoicesSinceByWarehouses(@Param("status") InvoiceStatus status, @Param("since") LocalDateTime since, @Param("warehouseIds") List<UUID> warehouseIds);
+
+    @Query("SELECT i.paidDate, COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.status = :status AND i.paidDate >= CAST(:since AS LocalDate) GROUP BY i.paidDate ORDER BY i.paidDate")
+    List<Object[]> dailyPaidInvoicesSinceAll(@Param("status") InvoiceStatus status, @Param("since") LocalDateTime since);
+
+    @Query("SELECT i.paidDate, COALESCE(SUM(i.totalAmount), 0) FROM Invoice i WHERE i.status = :status AND i.paidDate >= CAST(:since AS LocalDate) AND i.sourceWarehouse.id IN :warehouseIds GROUP BY i.paidDate ORDER BY i.paidDate")
+    List<Object[]> dailyPaidInvoicesSinceByWarehouses(@Param("status") InvoiceStatus status, @Param("since") LocalDateTime since, @Param("warehouseIds") List<UUID> warehouseIds);
 }
